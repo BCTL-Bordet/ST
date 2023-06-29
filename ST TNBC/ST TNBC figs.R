@@ -1,6 +1,4 @@
-#figDir = "~/Documents/BCTL/ST/TNBC/figsNew/";
 figDir = "~/Documents/BCTL/ST/TNBC/figsTest/";
-dataDir = "~/Data/Spatial/TNBC/datadist/"
 
 # Figure files
 #
