@@ -1,0 +1,5 @@
+import(matrixStats)
+import(parallel)
+import(FNN)
+export(computeET, computeMC, deconvoluteClusters, clustersInOtherDS, expressionInAnnotations,
+  classifySpots)

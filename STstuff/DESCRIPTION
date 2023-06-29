@@ -1,0 +1,13 @@
+Package: STstuff
+Version: 0.99.0
+Date: 2023-01-26
+Title: Functions for ST
+Author: David Venet <davenet@ulb.ac.be>
+Maintainer: David Venet <davenet@ulb.ac.be>
+Depends: matrixStats, parallel, xgboost, FNN
+Suggests:
+Enhances:
+Description: ...
+License: Artistic-2.0
+Packaged: 2021-12-07 12:26:30 UTC; davenet
+NeedsCompilation: no

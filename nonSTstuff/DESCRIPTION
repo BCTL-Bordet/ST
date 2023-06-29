@@ -1,0 +1,14 @@
+Package: nonSTstuff
+Version: 0.99.0
+Date: 2023-01-26
+Title: Various plotting and bioinformatics functions
+Author: David Venet <davenet@ulb.ac.be>
+Maintainer: David Venet <davenet@ulb.ac.be>
+Depends: matrixStats, parallel, NNLM, RColorBrewer, EBImage, RANN, umap, survival,
+  xgboost, irlba, pROC, FNN, parallel
+Suggests:
+Enhances:
+Description: ...
+License: Artistic-2.0
+Packaged: 2021-12-07 12:26:30 UTC; davenet
+NeedsCompilation: no
