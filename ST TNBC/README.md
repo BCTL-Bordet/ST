@@ -2,7 +2,8 @@
 
 First, the two packages `STstuff` and `nonSTstuff` must be installed.
 
-Then the `STscript.R` file must be sourced. The first line of that file specify where the data 
+Then the `STscript.R` file must be sourced.
+The first line of that file specify where the data is (in  `dataDir`).
 
 After this, it is possible to reproduce the analysis done.
 
