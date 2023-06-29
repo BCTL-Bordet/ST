@@ -5,7 +5,6 @@ library(EnsDb.Hsapiens.v86)
 library(EBImage)
 library(parallel);options(mc.cores=detectCores()-1);
 
-dataDir = "~/Data/Spatial/TNBC/datadist/";
 ids = readRDS(paste0(dataDir, "/Clinical/ids.RDS")) # Array to patients data
 
 ## Install counts per spots
