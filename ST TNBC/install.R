@@ -1,4 +1,4 @@
-source("~/prog/ngs/R scripts/STscripts.R")
+source("~/prog/ST/ST TNBC/STscripts.R")
 
 library(xlsx)
 library(EnsDb.Hsapiens.v86)
@@ -35,14 +35,49 @@ r = mclapply(1:nrow(ids), function(i)
 
 ## Import annotations
 ######################
+## New version
+library(EBImage);
+col2 = col2rgb(colAnn2)/255
+#bd = "~/Data/Spatial/TNBC/update annotation lames ST TNBC/";
+#od = "~/Data/Spatial/TNBC/Annotation recoded/"
+rot = c(TNBC36=270, TNBC74=90, TNBC78=90, TNBC84=90, TNBC86=90, TNBC89=180, TNBC91=180, TNBC92=180,
+  TNBC15=.9, TNBC16=.9); # Some images were rotated for the ST
+
+col2b = col2[1,]+col2[2,]*256+col2[3,]*256*256; col2b = sort(col2b)+.01;
+
+res = mclapply(dir(paste0(dataDir, "imageAnnotations")), function(nm)
+{ message(nm);
+  idTNBC = sub("(TNBC[0-9]+)_.+", "\\1", nm)
+  if (file.exists(paste0(dataDir, "annotationRecoded/", idTNBC, ".RDS"))) { return("already there"); }
+  id = sub(".+(CN[0-9]+_[CDE][123]).+", "\\1", nm)
+  id2 = sub("_", '/', id)
+  
+  # 1. Import figs as matrix
+  im = readImage(paste0(dataDir, "imageAnnotations/", nm))
+  x = im[,,1] + im[,,2]*256 + im[,,3]*256*256;
+  a = dim(im)[1:2]; rm(im);
+  nei = findInterval(x, col2b)+1;
+  nei = match(names(col2b), colnames(col2))[nei]
+  imF = Image(nei, dim = a);
+  saveRDS(imF, file=paste0(dataDir, "annotationRecoded/", idTNBC, ".RDS"))
+  
+  # 2. Spot level annotation
+  if (any(idTNBC %in% names(rot)))
+  { imF = rotate(imF, rot[idTNBC], filter='none', output.dim=dim(imF),  bg.col=1); }
+  
+  spots = readRDS(paste0(dataDir, "spots/", id2, "/allSpots.RDS")); 
+  spots[,c("pixel_x", "pixel_y")] = spots[,c("pixel_x", "pixel_y")]*dim(imF)[1]/9523;
+  imSpot = spotXY(imF, spots, diam=58)
+  tbl = do.call(rbind, tapply(imSpot$xy, imSpot$id, function(i) tabulate(imF[i], nbins=length(colAnn2))))
+  colnames(tbl) = names(colAnn2)
+  rownames(tbl) = rownames(spots)
+  saveRDS(tbl, file=paste0(dataDir, "spots/", id2, "/annotBySpot.RDS"))
+  
+  rm(imF, nei, x); gc();
+}, mc.preschedule=FALSE);
 
 ## Install data by patient
 #############################
-dir.create(paste0(dataDir, "/res/dta")); # Will contain all data by patient
-dir.create(paste0(dataDir, "/res/cntt")); # Wil contain the count data by patient
-dir.create(paste0(dataDir, "/res/imgsOnly")); # Wil contain the images by patient
-dir.create(paste0(dataDir, "/res/imgsOnlySmall")); # Wil contain the downscaled images by patient
-
 # transf contains the rotations / translations necessary to superimpose (register) the arrays
 transf = read.xlsx(paste0(dataDir, "/misc/registration.xlsx"), 1); rownames(transf) = transf$moving;
 transf = transf[!is.na(transf$theta), ]
@@ -99,7 +134,7 @@ ers = lapply(unique(ids$id), function(wId)
     dta[[i]]$spots[,c("pixel_x", "pixel_y")] = dta[[i]]$spots[,c("pixel_x", "pixel_y")] - rep(sp[,1], each=nrow(dta[[i]]$spots))
   }
 
-  # Full cnts
+  # Full counts
   g = unique(unlist(lapply(dta, function(i) rownames(i$cnts))))
   cntt = do.call(rbind, lapply(dta, function(i) t(fullMat(i$cnts, g))));
  
@@ -111,12 +146,19 @@ ers = lapply(unique(ids$id), function(wId)
   
   saveRDS(list(cnts=cntt, spots=sp), file=paste0(dataDir, "/countsNonCorrected/TNBC", wId, ".RDS")) 
   
+  # Annotations
+  w = which(sapply(dta, function(i) !is.null(i$annot)));
+  saveRDS(list(annots=dta[[w]]$annot, spots=cbind(dta[[1]]$spots, slide=names(dta)[w])),
+    file=paste0(dataDir, "/annotsBySpot/TNBC", wId, ".RDS"))
+  
+  # Images
   im = lapply(dta, function(i) list(imgs=i$im, spots=i$spots));
   saveRDS(im, file=paste0(dataDir, "/images/TNBC", wId, ".RDS"))
   
+  # Much smaller images
   for (j in seq_along(im))
   { im[[j]]$spots[,c("pixel_x", "pixel_y")] = im[[j]]$spots[,c("pixel_x", "pixel_y")]/5;
-    im[[j]]$imgs = EBImage::resize(dta[[j]]$imgs, w = dim(im[[j]]$imgs)[1]/5, antialias=TRUE);
+    im[[j]]$imgs = EBImage::resize(im[[j]]$imgs, w = dim(im[[j]]$imgs)[1]/5, antialias=TRUE);
   }
   saveRDS(im, file=paste0(dataDir, "/imagesSmall/TNBC", wId, ".RDS"))
 });

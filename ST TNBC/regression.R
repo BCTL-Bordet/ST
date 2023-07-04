@@ -1,4 +1,4 @@
-source("~/prog/ngs/R scripts/STscripts.R")
+source("~/prog/ST/STscripts.R")
 
 library(NNLM)
 #library(EnsDb.Hsapiens.v86)
@@ -9,7 +9,6 @@ options(mc.cores=4)
 library(pROC)
 library(Matrix);
 
-dataDir = "~/Data/Spatial/TNBC/datadist/"
 ids = readRDS(paste0(dataDir, "Clinical/ids.RDS"))
 
 # Install (Note: need a lot of RAM!)

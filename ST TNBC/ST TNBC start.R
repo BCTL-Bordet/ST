@@ -33,19 +33,19 @@ ET.colors <- c("ET1" = "plum2",
                    "ET9" = "orange")
  
 MC.colors <- c("MC1" = "hotpink",
-                     " MC2" = "darkred",
-                     " MC3" = "red",
-                     " MC4" = "darkseagreen3",
-                     " MC5" = "darkorchid1",
-                     " MC6" = "khaki",
-                     " MC7" = "steelblue4",
-                     " MC8" = "tan3",
-                     " MC9" = "tan1",
-                     " MC10" = "darkblue",
-                     " MC11" = "thistle",
-                     " MC12" = "darkorchid4",
-                     " MC13" = "paleturquoise3",
-      " MC14" = "#BA9D33")
+                     "MC2" = "darkred",
+                     "MC3" = "red",
+                     "MC4" = "darkseagreen3",
+                     "MC5" = "darkorchid1",
+                     "MC6" = "khaki",
+                     "MC7" = "steelblue4",
+                     "MC8" = "tan3",
+                     "MC9" = "tan1",
+                     "MC10" = "darkblue",
+                     "MC11" = "thistle",
+                     "MC12" = "darkorchid4",
+                     "MC13" = "paleturquoise3",
+      "MC14" = "#BA9D33")
 
   
 # Signatures
@@ -79,6 +79,7 @@ sigH = c(si,x, y);
 sigH = lapply(sigH, function(i) as.character(i$name));
   
 load(paste0(dataDir, "misc/sigInfo.RData")) # sigInfo, colSig
+colSig[5]="darkred";
 
 # 1. Clinical etc
 ###################

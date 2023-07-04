@@ -1,4 +1,4 @@
-source("~/prog/ngs/R scripts/STscripts.R")
+source("~/prog/ST/ST TNBC/STscripts.R")
 
 # Some data...
 ids = readRDS(paste0(dataDir, "Clinical/ids.RDS"))

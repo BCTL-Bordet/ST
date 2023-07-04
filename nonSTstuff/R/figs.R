@@ -136,7 +136,8 @@ colsAnnot = function(what=c("pam50", "IHC", "IntSub", "SCM", "leh", "all"))
   return(r[[what]])
 }
 
-addAnnot = function(name, cols, line, side=1, at=seq_along(cols), heights=1, pch=NA, point.col=NA, point.cex=1)
+addAnnot = function(name, cols, line, side=1, at=seq_along(cols), heights=1, pch=NA, point.col=NA, point.cex=1,
+  textAtStart=TRUE)
 { if (side %in% c(1,3))
   { lineW = strheight("M\nM")-strheight("M");
     if (side==1) { y0 = par('usr')[3]-(line)*lineW; }
@@ -155,7 +156,8 @@ addAnnot = function(name, cols, line, side=1, at=seq_along(cols), heights=1, pch
   { if (side %in% c(1,3)) { points(at, rep(y0-heights*lineW/2, length(at)), pch=pch, col=point.col, xpd=NA, cex=point.cex);  }
     else { points(rep(y0-heights*lineW/2, length(at)), at, pch=pch, col=point.col, xpd=NA, cex=point.cex);  }
   }
-  mtext(name, side=side, line=line, at=a[1], adj=1)
+  if (textAtStart) { a=a[1]; adj=1; } else { a=a[length(a)]; adj=0; }
+  mtext(name, side=side, line=line, at=a, adj=adj)
 }
 
 formatNdig = function(x, n=2)
@@ -521,13 +523,16 @@ logAxis = function(from, to, side=1, atLog=TRUE, granularity=0, inverted=FALSE, 
   return(invisible(list(at=r, labels=leg)));
 }
 
-addAnnotArrows = function(side=1, xlab="OR", annotDir=c("Better", "Worse"), le=.05, cex=1, inset=.5)
+addAnnotArrows = function(side=1, xlab="OR", annotDir=c("Better", "Worse"), le=.05, cex=1, inset=.5,
+  posXlab=NULL, plotXlab=FALSE)
 { if (side!=1) { stop("Does not work on y-axis (yet)"); }
   h = par('usr')[3]-par("cex.axis")*par("cex")*par("cxy")[2]*(inset+par("mgp")[1]);
   v = strwidth(paste0(xlab, "   "), cex=par("cex.axis")*par("cex"));
-  arrows(m1<-mean(par('usr')[1:2])-v, h, par('usr')[1], h, xpd=TRUE, length=le)
-  arrows(m2<-mean(par('usr')[1:2])+v, h, par('usr')[2], h, xpd=TRUE, length=le)
+  if (is.null(posXlab)) { posXlab=mean(par('usr')[1:2]); } 
+  arrows(m1<-posXlab-v, h, par('usr')[1], h, xpd=TRUE, length=le)
+  arrows(m2<-posXlab+v, h, par('usr')[2], h, xpd=TRUE, length=le)
   mtext(annotDir, side=1, line=par("mgp")[1]+inset, at=(par('usr')[1:2]+c(m1,m2))/2, cex=cex);
+  if (plotXlab) { mtext(xlab, side=1, at=posXlab, line=par("mgp")[1], cex=par("cex.axis")*par("cex")); }
 }
 
 #######################################################################
@@ -662,7 +667,7 @@ legendDotPlot = function(x, y, double=FALSE, doubleAnnot, interline=1,
   par(xpd=NA);
   
   if (horizontal) {text(x+7.5*em,y,"Effect size", adj=c(.5,1), font=2); }
-  else { text(x,y,"Effect size", adj=c(.5,1)); }
+  else { text(x,y,"Effect size", adj=c(.5,1), font=2); }
   y2 = y;
   
   if (horizontal)

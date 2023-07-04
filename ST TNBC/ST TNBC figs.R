@@ -4,8 +4,8 @@ figDir = "~/Documents/BCTL/ST/TNBC/figsTest/";
 #
 # Fig 1d - morphoDistUp.pdf
 # Fig 2b - alluvialDec.2.pdf
-# Fig 2c - TvsS.bar.dec.Tumor.Sigs.horiz.pdf
-# Fig 2d - TvsS.bar.dec.Stroma.Sigs.horiz.pdf
+# Fig 2c - tumorCompartment.pdf
+# Fig 2d - stromaCompartment.pdf
 # Fig 2f - TvsS.Mbp.hm.pdf
 # Fig 3b - tlsViolin.pdf
 # Fig 3c - tlsGene.pdf
@@ -86,7 +86,7 @@ o = do.call(order, data.frame(cli$barPB, n2));
 n3 = do.call(rbind, tapply(1:nrow(n2), cli$barPB, function(i) colMeans(n2[i,])))
 n3 = n3[5:1,];
 pdf(paste0(figDir, "morphoDistUp.pdf"), height=4, width=16)
-par(mfcol=c(1,2), mar=c(3,3,1,.5), mgp=c(1.5,.5,0), oma=c(0,0,0,12));
+par(mfcol=c(1,2), mar=c(3,3,1,.5), mgp=c(1.5,.5,0), oma=c(0,0,0,12), cex=1.3);
 for (j in 1:2)
 { if (j==1) { yl = c(0,100); } else { yl = c(95, 100); }
   h = barplot(t(n3), col=co, ylab="% pixels", border=NA, ylim=yl, xpd=FALSE)
@@ -96,7 +96,7 @@ for (j in 1:2)
     lines(c(h[length(h)]+.5, par('usr')[2]+2.5*strwidth("M")), c(95, 0), xpd=NA, lwd=2)
   }
  
-  if (j==2) { legend('topright', inset=c(-max(strwidth(colnames(n2), units="figure"))*1.3,0),
+  if (j==2) { legend('topright', inset=c(-max(strwidth(colnames(n2), units="figure"))*1.4,0),
     legend=rev(colnames(n2)), fill=rev(co), xpd=NA, bty='n')} 
 }
 dev.off();
@@ -211,8 +211,7 @@ for (what in c("T", "S"))
   if (what=="T")
   { x = list(Sigs=csAnT, xCell=xcAnT, Genes=t(tumorAn[intersect(rownames(tumorAn), geneList$symbol), ]))
     cmps = f(cli$barT.an); cmps[cmps=="IM"]=NA; 
-  }
-  else
+  } else
   { x = list(Sigs=csAnS, xCell=xcAnS, Genes=t(stromaAn[intersect(rownames(stromaAn), geneList$symbol), ]))
     cmps = f(cli$barS.an); cmps[cmps=="BL"]=NA;
   }
@@ -234,24 +233,25 @@ for (what in c("T", "S"))
   cutOff = max(z[p1$fdr[ww,]<=.05])+1e-10;
 
   leftMar = 1+max(nchar(ww))/2; 
-  sl = 0.06*max(nchar(colnames(p1$p))+8); sr = 0.06*(max(nchar(ww))+3)*.7; sb=0.06*leftMar*.7+2;
+  sl = 0.06*max(nchar(colnames(p1$p))+8)/2; sr = 0.06*(max(nchar(ww))+3)*.6; sb=(0.06*leftMar*.7+2)/3;
+  if (what=="T") { sr = sr+1; }
   cairo_pdf(paste0(figDir, c(T="tumor", S="stroma")[what], "Compartment.pdf"),
-        height=(ncol(p1$p)*.45+sb)/1.5-.5, width=(2*(length(ww)+7)/7+sl+.5)/1.5)
-  par(mai=c(.2, sl/2, sb/3, sr/2+.5), mgp=c(1.5,.5,0), cex=.6);
+        height=(ncol(p1$p)+1)*.2 + sb + .2, width=.2*(length(ww)+1) + sl + sr)
+  par(mai=c(.2, sl, sb, sr), mgp=c(1.5,.5,0), cex=.6);
   dotPlot(cc[,ww,drop=FALSE], cmps, maxP=cutOff, oma=NULL, cex.pch=1, srt=30, horizontal=TRUE, axPos = 3, lbls=lbls,
     col.lbl=colLbls[a$Feature_type]);
   wi = which(!duplicated(a$Main_classes))[-1]
-  rect(wi-.95, rep(par('usr')[4]-.2,length(wi)), wi-.05, rep(par('usr')[4]+.02, length(wi)), col='white', xpd=NA, border=NA);
+  rect(wi-.95, rep(par('usr')[4]-.05,length(wi)), wi-.05, rep(par('usr')[4]+.02, length(wi)), col='white', xpd=NA, border=NA);
   wi = c(1, wi, nrow(a)+1);
   mtext(txt<-a$Main_classes[wi[-length(wi)]+1], side=1, line=.3, at=(wi[-1]+wi[-length(wi)])/2-.5, cex=.7)
   for (i in 1:(length(wi)-1))
   { lines(wi[(0:1)+i]+c(-.3,-.7), c(.5,.5), xpd=NA, col=col[txt[i]], lwd=2)
   }
   if (what == "T")
-  { legendDotPlot(length(ww)+4,par('usr')[4]+1.5, horizontal=FALSE, interline=1.6)
-    #i = names(colLbls) %in% a$Feature_type;
-    #legend(5,-1*strheight("M", cex=.6), legend=names(colLbls[i]), fill=colLbls[i], bty='n', ncol=3);
-    legend(length(ww)+4,par('usr')[4]-2, legend=names(colLbls), fill=colLbls, bty='n', xjust=.5, border=NA);
+  { le = legend(length(ww)+7.5,par('usr')[4]+1.3, legend=sub("s$", "", names(colLbls)), fill=colLbls, bty='n', xjust=.5, border=NA,
+      title="Molecular feature type", title.font=2, xpd=NA);
+    le = le$text$y; le = le[1]-1.6*diff(le)[1]
+    legendDotPlot(length(ww)+3, le, horizontal=FALSE, interline=1.6)
   }
   dev.off();
 }
@@ -337,8 +337,9 @@ mtext(rev(colnames(y)), side=2, at=wi, las=2, line=.5, font=1+2*(rev(wh)=="Gene"
 mtext(rownames(y), side=1, at=seq(0,1,length=nrow(y)), cex=.5, line=-.3)
 abline(h = wi[nd]-wi[2]/2, col='white', lwd=2) 
 abline(v = (length(sp[[1]])-.5)/(nrow(y)-1), col='white', lwd=2)
-text(c(length(sp[[1]])*.5, length(sp[[1]])+.5*length(sp[[2]])-1)/(nrow(y)-1),
-  rep(par('usr')[4]+strheight("M"), 2), xpd=NA,
+xi = c(length(sp[[1]])*.5, length(sp[[1]])+.5*length(sp[[2]]))/(nrow(y));
+xi = xi*diff(par('usr')[1:2])+par('usr')[1]
+text(xi, rep(par('usr')[4]+strheight("M"), 2), xpd=NA,
   parse(text=c("bold('M-M'['STROMA'])", "bold('M-MSL'['STROMA'])")), col=1:2)
 sl = par('usr')[2]; em = strwidth("M");
 for (i in 1:3)
@@ -442,7 +443,7 @@ w = rownames(p)[p[,"Lymphocyte Higher"]<1e-4 | p[,"Lymphocyte Lower"]<1e-4];
 w = w[!grepl("Score", w)];
 w = w[order(-match(w, names(colXct)))]
 pdf(paste0(figDir, "tlsViolin.pdf"), height=5);
-par(mar=c(3,13,.5,.5), mgp=c(1.5,.5,0));
+par(mar=c(3,13,3,.5), mgp=c(1.5,.5,0));
 vioplot(xcAn[idAn[cli$hasTLS,"Lymphoid nodule"],w], horizontal=TRUE, side='right', las=1, col=co1,
   xlab="xCell enrichment score", plotCentre = "line", yaxt='n'); axis(1);
 text(rep(par('usr')[1]-strwidth("n"), length(w)), seq_along(w), w, xpd=NA, adj=1, co=colXct[w])
@@ -500,26 +501,26 @@ myBoxplot(dIm[,"TLS ST"], c(R="Response", NR="No response")[as.character(resp)],
 dev.off();
 
 set.seed(123);
-pdf(paste0(figDir, "tlsAllCliSmall.pdf"), height=6, width=9)
-par(mfrow=c(2,3), mar=c(3,3,2,.5), mgp=c(1.5,.5,0), cex.main=1);
+pdf(paste0(figDir, "tlsAllCliSmall.pdf"), height=3, width=18)
+par(mfrow=c(1,6), mar=c(3,3,2,.5), mgp=c(1.5,.5,0), cex.main=1);
 plotSurv(censor(cli$DRFS), quartiles(csPB[,'TLS ST']), addTable=TRUE, main="ST TNBC cohort", ylab="DRFS", xlab="Time (yr)",
-  legendPos='bottomleft', legend.title="TLS ST sig", ppos=.2, marTable=1.5, args.legend=list(bty='n', inset=c(.02, 0)))
+  legendPos='bottomleft', legend.title="TLS ST sig", ppos=.2, marTable=1.5, args.legend=list(bty='n', inset=c(.02, 0)), leftTable=5)
 plotSurv(censor(ds$METABRIC$cli$DRFS), quartiles(ds$METABRIC$cs[,"TLS ST"]), addTable=TRUE, main="METABRIC - TNBC cohort", ylab="DRFS",
-  xlab="Time (yr)", legendPos='bottomleft', legend.title="TLS ST sig", ppos=.2, marTable=1.5, args.legend=list(bty='n', inset=c(.02, 0)))
+  xlab="Time (yr)", legendPos='bottomleft', legend.title="TLS ST sig", ppos=.2, marTable=1.5, args.legend=list(bty='n', inset=c(.02, 0)), leftTable=5)
 plotSurv(censor(ds$`SCAN-B`$cli$DRFS), quartiles(ds$`SCAN-B`$cs[,"TLS ST"]), addTable=TRUE, main="SCAN-B - TNBC cohort", ylab="DRFS",
-  xlab="Time (yr)", legendPos='bottomleft', legend.title="TLS ST sig", ppos=.2, marTable=1.5, , args.legend=list(bty='n', inset=c(.02, 0)))
+  xlab="Time (yr)", legendPos='bottomleft', legend.title="TLS ST sig", ppos=.2, marTable=1.5, , args.legend=list(bty='n', inset=c(.02, 0)), leftTable=5)
 myBoxplot(csI[,"TLS ST"], cliIspy$pcr, subset=cliIspy$wI & cliIspy$arm=="Pembro", ylab="TLS ST sig", subSide=3, subLine=-1.5,
   main="I-SPY2 - TNBC cohort - Pembrolizumab arm", alpha=.9, addN=TRUE)
 for (i in c("pfs"))#, "os"))
 { p = psSurv[[i]][[1]]; #p=p[rownames(p)!="TLS ST",]; # PFS, normal fig
-  plot(p[,2], -log10(p[,1]), ylab="P-value", xlab="HR", yaxt='n', xaxt='n',
+  plot(p[,2], -log10(p[,1]), ylab="P-value", xlab="", yaxt='n', xaxt='n',
     main=m<-paste("Other cancer types - immunotherapy -", toupper(i)),
     col=1+(rownames(p)=="TLS ST"));
   a = p.adjust(p[,1], 'fdr'); pl = max(p[a<.05,1])
   abline(v=0, col='grey'); abline(h=-log10(pl), col='grey');
   logAxis(ceiling(-log10(min(p[,1], na.rm=TRUE))), 0, side=2, inverted=TRUE, granularity=0)
   r = trunc(range(exp(p[,2])*10))/10; r = seq(r[1], r[2], by=.1); axis(side=1, at=log(r), labels=r)
-  addAnnotArrows(side=1, xlab="HR", annotDir=c("Better", "Worse"), le=.05, cex=.6)
+  addAnnotArrows(side=1, xlab="HR", annotDir=c("Better", "Worse"), le=.05, cex=.6, posXlab=0, plotXlab=TRUE)
   nm = rownames(p); nm[p[,1]>pl]=NA; #nm[nm=="TLS_new"] = "TLS ST";
   o = order(p[,1]); adx = runif(50)*.1; ady = par('usr')[4]-runif(50)*strheight("M")*1.5*4
   myAddTextLabels(c(p[o,2],adx), c(-log10(p[o,1]),ady), labels=c(nm[o], rep(NA,50)),
@@ -530,13 +531,13 @@ for (i in c("pfs"))#, "os"))
 }
 p = pResp;
 a = p.adjust(p[,1], 'fdr'); pl = max(p[a<.05,1])
-plot(p[,2], -log10(p[,1]), ylab="P-value", xlab="OR", yaxt='n', xaxt='n',
+plot(p[,2], -log10(p[,1]), ylab="P-value", xlab="", yaxt='n', xaxt='n',
   main="Other cancer types - immunotherapy - RECIST",
   col=1+(rownames(pResp)=="TLS ST"));
 nm = rownames(p); nm[p[,1]>pl]=NA; #nm[nm=="TLS ST"] = "TLS ST";
 logAxis(ceiling(-log10(min(p[,1], na.rm=TRUE))), 0, side=2, inverted=TRUE)
 r = trunc(range(exp(p[,2])*10))/10; r = seq(r[1], r[2], by=.1); axis(side=1, at=log(r), labels=r)
-addAnnotArrows(side=1, xlab="OR", annotDir=c("Worse", "Better"), le=.05, cex=.6)
+addAnnotArrows(side=1, xlab="OR", annotDir=c("Worse", "Better"), le=.05, cex=.6, posXlab=0, plotXlab=TRUE)
 abline(v=0, col='grey'); abline(h=-log10(pl), col='grey');
 o = order(p[,1]);
 myAddTextLabels(p[o,2], -log10(p[o,1]), labels=nm[o], col.label=1+grepl("TLS ST", nm[o]), cex.label=.9,
@@ -749,21 +750,20 @@ dev.off();
 ######################
 t = table(idC$bar, idC[,1]); t = t[,rownames(cli)];
 o = order(cli$barPB, -t[cbind(as.character(cli$barPB), colnames(t))]/colSums(t))
-#colTime = colorRampPalette(c("white", "red"), space="Lab")(4)
 
 pdf(paste0(figDir, "barByClust.pdf"), height=4, width=15)
-par(mar=c(5,9,.5,.5), mgp=c(1.5,.5,0));
+par(mar=c(5,3,.5,9), mgp=c(1.5,.5,0));
 at = barplot(t[,o], col=colBar, xaxt="n", ylab="N clusters", xaxs='i', xlim=c(-1, ncol(t)*1.2+1))
 mtext(rownames(cli)[o], line=0, cex=.6, side=1, at=at)
-addAnnot("Subtype PB", colBar[cli$barPB[o]], line=1, side=1, at=at)
+addAnnot("Subtype PB", colBar[cli$barPB[o]], line=1, side=1, at=at, textAtStart=FALSE)
 
 b = cli$barPBco[o,];
 b = b/rowMaxs(b); b2 = apply(b,1, function(i) { o = order(i); c(o[4], i[o[4]]); })
 b2[2,b2[2,]<0] = 0;
-addAnnot("Subtype PB 2nd class", colBar[colnames(b)[b2[1,]]], line=2, side=1, at=at, heights=b2[2,])
+addAnnot("Subtype PB 2nd class", colBar[colnames(b)[b2[1,]]], line=2, side=1, at=at, heights=b2[2,], textAtStart=FALSE)
 
 f = cli$Immunophenotype.pathologist; f[f=="nd"]=NA; f=factor(f, levels=c("ID", "MR", "SR", "FI"));
-addAnnot("TIME", colTIME[f[o]], line=3, side=1, at=at)
+addAnnot("TIME", colTIME[f[o]], line=3, side=1, at=at, textAtStart=FALSE)
 legend(-15, 7.5, names(colBar), fill=colBar, xpd=NA, bty='n', xjust=0, yjust=1)
 text(-14, 7.7, 'Subtype', xpd=NA, adj=0);
 legend(-15, 3, levels(f), fill=colTIME, xpd=NA, bty='n', xjust=0, yjust=1)
@@ -776,32 +776,14 @@ anByC = do.call(rbind, tapply(seq_along(K), K, function(i) colMeans(annot2[i,], 
 anByC = anByC[14:1,c("Tumor", "Stroma", "Lymphocyte", 
   "Fat tissue", "Necrosis", "in situ", "Lymphoid nodule", "Vessels", "Lactiferous duct")]
 co = colAnn2[colnames(anByC)]; co[2] = colAnn2["Stroma cell"]; names(co)[2]="Stroma";
-descrs=c("High proliferation, low immune, Notch, Wnt, AR",
-  "High proliferation, low immune, DNA repair, Notch",
-  "High proliferation, low immune, DNA repair, Notch,
-  high glycolysis, hypoxia",
-  "Moderate proliferation, low immune, low PI3K, low KRAS",
-  "High proliferation, moderate immune, high oxidative
-   phosphorylation, low angiogenesis, low EMT",
-  "p53, PI3K/AKT/mTOR",
-  "Moderate/high immune, DNA repair",
-  "AR, ER signaling, fatty metabolism, high glycolysis, 
-  oxidative phosphorylation, immune low",
-  "High immune +++, high apoptosis",
-  "High immune, low proliferation",
-  "High EMT, high angiogenesis, low proliferation",
-  "Low immune, low Notch, moderate proliferation",
-  "Low DNA repair, high apoptosis, high TGFb,
-    high Hedgehog",
-  "High apoptosis, high angiogenesis, high EMT,
-  high JAK/STAT, low DNA repair, low proliferation");
-descrs = read.xlsx("~/Data/Spatial/TNBC/Divers/megaclusters_characterization.xlsx", 1)$Summary;
-descrs = descrs[!is.na(descrs)];
-w = gregexpr(", ", descrs)
-for (i in seq_along(w))
+
+descrs = read.xlsx(paste0(dataDir, "misc/Signature summary - tblsMC2.xlsx"), 1)$Characteristics;
+#descrs = descrs[!is.na(descrs)];
+w = gregexpr(", ", descrs); lim=40;
+for (i in seq_along(w)) # Cut in lines of max lim characters
 { ww = c(w[[i]], nchar(descrs[i]));
-  if (all(ww<50)) { next; }
-  cu = ww[which(ww>=50)-1];
+  if (all(ww<40)) { next; }
+  cu = ww[which(ww>=40)-1];
   descrs[i] = paste0(substr(descrs[i], 1, cu), "\n", substr(descrs[i], cu+2, nchar(descrs[i]))) 
 }
 
@@ -809,6 +791,7 @@ sig2keep = unlist(read.xlsx("~/Data/Spatial/TNBC/Divers/megaclusters_characteriz
 sig2keep = sub(" $", "", sig2keep[!is.na(sig2keep)]);
 sig2keep[sig2keep=="VCpred_TN"] = "VCpred TN";
 sig2keep[sig2keep=="TNFA signaling via NF−kB"] = "TNFA signaling via NF-kB"
+sig2keep = setdiff(sig2keep, c("Complement", "Immune2", "Allograft rejection", "CIN70", "Myogenesis"));
 
 x = xCn.cs;
 colnames(x)[colnames(x)=="PI3K AKT mTOR signaling"] = "PI3K/AKT/mTOR signaling"
@@ -827,13 +810,18 @@ pres = calcPres(K, idC);
 addT = 20; til = apply(pres,2,function(i) cli$sTILs.pathologist.percentage[i]+addT)
 #idC$bar = factor(TNBCclassif(y, version='bareche', shortName=TRUE), levels=names(colBar));
 
-pdf(paste0(figDir, "tblsMC2.pdf"), width=14, height=4.5)
-par(mar=c(7,3,.5,.5), mgp=c(1.5,.5,0));
-layout(mat=matrix(1:6, nrow=1), width=c(.5,1,1,3,1.6,.5))
+lbl = colnames(x2);
+lbl[lbl=="Epithelial mesenchymal transition"]="EMT";
+lbl = sub("signaling", "sig.", lbl);
+lbl = sub("response", "resp.", lbl);
+
+pdf(paste0(figDir, "tblsMC2.pdf"), width=10, height=4)
+par(mar=c(5,3,.5,.3), mgp=c(1.5,.5,0), xpd=NA);
+layout(mat=matrix(1:5, nrow=1), width=c(.5,.8,.8,3.3,1.6))
 a = rev(colSums(pres)); names(a) = paste0("MC", names(a)); names(a) = sub("k", "", names(a));
-at = barplot(a, horiz=TRUE, xlab="N patients", xaxt='n', las=2, col=rev(MC.colors))
+at = barplot(a, horiz=TRUE, xlab="N samples", xaxt='n', las=2, col=rev(MC.colors), xpd=NA)
 axis(1)
-par(mar=c(7,.5,.5,.5))
+par(mar=c(5,.5,.5,.5))
 barplot(t(anByC)*100, xlab="% Annotation", horiz=TRUE, yaxt='n', col=co)
 usr = par('usr');
 t = table(idC$bar, K); t = t/rep(colSums(t), each=5); t=t[names(colBar),];
@@ -843,7 +831,7 @@ plot.new(); plot.window(xlim=c(0,1), ylim=usr[3:4], yaxs='i', mar=c(3,0,.5,.5), 
 for (i in 1:14)
 { subplot(image(t(x2[Ko==i,]), axes=FALSE, zlim=c(-2, 2), col=col), x=c(0,1), rev(at)[i]+c(-.5,+.5)); 
 }
-text(seq(0,1,len=ncol(x2)+1)[-1]-.5/ncol(x2), 0, colnames(x2), xpd=NA, srt=-40, adj=0, cex=.7,
+text(seq(0,1,len=ncol(x2)+1)[-1]-.5/ncol(x2), 0, lbl, xpd=NA, srt=-40, adj=0, cex=.9,
   col=colSig[sigInfo[colnames(x2)]]) 
 
 plot.new(); plot.window(xlim=c(0,1), ylim=usr[3:4], yaxs='i', mar=c(3,0,.5,.5));
@@ -853,8 +841,8 @@ text(rep(-.05, 14), at, rev(descrs), adj=0, xpd=NA)
 subplot(image(matrix(1:25, ncol=1), axes=FALSE, col=col, xpd=NA, useRaster=TRUE), x=c(.2,.8), y=usr[3]-3+c(1,2))
 text(x=c(.2, .8), y=rep(usr[3]-.7, 2),c("Low", "High"), xpd=NA, pos=c(4,2));
 
-plot.new(); par(mar=c(0,0,.5,0)); plot.window(xlim=c(0,1), ylim=c(0,1));
-legend('topleft', legend=colnames(anByC), fill=co, title="Annotations", xpd=NA, inset=c(-.4, .1))
+#plot.new(); par(mar=c(0,0,.5,0)); plot.window(xlim=c(0,1), ylim=c(0,1));
+#legend('topleft', legend=colnames(anByC), fill=co, title="Annotations", xpd=NA, inset=c(-.4, .1))
 
 dev.off();
 
@@ -954,31 +942,54 @@ hc = hclust(dist(log10(100*(faN))), method='ward.D2');
 cu = which(diff(cutree(hc, max(ecot))[hc$order])!=0);
 
 ff = faN; colnames(ff) = paste0("MC", colnames(ff));
-pdf(paste0(figDir, "heatmapMC.pdf"), width=15, height=10)
+pdf(paste0(figDir, "heatmapMC.pdf"), width=13, height=10)
+par(cex.axis=1.3, mgp=c(1,.5,0))
 h = heatmap.3(log10(100*(t(ff))), scale='none', col=colorRampPalette(c('blue', 'yellow'), space='Lab')(100),
-  Rowv=FALSE, 
+  Rowv=FALSE, key=FALSE,
   Colv=as.dendrogram(hc), colsep=cu,  dendrogram='column',
-  zlim=c(0,2), ColSideColors=cbind(Subtype=colBar[cli$barPB],
+  zlim=c(0,2), ColSideColors=cbind(colBar[cli$barPB],
     #`TIME (expression)`=colTIME[c(`Margin restricted`='ID', `Fully Inflamed`='FI', `Stroma Restricted`='SR')[cli$TIMEpb]],
-    `TIME`=colTIME[cli$Immunophenotype.pathologist],
+    colTIME[cli$Immunophenotype.pathologist],
     ET.colors[ecot], ET.colors[ecot]),
-    lhei=c(2,10), lwid=c(2,10), cexRow=1.8,
-  margins=c(2,5), trace='none', sepcolor="white", side.height.fraction=1)#,
+    lhei=c(2,10), cexRow=1.8, lwid=c(.75,10), labRow=NA,
+  margins=c(2,.5), trace='none', sepcolor="white", side.height.fraction=1)#,
 par(new=TRUE); plot.new();
-layout(matrix(1:4, ncol=2), height=c(2,10), width=c(2,10))
-par(cex=0.2 + 1/log10(94)); par(mar=c(0,0,0,5))#, cex=10);
+layout(matrix(1:4, ncol=2), height=c(2,10), width=c(.75,10))
+par(cex=0.2 + 1/log10(94)); par(mar=c(0,0,0,.5))#, cex=10);
 plot.new(); plot.window(xlim=c(0,1), ylim=c(0,1), xaxs='i');
 w = c(0, cumsum(tabulate(ecot))); w = (w[-1]+w[-length(w)])/(2*w[length(w)])
 w = w*94.5/94;
-mtext(paste0("ET", 1:max(ecot)), side=3, cex=1, col='black', at=w, font=2, line=-.8)
-mtext("Ecotype   ", side=3, cex=1, col='red', at=0, font=2, line=-.5, adj=1);
-par(new=TRUE, mar=c(0,0,0,0), xpd=NA, cex=1)
-plot.new(); plot.window(xlim=c(0,1), ylim=c(0,1), xaxs='i');
+mtext(paste0("ET", 1:max(ecot)), side=3, cex=1.3, col='black', at=w, font=2, line=-.95)
+mtext("Ecotype", side=3, cex=1.3, col='red', at=-.003, font=1, line=-.8, adj=1);
+mtext(c("TIME", "Subtype"), side=3, cex=1.2, at=-.003, line=c(-2.8,-4.1), adj=1);
+
+mtext(paste0("MC", 1:14), side=3, cex=1.8, at=-.003, line=-7 - (0:13)*3.8, adj=1 )
+
+#par(new=TRUE, mar=c(0,0,0,0), xpd=NA, cex=1)
+#plot.new(); plot.window(xlim=c(0,1), ylim=c(0,1), xaxs='i');
 #legend(-.15, .9, legend=c("Relapse", "No relapse"), fill=c('red', 'black'), xjust=0, title="    Relapse", bty='n',
 #  title.adj=0)
-legend(-.15, .9, legend=names(colTIME), fill=colTIME, xjust=0, title="    TIME", bty='n', title.adj=0)
-legend(-.15, .6, legend=names(colBar), fill=colBar, xjust=0, title='    Subtype', bty='n', title.adj=0)
+#legend(-.15, .9, legend=names(colTIME), fill=colTIME, xjust=0, title="    TIME", bty='n', title.adj=0)
+#legend(-.15, .6, legend=names(colBar), fill=colBar, xjust=0, title='    Subtype', bty='n', title.adj=0)
 dev.off();       
+
+pdf(paste0(figDir, "heatmapMC.legend.pdf"), width=5, height=4)
+par(mar=c(.5,.5,.5,.5))
+plot.new(); plot.window(xlim=c(0,1), ylim=c(0,1), xaxs='i');
+tw = strwidth("MC12");
+a = legend(0, 1, legend=names(colTIME), fill=colTIME, xjust=0, title="   TIME", bty='n', title.adj=0, title.font=2,
+  ncol=5, text.width=tw)
+h = 1-a$rect$h-strheight("M")
+a = legend(0, h, legend=rev(names(colBar)), fill=rev(colBar), xjust=0, title='   TNBC molecular subtypes',
+  bty='n', title.adj=0, title.font=2, ncol=5, text.width=tw)
+h = h-a$rect$h-strheight("M")
+a = legend(0, h, legend=names(MC.colors), fill=MC.colors, xjust=0, title='   Megaclusters',
+  bty='n', title.adj=0, title.font=2, ncol=5, text.width=tw)
+h = h-a$rect$h-5*strheight("M")
+text(0,h+3.5*strheight("M"), "   Color scale", adj=0, font=2)
+plotScale(cols=colorRampPalette(c('blue', 'yellow'), space='Lab')(100), c("Zero", "High"), atV=0:1,
+  posx=.05, posy=h, horizontal=TRUE, width=14, height=1.5)
+dev.off();
 
 ## Number of ET
 ################

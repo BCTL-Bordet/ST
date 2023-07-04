@@ -244,12 +244,11 @@ loadData = function(bd, loadImage=TRUE, removeFold=TRUE, cutOff=500, geneMap=NUL
   cnts = t(cnts);
   cnts = rowsum(cnts, rownames(cnts));
   spots[,c("pixel_x", "pixel_y")] = spots[,c("pixel_x", "pixel_y")]/8;
-  if (file.exists(f<-paste0(bd, "/plis.RDS")))
+  if (file.exists(f<-paste0(bd, "/plis.RDS"))) # Artefacts
   { artefacts=readRDS(f)[colnames(cnts),];
     if (removeFold) { w=artefacts[,"OK"]>.99*rowSums(artefacts); cnts = cnts[,w]; spots=spots[w,]; artefacts=NULL; }
   } else { artefacts=NULL; }
-  if (file.exists(f<-paste0(bd, "/annotBySpot.RDS"))) { annot=readRDS(f)[colnames(cnts),]; } else { annot=NULL; }
-  if (file.exists(f<-paste0(bd, "/annotBySpotNew.RDS")))
+  if (file.exists(f<-paste0(bd, "/annotBySpot.RDS"))) # Note: no plis.RDS if there is an annotBySpot.RDS
   { annotNew=readRDS(f)[colnames(cnts),];
     if (removeFold)
     { w = annotNew[,"Artefacts"]/rowSums(annotNew) <= .01;
@@ -257,7 +256,7 @@ loadData = function(bd, loadImage=TRUE, removeFold=TRUE, cutOff=500, geneMap=NUL
     }
   } else { annotNew=NULL; }
   if (loadImage && ncol(cnts)>0) { imSpot = spotXY(im, spots, diam=6) } else { imSpot=NULL; }
-  return(list(im=im, cnts=cnts, imSpot=imSpot, annot=annot, spots=spots, artefacts=artefacts, annotNew=annotNew))
+  return(list(im=im, cnts=cnts, imSpot=imSpot, annot=annotNew, spots=spots, artefacts=artefacts))
 }
 
 # Utilities and stats
