@@ -15,12 +15,12 @@ ids = readRDS(paste0(dataDir, "Clinical/ids.RDS"))
 #####################################
 nm = ids$id[which(ids$hasAnnot)]
 # Read annotations
-annots = lapply(nm, function(i) readRDS(paste0(dataDir, "annotsBySpot/TNBC", i, ".RDS"))[[1]]); names(annots)=nm;
+annots = lapply(nm, function(i) readRDS(paste0(dataDir, "Robjects/annotsBySpot/TNBC", i, ".RDS"))[[1]]); names(annots)=nm;
 
 # 1. Read counts with annotations
 cnt = mclapply(nm, function(i)
 { #message(i);
-  x = readRDS(paste0(dataDir, "counts/TNBC", i, ".RDS"));
+  x = readRDS(paste0(dataDir, "Robjects/counts/TNBC", i, ".RDS"));
   w = rownames(ids)[ids$id==i & ids$hasAnnot];
   r = Matrix(t(x$cnts[x$spots$slide==w,]));
 }, mc.cores=4); names(cnt) = nm;
@@ -51,8 +51,8 @@ save(pr, xx, cntsT, file=paste0(dataDir, "classification/classifData.RData"))
 
 # Project all samples into the PC and save
 bc = readRDS(paste0(dataDir, "classification/baseClassif.RDS"))
-f = mclapply(dir(paste0(dataDir, "counts")), function(nmf)
-{ x = readRDS(paste0(dataDir, "counts/", nmf));
+f = mclapply(dir(paste0(dataDir, "Robjects/counts")), function(nmf)
+{ x = readRDS(paste0(dataDir, "Robjects/counts/", nmf));
   z = rescaleForClassif(bc, t(x$cnts));
   spot = x$spots;
   save(z, spot, file=paste0(dataDir, "classification/projectedSamples/", sub(".RDS", ".RData", nmf)))

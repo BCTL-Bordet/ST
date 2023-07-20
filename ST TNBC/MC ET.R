@@ -26,7 +26,7 @@ library(FNN)
 library(umap)
 
 for (nm in rownames(cli))
-{ x = readRDS(paste0(dataDir, "counts/TNBC", nm, ".RDS"));
+{ x = readRDS(paste0(dataDir, "Robjects/counts/TNBC", nm, ".RDS"));
   cntt = x$cnts; spot = x$spot[,c("pixel_x", "pixel_y")];
 
   clusts = sp = list();
@@ -73,7 +73,7 @@ for (nm in rownames(cli))
 ers = lapply(rownames(cli), function(nm) 
 { message(nm);
   load(paste0(dataDir, "/clustering/intraPatientClust/TNBC", nm , ".RData"))
-  cntt = readRDS(paste0(dataDir, "counts/TNBC", nm, ".RDS"))$cnts;
+  cntt = readRDS(paste0(dataDir, "Robjects/counts/TNBC", nm, ".RDS"))$cnts;
   bst = which.max(qv-1/N)
   k = as.integer(km[,bst]);
   cntt = cntt[,intersect(colnames(cntt), genePB)]; cntt = cntt[,colSums(cntt)>0];
@@ -85,16 +85,11 @@ ers = lapply(rownames(cli), function(nm)
 # Load full proto
 ######################
 annots = lapply(rownames(cli), function(i)
-{ x = readRDS(paste0(dataDir, "annotsBySpot/TNBC", i, ".RDS"))
+{ x = readRDS(paste0(dataDir, "Robjects/annotsBySpot/TNBC", i, ".RDS"))
   r = x$annots;
   rownames(r) = paste(rownames(ids)[ids$hasAnnot & ids$id==i], rownames(r));
   return(r);
 }); names(annots) = rownames(cli);
-#annots = lapply(w<-which(ids$hasAnnotNew), function(i)
-#{ r = readRDS(paste0("~/Data/Spatial/TNBC/spots/", sub("_", "/", rownames(ids)[i]), "/annotBySpotNew.RDS"))
-#  rownames(r) = paste(rownames(ids)[i], rownames(r)); return(r);
-#}); names(annots) = ids$id[w];
-#annots = annots[names(ist)];
 
 annotsClean = lapply(annots, function(n)
 { n = cbind(n, Stroma=NA);
@@ -247,7 +242,7 @@ sigma=rowMedians(si); names(sigma)=rownames(proto);
 ers = lapply(rownames(cli), function(nm)
 { message(nm);
 
-  x = readRDS(paste0(dataDir, "counts/TNBC", nm, ".RDS")); #"~/Data/Spatial/TNBC/res/", cnttDir, "/TNBC", nm, ".RData")); # "cntt" "id"
+  x = readRDS(paste0(dataDir, "Robjects/counts/TNBC", nm, ".RDS"));
   cnts = t(x$cnts); spots = x$spots; rm(x);
 
   fm = computeMC(cnts, maxIter=2, rescale=FALSE, mccores=TRUE, quiet=FALSE)
@@ -264,7 +259,6 @@ ms = lapply(names(ist), function(nm)
   w = which(!duplicated(idSpot$slide));
   sl = sub("([A-F][1-9])[0-9]+$","\\1", rownames(idSpot)[w]);
   rownames(m) = paste(sl[idSpot[,"slide"]], idSpot[,"spot"]);
-  m = m[,oOld];
   return(m);
 }); names(ms) = names(ist)
 

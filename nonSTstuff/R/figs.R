@@ -1024,6 +1024,29 @@ addFigIndex = function(m, line=1, cex=1.5, delta=0.1)
     at=at, cex=cex, adj=1);
 }
 
+plotWcc = function(x, y, sub='', method='s', addP=FALSE, addCI=FALSE, subSide=1,
+  subLine=par('mgp')[1]+1, pWhat="cor", atP=NA,
+  cexP=par('cex'), Plog, digits=0, ...)
+{ if (!sub=="") { sub=paste0(sub, " "); }
+  txt = paste0(sub, "r=", round(cor(x,y,use='p', method=method)*100, digits=digits)/100);
+  if (addP || addCI)
+  { if (pWhat=="cor") { fm = cor.test(x,y,use='p',method=method); p=fm$p.value; ci=.01*round(100*fm$conf.int, digits=digits)}
+    if (pWhat=="diff") { p=wilcox.test(x-y)$p.value; }
+    if (addCI) { txt = paste0(txt, " (", ci[1], " to ", ci[2], ")"); }
+    if (addP) { txt = parse(text=paste0("paste('", txt, " ', italic(p), '=', ",formatNice(p, parse=FALSE), ")")); }
+  }
+  if (!missing(Plog))
+  { if (length(Plog==1)) { Plog = rep(Plog, 2); }
+    if (!is.na(Plog[1])) { x = x+Plog[1]; }
+    if (!is.na(Plog[2])) { y = y+Plog[2]; }
+    if (is.na(Plog[1])) { l = "y" } else { if (is.na(Plog[2])) { l = 'x'} else { l='xy'; }}
+    plot(x, y, xaxt='n', yaxt='n', log=l, ...);
+    axisP(Plog[1], side=1); axisP(Plog[2], side=2);
+  } 
+  else { plot(x, y, ...); }
+  mtext(txt, line=subLine, side=subSide, cex=cexP, at=atP);
+}
+
 ####################################################################
 ## Make all subgroups
 makeAllSubgroups = function(x, groups)

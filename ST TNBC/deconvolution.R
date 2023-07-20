@@ -10,7 +10,7 @@ ist = lapply(ist, function(ii)
 
 for (nm in names(ist))
 { message(nm);
-  y = readRDS(paste0(dataDir, "counts/TNBC", nm, ".RDS"));
+  y = readRDS(paste0(dataDir, "Robjects/counts/TNBC", nm, ".RDS"));
   x = y$cnts;
   
   #x = cntt;

@@ -1,4 +1,4 @@
-figDir = "~/Documents/BCTL/ST/TNBC/figsTest/";
+figDir = "~/Documents/BCTL/ST/TNBC/figsTestNew/";
 
 # Figure files
 #
@@ -73,7 +73,10 @@ figDir = "~/Documents/BCTL/ST/TNBC/figsTest/";
 # Fig S32a/b - forestET.SCANB.pdf
 # FIg S33a/b - forestET.All3.pdf
 
-# Replace 4d, S6e, S6a/b, S2a
+library(alluvial);
+library(NbClust)
+colDisp = c(Immune="#68339A", Stroma="#2F6EBA", Oncogenic="#AF2318", `Stress response`="#4EAD5B",
+  Metabolism="#F8DA78");
 
 # Morpho etc
 ##############
@@ -133,13 +136,13 @@ par(mfrow=c(1,1), mar=c(3,3,0.5,.5), mgp=c(1.5,.5,0), xpd=NA)
 #t = plyr::count(data.frame(Tum=f(tT), Tumor=f(cli$barTS.T), Full=f(cli$barPB), Stroma=f(cli$barTS.S),
 #  Str=f(tS)));
 t = plyr::count(data.frame(Tumor=f(cli$barT.an), PB=f(cli$barPB), Stroma=f(cli$barS.an),
-  TIME=factor(cli$Immunophenotype.pathologist, levels=rev(c('ID', 'MR', 'SR', 'FI')))));
+  TIME=factor(cli$TIME_classes.bypathologist, levels=rev(c('ID', 'MR', 'SR', 'FI')))));
 t = t[complete.cases(t),];
 alluvial(t[,1:4], freq=t$freq, col=colBar[as.character(t$PB)], blockCol=c(colBar,  colTIME),
   draw_ticks=FALSE)
 dev.off();
 
-nfo = lapply(1:3, function(i) read.xlsx("~/Data/Spatial/TNBC/infos/List of signatures, genes of interest, cell type enrichment analysis computed in the study.xlsx", sheetIndex=i))
+nfo = lapply(1:3, function(i) read.xlsx(paste0(dataDir, "misc/List of signatures, genes of interest, cell type enrichment analysis computed in the study.xlsx"), sheetIndex=i))
 for (i in 1:3) { nfo[[i]][,2] = sub("^ *([^ ].+[^ ]) *$", "\\1", nfo[[i]][,2]); }
 nfo[[1]][nfo[[1]][,2]=="VCpred_TN",2]="VCpred TN";
 nfo[[1]][,2] = sub("^TNFA signaling.+", "TNFA signaling via NF-kB", nfo[[1]][,2]);
@@ -150,7 +153,7 @@ rownames(nfo[[2]]) = rownames(geneList)[match(rownames(nfo[[2]]),
 names(nfo) = c("Sigs", "Genes", "xCell");
 
 f = function(x) factor(x, levels=names(colBar));
-bl = paste(cli$barPB, cli$Immunophenotype.pathologist);
+bl = paste(cli$barPB, cli$TIME_classes.bypathologist);
 bl[!(bl %in% c("BL SR", "IM FI", "IM SR"))] = NA; bl[cli$barT.an!="BL"] = NA;
 bl = factor(bl, levels=c("BL SR", "IM SR", "IM FI"))
 me = paste(cli$barPB, cli$barS.an);
@@ -198,7 +201,7 @@ for (what in c("Sigs", "xCell", "Genes"))
 
 # Tailored version...
 aa = lapply(c("Tumor compartment", "Stroma compartment"), function(i)
-{ a = read.xlsx("~/Data/Spatial/TNBC/infos/Molecular features selection.xlsx", i);
+{ a = read.xlsx(paste0(dataDir, "misc/Molecular features selection.xlsx"), i);
   a = a[!is.na(a$List_selected),]; a$List_selected = sub("^ *([^ ].+[^ ]) *$", "\\1", a$List_selected)
   a = a[order(factor(a$Main_classes, levels=c("Immune", "Stress response", "Stroma", "Pathway",
     "Metabolism", "Proliferation"))),]
@@ -236,19 +239,20 @@ for (what in c("T", "S"))
   sl = 0.06*max(nchar(colnames(p1$p))+8)/2; sr = 0.06*(max(nchar(ww))+3)*.6; sb=(0.06*leftMar*.7+2)/3;
   if (what=="T") { sr = sr+1; }
   cairo_pdf(paste0(figDir, c(T="tumor", S="stroma")[what], "Compartment.pdf"),
-        height=(ncol(p1$p)+1)*.2 + sb + .2, width=.2*(length(ww)+1) + sl + sr)
-  par(mai=c(.2, sl, sb, sr), mgp=c(1.5,.5,0), cex=.6);
+        height=(ncol(p1$p))*.23 + sb + .2, width=.2*(length(ww)) + sl + sr)
+  par(mai=c(.2, sl, sb, sr), mgp=c(1.5,.5,0)+.2, cex=.6);
   dotPlot(cc[,ww,drop=FALSE], cmps, maxP=cutOff, oma=NULL, cex.pch=1, srt=30, horizontal=TRUE, axPos = 3, lbls=lbls,
     col.lbl=colLbls[a$Feature_type]);
   wi = which(!duplicated(a$Main_classes))[-1]
-  rect(wi-.95, rep(par('usr')[4]-.05,length(wi)), wi-.05, rep(par('usr')[4]+.02, length(wi)), col='white', xpd=NA, border=NA);
+  ba = par('usr')[4]+.2*strheight("M");
+  rect(wi-.95, rep(ba-.05,length(wi)), wi-.05, rep(ba+.1, length(wi)), col='white', xpd=NA, border=NA);
   wi = c(1, wi, nrow(a)+1);
-  mtext(txt<-a$Main_classes[wi[-length(wi)]+1], side=1, line=.3, at=(wi[-1]+wi[-length(wi)])/2-.5, cex=.7)
+  mtext(txt<-a$Main_classes[wi[-length(wi)]+1], side=1, line=.4, at=(wi[-1]+wi[-length(wi)])/2-.5, cex=.6)
   for (i in 1:(length(wi)-1))
-  { lines(wi[(0:1)+i]+c(-.3,-.7), c(.5,.5), xpd=NA, col=col[txt[i]], lwd=2)
+  { lines(wi[(0:1)+i]+c(-.3,-.7), c(.3,.3), xpd=NA, col=col[txt[i]], lwd=2)
   }
   if (what == "T")
-  { le = legend(length(ww)+7.5,par('usr')[4]+1.3, legend=sub("s$", "", names(colLbls)), fill=colLbls, bty='n', xjust=.5, border=NA,
+  { le = legend(length(ww)+7.5,par('usr')[4]+1.9, legend=sub("s$", "", names(colLbls)), fill=colLbls, bty='n', xjust=.5, border=NA,
       title="Molecular feature type", title.font=2, xpd=NA);
     le = le$text$y; le = le[1]-1.6*diff(le)[1]
     legendDotPlot(length(ww)+3, le, horizontal=FALSE, interline=1.6)
@@ -501,8 +505,8 @@ myBoxplot(dIm[,"TLS ST"], c(R="Response", NR="No response")[as.character(resp)],
 dev.off();
 
 set.seed(123);
-pdf(paste0(figDir, "tlsAllCliSmall.pdf"), height=3, width=18)
-par(mfrow=c(1,6), mar=c(3,3,2,.5), mgp=c(1.5,.5,0), cex.main=1);
+pdf(paste0(figDir, "tlsAllCliSmall.pdf"), height=10, width=15)
+par(mfrow=c(2,3), mar=c(3,3,2,.5), mgp=c(1.5,.5,0), cex.main=1, cex=1);
 plotSurv(censor(cli$DRFS), quartiles(csPB[,'TLS ST']), addTable=TRUE, main="ST TNBC cohort", ylab="DRFS", xlab="Time (yr)",
   legendPos='bottomleft', legend.title="TLS ST sig", ppos=.2, marTable=1.5, args.legend=list(bty='n', inset=c(.02, 0)), leftTable=5)
 plotSurv(censor(ds$METABRIC$cli$DRFS), quartiles(ds$METABRIC$cs[,"TLS ST"]), addTable=TRUE, main="METABRIC - TNBC cohort", ylab="DRFS",
@@ -520,7 +524,7 @@ for (i in c("pfs"))#, "os"))
   abline(v=0, col='grey'); abline(h=-log10(pl), col='grey');
   logAxis(ceiling(-log10(min(p[,1], na.rm=TRUE))), 0, side=2, inverted=TRUE, granularity=0)
   r = trunc(range(exp(p[,2])*10))/10; r = seq(r[1], r[2], by=.1); axis(side=1, at=log(r), labels=r)
-  addAnnotArrows(side=1, xlab="HR", annotDir=c("Better", "Worse"), le=.05, cex=.6, posXlab=0, plotXlab=TRUE)
+  addAnnotArrows(side=1, xlab="HR", annotDir=c("Better", "Worse"), le=.05, cex=.8, posXlab=0, plotXlab=TRUE)
   nm = rownames(p); nm[p[,1]>pl]=NA; #nm[nm=="TLS_new"] = "TLS ST";
   o = order(p[,1]); adx = runif(50)*.1; ady = par('usr')[4]-runif(50)*strheight("M")*1.5*4
   myAddTextLabels(c(p[o,2],adx), c(-log10(p[o,1]),ady), labels=c(nm[o], rep(NA,50)),
@@ -537,7 +541,7 @@ plot(p[,2], -log10(p[,1]), ylab="P-value", xlab="", yaxt='n', xaxt='n',
 nm = rownames(p); nm[p[,1]>pl]=NA; #nm[nm=="TLS ST"] = "TLS ST";
 logAxis(ceiling(-log10(min(p[,1], na.rm=TRUE))), 0, side=2, inverted=TRUE)
 r = trunc(range(exp(p[,2])*10))/10; r = seq(r[1], r[2], by=.1); axis(side=1, at=log(r), labels=r)
-addAnnotArrows(side=1, xlab="OR", annotDir=c("Worse", "Better"), le=.05, cex=.6, posXlab=0, plotXlab=TRUE)
+addAnnotArrows(side=1, xlab="OR", annotDir=c("Worse", "Better"), le=.05, cex=.8, posXlab=0, plotXlab=TRUE)
 abline(v=0, col='grey'); abline(h=-log10(pl), col='grey');
 o = order(p[,1]);
 myAddTextLabels(p[o,2], -log10(p[o,1]), labels=nm[o], col.label=1+grepl("TLS ST", nm[o]), cex.label=.9,
@@ -579,7 +583,7 @@ dev.off();
 
 # Signatures from Charoentong on TLS
 #####################################
-w = idAn[,"Lymphoid nodule"]; w[!(rownames(cli) %in% idTLS[,"id"])]=NA;
+w = idAn[,"Lymphoid nodule"]; w[!cli$hasTLS]=NA;
 z = data.frame(t(csX[,w]));
 colnames(z) = sub("New.Immune_Charoentong_(.+)_CellRep.2017_PMID.28052254", "\\1", colnames(z));
 colnames(z) = gsub("_", " ", colnames(z));
@@ -607,7 +611,7 @@ dev.off()
 
 # AUCs of TLS sig
 #####################
-y = list(cli$annotClean[,"Lymphoid nodule"]>0, rownames(cli)%in%idTLS[,'id'])
+y = list(cli$annotClean[,"Lymphoid nodule"]>0, cli$hasTLS)
 pdf(paste0(figDir, "aucTLS.pdf"), width=4*2+.2, height=2*2+.4);
 par(mfrow=c(2,4), mar=c(3,3,.5,.5), mgp=c(1.5,.5,0), omi=c(0,.2,.4,0))
 for (y2 in y)
@@ -648,7 +652,7 @@ dev.off();
 
 # TLS vs. GO
 #############
-# Note: based on GOSS here...
+# Note: based on selected GOs...
 f = function(i)
 { i=sub("GO_", "", i);
   i=tolower(gsub("_", " ", i));
@@ -670,6 +674,13 @@ cutText = function(x, cex=1)
   }
   return(x);
 }
+
+gos = lapply(2:5, function(i)
+{ read.xlsx(paste0(dataDir, "misc/GO_TLS_selection.xlsx"), sheetIndex=i) })
+gos = lapply(1:4, function(i) { x = gos[[i]]; data.frame(x[,1], x[,2], i%%2) } )
+goss = list(rbind( gos[[1]], gos[[2]]), rbind(gos[[3]], gos[[4]]) )
+goss = lapply(goss, function(x) x[order(-x[,2]),])
+
 cols=c('lightblue', 'yellow')
 p = cbind(p.adjust(psGo$GO[,"Lymphocyte Higher"], 'fdr'), p.adjust(psGo$GO[,"Lymphocyte Lower"], 'fdr'),
   p.adjust(psGo$GO[,"Max other higher"], 'fdr'), p.adjust(psGo$GO[,"Max other lower"], 'fdr'));
@@ -751,8 +762,8 @@ dev.off();
 t = table(idC$bar, idC[,1]); t = t[,rownames(cli)];
 o = order(cli$barPB, -t[cbind(as.character(cli$barPB), colnames(t))]/colSums(t))
 
-pdf(paste0(figDir, "barByClust.pdf"), height=4, width=15)
-par(mar=c(5,3,.5,9), mgp=c(1.5,.5,0));
+pdf(paste0(figDir, "barByClust.pdf"), height=2.6, width=15)
+par(mar=c(4,3,.5,9), mgp=c(1.5,.5,0));
 at = barplot(t[,o], col=colBar, xaxt="n", ylab="N clusters", xaxs='i', xlim=c(-1, ncol(t)*1.2+1))
 mtext(rownames(cli)[o], line=0, cex=.6, side=1, at=at)
 addAnnot("Subtype PB", colBar[cli$barPB[o]], line=1, side=1, at=at, textAtStart=FALSE)
@@ -760,10 +771,10 @@ addAnnot("Subtype PB", colBar[cli$barPB[o]], line=1, side=1, at=at, textAtStart=
 b = cli$barPBco[o,];
 b = b/rowMaxs(b); b2 = apply(b,1, function(i) { o = order(i); c(o[4], i[o[4]]); })
 b2[2,b2[2,]<0] = 0;
-addAnnot("Subtype PB 2nd class", colBar[colnames(b)[b2[1,]]], line=2, side=1, at=at, heights=b2[2,], textAtStart=FALSE)
+#addAnnot("Subtype PB 2nd class", colBar[colnames(b)[b2[1,]]], line=2, side=1, at=at, heights=b2[2,], textAtStart=FALSE)
 
-f = cli$Immunophenotype.pathologist; f[f=="nd"]=NA; f=factor(f, levels=c("ID", "MR", "SR", "FI"));
-addAnnot("TIME", colTIME[f[o]], line=3, side=1, at=at, textAtStart=FALSE)
+f = cli$TIME_classes.bypathologist; f[f=="nd"]=NA; f=factor(f, levels=c("ID", "MR", "SR", "FI"));
+addAnnot("TIME", colTIME[f[o]], line=2, side=1, at=at, textAtStart=FALSE)
 legend(-15, 7.5, names(colBar), fill=colBar, xpd=NA, bty='n', xjust=0, yjust=1)
 text(-14, 7.7, 'Subtype', xpd=NA, adj=0);
 legend(-15, 3, levels(f), fill=colTIME, xpd=NA, bty='n', xjust=0, yjust=1)
@@ -787,7 +798,7 @@ for (i in seq_along(w)) # Cut in lines of max lim characters
   descrs[i] = paste0(substr(descrs[i], 1, cu), "\n", substr(descrs[i], cu+2, nchar(descrs[i]))) 
 }
 
-sig2keep = unlist(read.xlsx("~/Data/Spatial/TNBC/Divers/megaclusters_characterization.xlsx", 2))
+sig2keep = unlist(read.xlsx(paste0(dataDir, "misc/megaclusters_characterization.xlsx"), 2))
 sig2keep = sub(" $", "", sig2keep[!is.na(sig2keep)]);
 sig2keep[sig2keep=="VCpred_TN"] = "VCpred TN";
 sig2keep[sig2keep=="TNFA signaling via NF−kB"] = "TNFA signaling via NF-kB"
@@ -807,7 +818,7 @@ x2 = x; x2[x2< -2] = -2; x2[x2>2] = 2;
 col = colorRampPalette(c('blue', 'yellow'))(100);
 
 pres = calcPres(K, idC);
-addT = 20; til = apply(pres,2,function(i) cli$sTILs.pathologist.percentage[i]+addT)
+addT = 20; til = apply(pres,2,function(i) cli$sTILs.percentage.bypathologist[i]+addT)
 #idC$bar = factor(TNBCclassif(y, version='bareche', shortName=TRUE), levels=names(colBar));
 
 lbl = colnames(x2);
@@ -949,7 +960,7 @@ h = heatmap.3(log10(100*(t(ff))), scale='none', col=colorRampPalette(c('blue', '
   Colv=as.dendrogram(hc), colsep=cu,  dendrogram='column',
   zlim=c(0,2), ColSideColors=cbind(colBar[cli$barPB],
     #`TIME (expression)`=colTIME[c(`Margin restricted`='ID', `Fully Inflamed`='FI', `Stroma Restricted`='SR')[cli$TIMEpb]],
-    colTIME[cli$Immunophenotype.pathologist],
+    colTIME[cli$TIME_classes.bypathologist],
     ET.colors[ecot], ET.colors[ecot]),
     lhei=c(2,10), cexRow=1.8, lwid=c(.75,10), labRow=NA,
   margins=c(2,.5), trace='none', sepcolor="white", side.height.fraction=1)#,
@@ -1368,8 +1379,6 @@ toDisp[which(toDisp[,2]=="VCpredTN"),2] = "VCpred TN";
 toDisp=toDisp[rowSums(!is.na(toDisp))>0,];
 toDisp[which(toDisp[,2]=="GENE70"),2]="GGI";
 at = (1:nrow(toDisp))[!is.na(rev(toDisp[,2]))];
-colDisp = c(Immune="#68339A", Stroma="#2F6EBA", Oncogenic="#AF2318", `Stress response`="#4EAD5B",
-  Metabolism="#F8DA78");
 ETnames = read.xlsx(paste0(dataDir, "misc/ET-characteristics.xlsx"), 1, header=TRUE)[,1]
 ETnames = ETnames[!is.na(ETnames)];
 w = which(!is.na(toDisp[,1])); cl = rep(toDisp[w,1],c(w[-1], nrow(toDisp)+1)-w-1)

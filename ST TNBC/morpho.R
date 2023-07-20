@@ -2,13 +2,13 @@ source("~/prog/ST/ST TNBC/STscripts.R")
 
 nAn = seq_along(colAnn2); names(nAn) = names(colAnn2);
 
-fs = dir(paste0(dataDir, "annotationRecoded/"));
+fs = dir(paste0(dataDir, "Robjects/annotationRecoded/"));
 
 # Quantified patches
 nbs = mclapply(fs, function(f)
 { message(f);
   if (file.exists(paste0(dataDir, "patches/", f))) { return("Already there"); }
-  im = readRDS(paste0(dataDir, "annotationRecoded/", f));
+  im = readRDS(paste0(dataDir, "Robjects/annotationRecoded/", f));
   
   Np = tabulate(im, nbins=length(nAn)); names(Np) = names(nAn);
   

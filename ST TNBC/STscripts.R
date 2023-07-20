@@ -1,4 +1,4 @@
-dataDir = "~/Data/Spatial/TNBC/datadist/"
+dataDir = "~/Data/Spatial/TNBC/datadist2/"
 
 #library(cancerData);
 library(nonSTstuff)
@@ -30,6 +30,46 @@ library(grid)
 library(reldist)
 library(GSVA)
 library(lme4);
+  
+# Colors
+colAnn2 = c(Nothing="#FFFFFF", Tumor="#017801", Necrosis="#000000", `Fat tissue`="#000080",
+  `Low TIL stroma`="#ff904f", Vessels="#dc0000", Artefacts="#6e2400",
+  `Lactiferous duct`="#9980e6", `High TIL stroma`="#e9e900", `in situ`="#ccffcc",
+  `Lymphoid nodule`="#80801a", `Hole (whitespace)`="#40e5f6", Lymphocyte="#c4417f",
+  `Stroma cell`="#ff9980", Nerve="#4d8080", `Heterologous elements`="#808080",
+  `Acellular stroma`="#e9d1bb", `Tumor region`="#258a15")
+
+colsBY=c('lightblue', 'yellow');
+
+colTIME = colorRampPalette(c('grey', 'red'), space="Lab")(6)[-c(3,5)];
+names(colTIME) = c('ID', 'MR', 'SR', 'FI')
+
+ET.colors <- c("ET1" = "plum2",
+                   "ET2" = "deeppink",      
+                   "ET3" = "dodgerblue",       
+                   "ET4" = "dodgerblue4",
+                   "ET5" = "cadetblue",
+                   "ET6" = "indianred1",
+                   "ET7" = "lightpink",
+                   "ET8" = "darkolivegreen3",
+                   "ET9" = "orange")
+ 
+MC.colors <- c("MC1" = "hotpink",
+                     "MC2" = "darkred",
+                     "MC3" = "red",
+                     "MC4" = "darkseagreen3",
+                     "MC5" = "darkorchid1",
+                     "MC6" = "khaki",
+                     "MC7" = "steelblue4",
+                     "MC8" = "tan3",
+                     "MC9" = "tan1",
+                     "MC10" = "darkblue",
+                     "MC11" = "thistle",
+                     "MC12" = "darkorchid4",
+                     "MC13" = "paleturquoise3",
+      "MC14" = "#BA9D33")
+
+
   
 midPoint = function(i, n)
 { s = seq(from=i[1], to=i[2], len=2*n+1);
@@ -229,7 +269,7 @@ bubullePlot = function(x, cmps, what="Other", fileName, width=NULL,
   return(invisible(list(p, w)));
 }
 
-loadData = function(bd, loadImage=TRUE, removeFold=TRUE, cutOff=500, geneMap=NULL, autoCut)
+loadData = function(bd, loadImage=TRUE, removeArtefacts=TRUE, cutOff=500, geneMap=NULL, autoCut)
 {nm = sub(".+/(CN[0-9]+)/([CDE][12]).*", "\\1_\\2", bd);
   if (loadImage) { im = readImage(paste0(bd, "/small.jpg")); } else { im=NULL; }
   load(paste0(bd, "/selection.RData"));
@@ -244,13 +284,13 @@ loadData = function(bd, loadImage=TRUE, removeFold=TRUE, cutOff=500, geneMap=NUL
   cnts = t(cnts);
   cnts = rowsum(cnts, rownames(cnts));
   spots[,c("pixel_x", "pixel_y")] = spots[,c("pixel_x", "pixel_y")]/8;
-  if (file.exists(f<-paste0(bd, "/plis.RDS"))) # Artefacts
+  if (file.exists(f<-paste0(bd, "/artefacts.RDS")))
   { artefacts=readRDS(f)[colnames(cnts),];
-    if (removeFold) { w=artefacts[,"OK"]>.99*rowSums(artefacts); cnts = cnts[,w]; spots=spots[w,]; artefacts=NULL; }
+    if (removeArtefacts) { w=artefacts[,"OK"]>.99*rowSums(artefacts); cnts = cnts[,w]; spots=spots[w,]; artefacts=NULL; }
   } else { artefacts=NULL; }
-  if (file.exists(f<-paste0(bd, "/annotBySpot.RDS"))) # Note: no plis.RDS if there is an annotBySpot.RDS
+  if (file.exists(f<-paste0(bd, "/annotBySpot.RDS")))
   { annotNew=readRDS(f)[colnames(cnts),];
-    if (removeFold)
+    if (removeArtefacts)
     { w = annotNew[,"Artefacts"]/rowSums(annotNew) <= .01;
       cnts = cnts[,w]; spots=spots[w,]; annotNew=annotNew[w,];
     }
@@ -585,16 +625,6 @@ colSpots = function(n, im, imSpot, rescale=TRUE, cols=NULL, retScale=FALSE)
   { return(list(im=im, scale=co$scale))#lims=q, valCols=i, cols=rgb(pmax(0, 1-2*i), pmax(2*i-1,0), 0))) 
   }
   return(im);
-}
-
-colSpotsOff = function(nm, n, ...)
-{ im = readImage(paste0("~/Data/Spatial/TNBC/spots/", sub("_", "/", nm), "/small.jpg"))
-  spots = readRDS(paste0("~/Data/Spatial/TNBC/spots/", sub("_", "/", nm), "/selectionSpots.RDS"))
-  spots[,c("pixel_x", "pixel_y")] = spots[,c("pixel_x", "pixel_y")]/8;
-  if (is.vector(n)) { spots = spots[names(n),]; }
-  if (is.matrix(n)) { spots = spots[rownames(n), ]}
-  imSpot = spotXY(im, spots, diam=6)
-  colSpots(n=n, im=im, imSpot=imSpot, ...)
 }
 
 dispAll = function(dta, toDisp=NULL, f=NULL, rescale=TRUE)

@@ -1,52 +1,13 @@
-source("~/prog/ngs/R scripts/STscripts.R")
+source("~/prog/ST/ST TNBC/STscripts.R")
 library(TeachingDemos)
 library(xlsx)
 
-#load("~/Data/Spatial/TNBC/res/start.RData")
+#load("~/Data/Spatial/TNBC/res/start2.RData")
 # source('~/prog/ngs/Studies/ST TNBC start.R')
 
 ###############################
 # Generate starting data
 ##############################
-
-colAnn2 = c(Nothing="#FFFFFF", Tumor="#017801", Necrosis="#000000", `Fat tissue`="#000080",
-  `Low TIL stroma`="#ff904f", Vessels="#dc0000", Artefacts="#6e2400",
-  `Lactiferous duct`="#9980e6", `High TIL stroma`="#e9e900", `in situ`="#ccffcc",
-  `Lymphoid nodule`="#80801a", `Hole (whitespace)`="#40e5f6", Lymphocyte="#c4417f",
-  `Stroma cell`="#ff9980", Nerve="#4d8080", `Heterologous elements`="#808080",
-  `Acellular stroma`="#e9d1bb", `Tumor region`="#258a15")
-
-colsBY=c('lightblue', 'yellow');
-
-
-colTIME = colorRampPalette(c('grey', 'red'), space="Lab")(6)[-c(3,5)];
-names(colTIME) = c('ID', 'MR', 'SR', 'FI')
-
-ET.colors <- c("ET1" = "plum2",
-                   "ET2" = "deeppink",      
-                   "ET3" = "dodgerblue",       
-                   "ET4" = "dodgerblue4",
-                   "ET5" = "cadetblue",
-                   "ET6" = "indianred1",
-                   "ET7" = "lightpink",
-                   "ET8" = "darkolivegreen3",
-                   "ET9" = "orange")
- 
-MC.colors <- c("MC1" = "hotpink",
-                     "MC2" = "darkred",
-                     "MC3" = "red",
-                     "MC4" = "darkseagreen3",
-                     "MC5" = "darkorchid1",
-                     "MC6" = "khaki",
-                     "MC7" = "steelblue4",
-                     "MC8" = "tan3",
-                     "MC9" = "tan1",
-                     "MC10" = "darkblue",
-                     "MC11" = "thistle",
-                     "MC12" = "darkorchid4",
-                     "MC13" = "paleturquoise3",
-      "MC14" = "#BA9D33")
-
   
 # Signatures
 sigs = readRDS(paste0(dataDir, "misc/signatures.RDS"))
@@ -85,19 +46,13 @@ colSig[5]="darkred";
 ###################
 ids = readRDS(paste0(dataDir, "Clinical/ids.RDS"))
 cli = readRDS(paste0(dataDir, "Clinical/Clinical.RDS"))
-#muts = readRDS("~/Data/Spatial/TNBC/Clinical/muts.RDS")
+
+cli$TIME_classes.bypathologist[cli$TIME_classes.bypathologist=="nd"] = NA;
 
 ctrl = cli[,c("Age", "LN.status", "T_TNM")]
 ctrl[,2]=ctrl[,2]>0; ctrl[,3]=ctrl[,3]>1;
 colnames(ctrl) = c("Age", "LN", "Size");
 ctrlForm = ~Age+LN+Size;
-
-cli$ki67 = cli$KI67...; cli$ki67[cli$ki67=="<10"] = 5; cli$ki67=as.integer(cli$ki67)
-cli$brca = grepl("BRCA1", cli$BRCA) | cli$Hereditary.mutation=="BRCA1"
-
-cli$sTILs.pathologist.percentage = as.numeric(cli$sTILs.pathologist.percentage)
-cli$CD3.pathologist.percentage = as.numeric(cli$CD3.pathologist.percentage)
-cli$CD20.pathologist.percentage = as.numeric(cli$CD20.pathologist.percentage)
 
 for (i in which(sapply(cli, is, "Surv")))
 { a = cli[[i]]; w = a[,1]>10; a[w,1]=10; a[w,2]=0; cli[[i]]=a;
@@ -205,14 +160,12 @@ colXc = c(`Lymphocytes B`="#FFB730" ,`Lymphocytes T CD4+`="#00A74E" ,`Lymphocyte
 colXct = colXc[a]; names(colXct) = names(a);
 
 # Short clinical
-ccn = cli[,c("Age", "histo_short", "Number.of.tumor.foci", "Tumor.size..mm.",
-  "Grade", "N", "ki67", "brca", "sTILs.pathologist.percentage", "CD3.pathologist.percentage",
-  "CD20.pathologist.percentage")];
-ccn$medullary = ccn$histo_short=="medullary"; ccn$histo_short=NULL;
+ccn = cli[,c("Age", "Histology.invasive.tumor", "Number.of.tumor.foci", "Tumor.size_millimeters",
+  "Grade", "N_TNM", "Ki67_percentage", "BRCA", "sTILs.percentage.bypathologist", "CD3.percentage.bypathologist",
+  "CD20.percentage.by pathologist")];
+ccn$medullary = ccn$Histology.invasive.tumor=="medullary"; ccn$Histology.invasive.tumor=NULL;
 ccn$Number.of.tumor.foci = ccn$Number.of.tumor.foci==1
 ccn$Grade[ccn$Grade=="nd"] = NA;
-for (i in c("sTILs.pathologist.percentage", "CD3.pathologist.percentage",
-  "CD20.pathologist.percentage")) { ccn[[i]] = as.numeric(ccn[[i]]) };
 for (i in which(sapply(ccn, is.numeric))) { ccn[,i] = scale(ccn[,i]); }
 ccn = sapply(ccn, as.numeric)
 cliShort=ccn;
@@ -354,14 +307,6 @@ cliIspy[cliIspy$wI,"bar"] = TNBCclassif(dIspy[,cliIspy$wI], "bareche", shortName
 
 ## Immunotherapies
 ######################
-
-a = dir(bd<-paste0(dataDir, "external datasets/Immunotherapies/"));
-dsIm = lapply(a, function(i)
-{ load(paste0(bd, i, "/Clinical.RData"))
-  saveRDS(res, paste0(bd, i, "/Clinical.RDS"))
-  load(paste0(bd, i, "/Expression.RData"))
-  saveRDS(res, paste0(bd, i, "/Expression.RDS"))
-})
 a = dir(bd<-paste0(dataDir, "external datasets/Immunotherapies/"));
 dsIm = lapply(a, function(i)
 { cl = readRDS(paste0(bd, i, "/Clinical.RDS"));
@@ -475,16 +420,11 @@ ist = lapply(ist, function(ii)
 ist = ist[rownames(cli)] # Classification per spot
 
 annots = lapply(rownames(cli), function(i)
-{ x = readRDS(paste0(dataDir, "annotsBySpot/TNBC", i, ".RDS"))
+{ x = readRDS(paste0(dataDir, "Robjects/annotsBySpot/TNBC", i, ".RDS"))
   r = x$annots;
   rownames(r) = paste(rownames(ids)[ids$hasAnnot & ids$id==i], rownames(r));
   return(r);
 }); names(annots) = rownames(cli);
-#annots = lapply(w<-which(ids$hasAnnotNew), function(i)
-#{ r = readRDS(paste0("~/Data/Spatial/TNBC/spots/", sub("_", "/", rownames(ids)[i]), "/annotBySpotNew.RDS"))
-#  rownames(r) = paste(rownames(ids)[i], rownames(r)); return(r);
-#}); names(annots) = ids$id[w];
-#annots = annots[names(ist)];
 
 annotsClean = lapply(annots, function(n)
 { n = cbind(n, Stroma=NA);
@@ -587,7 +527,7 @@ K = tmp$k;
 pres = calcPres(K, idC);
 
 # Map to old order...
-oOld = match(oo, c(5, 2, 1, 11, 6, 8, 7, 3, 9, 4, 12, 10, 14, 13));
+#oOld = match(oo, c(5, 2, 1, 11, 6, 8, 7, 3, 9, 4, 12, 10, 14, 13));
 
 # Deconvolution MC per spot
 ms = lapply(names(ist), function(nm)
@@ -596,7 +536,6 @@ ms = lapply(names(ist), function(nm)
   w = which(!duplicated(idSpot$slide));
   sl = sub("([A-F][1-9])[0-9]+$","\\1", rownames(idSpot)[w]);
   rownames(m) = paste(sl[idSpot[,"slide"]], idSpot[,"spot"]);
-  m = m[,oOld];
   return(m);
 }); names(ms) = names(ist)
 
