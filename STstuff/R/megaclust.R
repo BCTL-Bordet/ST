@@ -287,8 +287,8 @@ clustersInOtherDS = function(x, prot, sigma, maxIter=3, rescale=TRUE, mccores=op
 }
 
 
-expressionInAnnotations = function(x, mix, sigma, maxIter=5, mccores=TRUE, quiet=FALSE)
-# mix: matrix of predictions, rows: spots; cols: components
+expressionInAnnotations = function(x, f, sigma, maxIter=5, mccores=TRUE, quiet=FALSE)
+# f: matrix of predictions, rows: spots; cols: components
 # x: matrix of counts, rows: spots; cols: genes
 { fitNB2 = function(x, f, sc, sigma, init=rep(1, ncol(f)))
   { toOpt = function(p, x, f, sc)

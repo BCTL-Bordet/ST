@@ -22,7 +22,7 @@ for (nm in names(ist))
   n = n[,colSums(n)>1];
   x = x[,colSums(x)>5];
 
-  fm = getProtoFrom(x, n, maxIter=5, mccores=TRUE, quiet=FALSE)
+  fm = expressionInAnnotations(x, n, maxIter=5, mccores=TRUE, quiet=FALSE)
   prot = fm$W; rownames(prot) = colnames(x); colnames(prot) = colnames(n);
   Ntot = colSums(n)
   save(prot, fm, Ntot, file=paste0(dataDir, "deconvolution/TNBC", nm, ".RData"));
