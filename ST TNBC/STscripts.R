@@ -5,7 +5,7 @@ library(nonSTstuff)
 library(STstuff)
 #library(jpeg);
 library(parallel);
-options(mc.cores=4)#$detectCores()-1);
+options(mc.cores=detectCores()-1);
 library(gplots);
 library(matrixStats)
 library(RColorBrewer)
