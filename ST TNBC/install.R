@@ -260,13 +260,14 @@ colnames(tbl) = c("Correction", "Base", "b1", "b2", "cc1", "cc2", "cc3", "cc Mea
 rownames(tbl) = sub("(TNBC[0-9]+).RDS","\\1", dir(paste0(dataDir, "misc/BatchCorrection/")))
 #write.xlsx(tbl, file=paste0(dataDir, "misc/batchCor.xlsx"), 'orig') # Commented to protect it
 
-# Info for batch correction
-bc = read.xlsx(paste0(dataDir, "misc/batchCor.xlsx"), "modif", row.names=1)
-bc$OK.for.actual.version. = sub(" +$", "", bc$OK.for.actual.version.)
-bc$final = gsub("[^1-3]+", "", bc$Final.base)
+# Info for batch correction (after checking manually)
+bc = read.xlsx(paste0(dataDir, "misc/Supplementary Table 11. Batch correction.xlsx"), "Batch correction",
+  row.names=1, startRow=2, endRow=96)
+ok = sub(" +$", "", bc$Agreement.with.current.automatic.version.of.batch.correction...Initial.base..)
+bc$final = gsub("[^1-3]+", "", bc$Final.base..7.)
 
 
-ers = lapply(rownames(bc)[bc$OK.for.actual.version. == "no"], function(f)
+ers = lapply(rownames(bc)[ok == "no"], function(f)
 { message("Doing ", f);
   o = paste0(dataDir, "Robjects/counts/TNBC", f, ".RDS");
   file.remove(o);

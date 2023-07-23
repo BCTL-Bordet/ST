@@ -17,10 +17,38 @@
 This vignette quickly presents the features of the STstuff pakckage:
 
 \begin{enumerate}
+\item Estimation of the proportion of each annotation is each spot
+\item Determination of expression in annotations
 \item Deconvolution of megaclusters
 \item Ecotypes
+\item Deconvolution of k-means prototypes
 \end{enumerate}
 
+\section{Estimation of the proportion of each annotation is each spot}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Detailed morphological annotations were done on 94 triple negative breast cancer. Using those, the fraction of each annotation in each spot (e.g. the percentage of the spot annotated as tumor) was determined.
+Regressors were designed to estimate those fractions from the gene expression data of each spot. Those regressors are available via the command \verb!classifySpots!.
+
+For instance, [ download data and so on ].
+
+Of course, those regressors were made on TNBC on a specific platform and there is no guarantee whatsoever of their usefulness on another dataset.
+
+\section{Determination of expression in annotations}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+We assume the for each spot of an ST experiment there is an estimate of the presence of a some annotations. A possibility is that a pathologist would have annotated the slide so that it is possible to estimate the fraction of tumor, stroma, lymphocytes and so on in each spot. Another possibility is to use the estimates obtained with \verb!classifySpots!.  Using those, by deconvolution it is possible to estimate the expression related to each annotation, i.e. the gene expressions that would be obtained if only the cells in those annotations were sequenced. In our experience, using the estimates obtained by regression leads to much better results than using the original annotation counts.
+
+
+\section{Recovery of megaclusters from another dataset}
+%%%%%%%%%%%%%%%%%%%%%%
+Megaclusters (MC) are inter-patients clusters of intra-patient clusters.
+In the TNBC dataset, we determined that there were 14 MC.
+The idea is here is to recover from sequencing on the bulk the level of presence of those MC.
+The package proposes two functions to do this: a general function (\verb!clustersInOtherDS!) that could be used for any MCs, and the \verb!computeMC! function that uses the MCs that were found in TNBCs.
+
+\section{Determination of ecotypes in another dataset}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Ecotypes (ET) are groups of tumors that were found by clustering the MC estimates.
+It is possible to recover them in other datasets. The packages proposes the function \vers!computeET! to recover them, starting from the MC estimates obtained by \verb!computeMC!.
 
 \section{Deconvolution of k-means prototypes}
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -129,99 +157,6 @@ for (i in 1:3)
   }
 }
 @
-
-\section{Recovery from another dataset}
-%%%%%%%%%%%%%%%%%%%%%%
-This is done via the \verb!getClustFrom! function.
-
-\section{NNMF in other dataset}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
-This is quite similar, except it uses NNMF instead of negative binomial models.
-This is done by using the \verb!NNMFother! function.
-
-\subsection{Direct example}
-%%
-As an example, imagine we have some sort of prototypes (4 prototypes, 100 genes) and mixing matrix (50 samples):
-
-<<>>=
-prot = matrix(rgamma(4*100, 3, .01), ncol=4); rownames(prot) = 1:100;
-mix = matrix(runif(4*50)^2, ncol=4); mix = mix/rowSums(mix)
-@
-
-The expected values are then just the product of the two
-
-<<>>=
-e = prot %*% t(mix)
-@
-
-The observed values would then be taken from a Poisson distribution with those means
-
-<<>>=
-obs = matrix(rpois(length(e), e), ncol=ncol(e))
-@
-
-From \verb!obs! and \verb!prot!, we can easily recover the original mixture (correlations
-are very close to 1):
-
-<<>>=
-W = t(nnlm(prot, obs, loss='mkl')$coefficients);
-show(diag(cor(W, mix)))
-@
-
-\subsection{In another study}
-%%
-Now, the tricky part is that the genes in the new study are not on the same scale.
-To simulate that, we add a scaling factor (here more or less between .1 and 10)
-
-<<>>=
-scale = exp(rnorm(100));
-@
-
-This will give use new expected and observed values, as well as new recovered mixing coefficients (worse than previously):
-
-<<>>=
-e2 = e * scale
-obs2 = matrix(rpois(length(e2), e2), ncol=ncol(e2)); rownames(obs2) = rownames(e);
-W = t(nnlm(prot, obs2, loss='mkl')$coefficients);
-show(diag(cor(W, mix)))
-@
-
-So this is where the \verb!NNMFother! function kicks in.
-
-<<>>=
-fit = NNMFother(obs2, prot)
-show(diag(cor(fit$W, mix)))
-show(cor(fit$sc, scale, method='s'))
-@
-
-And what if some genes (1 to 20)  were just garbage?
-
-<<>>=
-obs3 = obs2;
-for (i in 1:20) { obs3[i,] = sample(obs3[i,], replace=TRUE) }
-fit = NNMFother(obs3, prot, maxIter=20)
-show(diag(cor(fit$W, mix)))
-show(cor(fit$sc, scale, method='s'))
-@ 
-
-Results are substantially worse. It is however possible to judge how well each gene fits the NMF.
-
-<<>>=
-r = (prot*fit$sc) %*% t(fit$W)
-cc = sapply(1:nrow(r), function(i) cor(r[i,], obs3[i,], method='s'))
-show(fivenum(cc[1:20]))
-show(fivenum(cc[21:100]))
-@
-
-The correlation of OK genes is much higher. If we redo the analysis on only the genes with correlation of at least \verb!0.7!
-
-<<>>=
-w = cc>.7;
-fit = NNMFother(obs3[w,], prot[w,], maxIter=20)
-show(diag(cor(fit$W, mix)))
-@
-
-Of course here the 0.7 cutoff is arbitrary and somewhat optimized.
 
 
 \section{Conclusion}

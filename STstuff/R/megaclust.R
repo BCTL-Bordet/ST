@@ -61,24 +61,24 @@ NNMFfromKM = function(X, km, Niter=3, killList=c(), mccores=0, quiet=FALSE)
   return(list(proto=H, prevProto=Hs, mix=W, prevMix=prevMix, sigma=sigma, cl=cl));
 }
 
-expressionInAnnotations = function(X, mix, mccores=0)
-{ appl = chooseApply(mccores);
-
-  fitNB = function(x, W)
-  { toOpt = function(p, x, W)
-    { p = exp(p);
-      -sum(dnbinom2(x, mu=rowSums(W*rep(p[-1], each=nrow(W))), size=pmin(p[1]+.2, 1e4)));
-    }
-    exp(optim(c(0, rep(log(mean(x)), ncol(W))), toOpt, x=x, W=W, method="BFGS")$par);
-  }
-  X = X[,colSums(X>0)>5];
-  tmp = do.call(rbind, appl(1:ncol(X), function(i)
-  { fitNB(X[,i], mix)
-  }))
-  rownames(tmp) = colnames(X);
-  proto = tmp[,-1]; sigma = tmp[,1]+.2;
-  return(list(proto=proto, sigma=sigma));
-}
+#expressionInAnnotations = function(X, mix, mccores=0)
+#{ appl = chooseApply(mccores);
+#
+#  fitNB = function(x, W)
+#  { toOpt = function(p, x, W)
+#    { p = exp(p);
+#      -sum(dnbinom2(x, mu=rowSums(W*rep(p[-1], each=nrow(W))), size=pmin(p[1]+.2, 1e4)));
+#    }
+#    exp(optim(c(0, rep(log(mean(x)), ncol(W))), toOpt, x=x, W=W, method="BFGS")$par);
+#  }
+#  X = X[,colSums(X>0)>5];
+#  tmp = do.call(rbind, appl(1:ncol(X), function(i)
+ # { fitNB(X[,i], mix)
+#  }))
+#  rownames(tmp) = colnames(X);
+#  proto = tmp[,-1]; sigma = tmp[,1]+.2;
+#  return(list(proto=proto, sigma=sigma));
+#}
 
 allLikelihood = function(X, W, H, sigma)
 { mu = W %*% t(H);
@@ -287,8 +287,8 @@ clustersInOtherDS = function(x, prot, sigma, maxIter=3, rescale=TRUE, mccores=op
 }
 
 
-getProtosFrom = function(x, f, sigma, maxIter=100, mccores=TRUE, quiet=FALSE)
-# f: matrix of predictions, rows: spots; cols: components
+expressionInAnnotations = function(x, mix, sigma, maxIter=5, mccores=TRUE, quiet=FALSE)
+# mix: matrix of predictions, rows: spots; cols: components
 # x: matrix of counts, rows: spots; cols: genes
 { fitNB2 = function(x, f, sc, sigma, init=rep(1, ncol(f)))
   { toOpt = function(p, x, f, sc)
@@ -320,7 +320,7 @@ getProtosFrom = function(x, f, sigma, maxIter=100, mccores=TRUE, quiet=FALSE)
     c(opt$value, exp(opt$par));
   }
 
-  if (mccores) { appl=mclapply } else { appl=lapply }
+  appl = chooseApply(mccores);
 
   # Init
   g = intersect(rownames(x), rownames(f)); x=x[g,]; f=f[g,];
