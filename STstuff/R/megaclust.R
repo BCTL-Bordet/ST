@@ -123,6 +123,27 @@ deconvoluteClusters = function(X, k, clean=TRUE, rmCutOff=.5, quiet=FALSE, killK
   return(list(proto=proto, prevProt=prevProt, fit=aa, kOrig=k, Nreads=rowSums(x)));
 }
 
+NNMFproto = function(X, mix, mccores=0)
+{ appl = chooseApply(mccores);
+
+  fitNB = function(x, W)
+  { toOpt = function(p, x, W)
+    { p = exp(p); #print(p[2])
+      #-sum(pmax(-20, dnbinom(x, mu=rowSums(W*rep(p[-1], each=nrow(W))), size=p[1]+.1, log=TRUE)));
+      -sum(dnbinom(x, mu=rowSums(W*rep(p[-1], each=nrow(W))), size=p[1]+.2, log=TRUE));
+    }
+    exp(optim(c(0, rep(log(mean(x)), ncol(W))), toOpt, x=x, W=W, method="BFGS")$par);
+  }
+  X = X[,colSums(X>0)>5];
+  tmp = do.call(rbind, appl(1:ncol(X), function(i)
+  { fitNB(X[,i], mix)
+  }))
+  rownames(tmp) = colnames(X);
+  proto = tmp[,-1]; sigma = tmp[,1];
+  return(list(proto=proto, sigma=sigma));
+}
+
+
 ## NB nnmf
 NNMFfromKM2 = function(X, km, Niter=3, killList=c(), mccores=0, quiet=FALSE, anchor=1)
 { appl = chooseApply(mccores);

@@ -7,15 +7,18 @@ The first line of that file specify where the data is (in  `dataDir`).
 
 After this, it is possible to reproduce the analysis done.
 
-## `Install.R`
+## `install.R`
 Extract the data from the tables as RDS/RData, extract the annotation information.
 Also perform the batch effect correction between slides from the same patient.
 
-## `Regression.R`
+## `morpho.R`
+Calculate the distribution of patches sizes for different annotations.
+
+## `regression.R`
 Estimates from the gene expression in each spot the prevalence of each annotation.
 Does the validation (leave a patient out) and apply on each sample.
 
-## `Deconvolution.R`
+## `deconvolution.R`
 Uses the annotation prevalence obtained before to deconvolute the gene expression relative to
 each annottation in each sample.
 
