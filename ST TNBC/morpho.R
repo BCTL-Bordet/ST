@@ -7,7 +7,7 @@ fs = dir(paste0(dataDir, "Robjects/annotationRecoded/"));
 # Quantified patches
 nbs = mclapply(fs, function(f)
 { message(f);
-  if (file.exists(paste0(dataDir, "patches/", f))) { return("Already there"); }
+  #if (file.exists(paste0(dataDir, "patches/", f))) { return("Already there"); }
   im = readRDS(paste0(dataDir, "Robjects/annotationRecoded/", f));
   
   Np = tabulate(im, nbins=length(nAn)); names(Np) = names(nAn);

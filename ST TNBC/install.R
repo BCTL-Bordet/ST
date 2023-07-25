@@ -194,7 +194,7 @@ ers = lapply(unique(ids$id), function(wId)
 library(glmGamPoi)
 library(scran);
 
-dir.create(paste0(dataDir, "misc/BatchCorrection")); # Batch correction by patient
+dir.create(paste0(dataDir, "Robjects/BatchCorrection")); # Batch correction by patient
 dir.create(paste0(dataDir, "Robjects/counts")); # Batch corrected data (if needed)
 
 # Genes...
@@ -203,19 +203,21 @@ PB = normRNAseq(PBraw, lim=5e3)
 avg = rowSums(PBraw)
 g = rownames(PB); rm(PBraw, PB);
 
-NBfits = lapply(dir(paste0(dataDir, "Robjects/countsNonCorrected/")), function(f)
+NBfits = mclapply(dir(paste0(dataDir, "Robjects/countsNonCorrected/")), function(f)
 { message(f);
   cnt = readRDS(paste0(dataDir, "Robjects/countsNonCorrected/", f))
-  id = factor(cnt$spots$slide);
+  x = readRDS(paste0(dataDir, "Robjects/imagesSmall/", sub(".RData", ".RDS", f)))
+  id = factor(cnt$spots$slide, levels=names(x));
   x = t(cnt$cnts[, intersect(colnames(cnt$cnts), g)]);
-  rm(cntt);
-  fit = glm_gp(x, design=~id, size_factors="deconvolution")
   
+  fit = glm_gp(x, design=~id, size_factors="deconvolution")
   b = fit$Beta[,-1,drop=FALSE];
-  saveRDS(b, file=paste0(dataDir, "misc/BatchCorrection/",f))
+  saveRDS(b, file=paste0(dataDir, "Robjects/BatchCorrection/",f))
+  #b = readRDS(paste0(dataDir, "Robjects/BatchCorrection/",f))
+  
   bl = colMedians(abs(b));
   if (all(bl>10) || !any(bl >.2)) # No batch effect / bogus batch effect, do not correct
-  { #file.remove(o<-paste0(dataDir, "/res/cnttCorMine/", f));
+  { file.remove(paste0(dataDir, "Robjects/counts/", f));
     file.symlink(paste0(dataDir, "Robjects/countsNonCorrected/", f), paste0(dataDir, "Robjects/counts/", f))
     return(b);
   }
@@ -231,11 +233,11 @@ NBfits = lapply(dir(paste0(dataDir, "Robjects/countsNonCorrected/")), function(f
   cntt = t(x/exp(b[,id]))
   saveRDS(list(cnts=cntt, spots=cnt$spots), file=paste0(dataDir, "Robjects/counts/", f))
   return(b);
-})
+}, mc.cores=10)
 
 # Make table with correction info
 tmp = do.call(rbind,  mclapply(dir(paste0(dataDir, "misc/BatchCorrection/")), function(f)
-{ b = readRDS(paste0(dataDir, "misc/BatchCorrection/",f));
+{ #b = readRDS(paste0(dataDir, "Robjects/BatchCorrection/",f));
   b = fit$Beta[,-1,drop=FALSE];
   bl = colMedians(abs(b));
   
@@ -260,7 +262,7 @@ colnames(tbl) = c("Correction", "Base", "b1", "b2", "cc1", "cc2", "cc3", "cc Mea
 rownames(tbl) = sub("(TNBC[0-9]+).RDS","\\1", dir(paste0(dataDir, "misc/BatchCorrection/")))
 #write.xlsx(tbl, file=paste0(dataDir, "misc/batchCor.xlsx"), 'orig') # Commented to protect it
 
-# Info for batch correction (after checking manually)
+# Info for batch correction (after checking manually - same table as batchCor.xlsx but corrected)
 bc = read.xlsx(paste0(dataDir, "misc/Supplementary Table 11. Batch correction.xlsx"), "Batch correction",
   row.names=1, startRow=2, endRow=96)
 ok = sub(" +$", "", bc$Agreement.with.current.automatic.version.of.batch.correction...Initial.base..)
@@ -271,34 +273,39 @@ ers = lapply(rownames(bc)[ok == "no"], function(f)
 { message("Doing ", f);
   o = paste0(dataDir, "Robjects/counts/TNBC", f, ".RDS");
   file.remove(o);
-  if (bc[f,"Do.additional.correction"] == "batch corr not necessary")
-  { file.symlink(paste0(dataDir, "Robjects/countsNonCorrected/", f), o)
+  if (bc[f,"Modification.of.batch.correction.based.on.visual.inspection..6."] == "batch corr not necessary")
+  { file.symlink(paste0(dataDir, "Robjects/countsNonCorrected/TNBC", f, ".RDS"), o)
     return("No corr");
   }
   
-  b = readRDS(paste0(dataDir, "misc/BatchCorrection/TNBC",f,".RDS"));
+  b = readRDS(paste0(dataDir, "Robjects/BatchCorrection/TNBC",f,".RDS"));
   cnt = readRDS(paste0(dataDir, "Robjects/countsNonCorrected/TNBC", f, ".RDS"))
-  id = factor(cnt$spots$slide);
+  x = readRDS(paste0(dataDir, "Robjects/imagesSmall/TNBC", f, ".RDS"))
+  id = factor(cnt$spots$slide, levels=names(x));
   x = t(cnt$cnts[, intersect(colnames(cnt$cnts), g)]);
-  rm(cntt);
   
   base = as.integer(strsplit(bc[f,"final"], "")[[1]]);
   if (length(base)==1)
-  { b = fit$Beta[,-1,drop=FALSE];
+  { #b = fit$Beta[,-1,drop=FALSE];
     b = cbind(0, b);
     b[rowAnys(abs(b)>10),] = 0;
     b = b-b[,base];
     cntt = t(x/exp(b[,id]))
-    saveRDS(cntt, file=o);
+    cnt$cnts=cntt;
+    saveRDS(cnt, file=o);
     return("Cor base 1 slide");
   }
   
-  id2 = !(id %in% base);
-  fit = glm_gp(x, design=~id2, size_factors="deconvolution")
-
-  b = fit$Beta[,"id2TRUE"]; b[abs(b)>10] = 0;
+  id2 = !(unclass(id) %in% base);
+  
+  #fit = glm_gp(x, design=~id2, size_factors="deconvolution")
+  #b = fit$Beta[,"id2TRUE"]; b[abs(b)>10] = 0;
+  b= readRDS(paste0(dataDir, "Robjects/BatchCorrection/TNBC",f, ".bis.RDS"))
+  
   cntt = x; cntt[,id2] = cntt[,id2]/exp(b); cntt=t(cntt);
-  saveRDS(cntt, file=o);
+  cnt$cnts=cntt;
+  saveRDS(cnt, file=o);
+  saveRDS(b, file=paste0(dataDir, "Robjects/BatchCorrection/TNBC",f, ".bis.RDS"))
   
   return("Corrected base 2 slides");
 })

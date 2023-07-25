@@ -165,11 +165,12 @@ evalStroma = function(x)
   }
 }
 
-mkmeans = function(x, ..., nstart=1000, minNstart=1000, minOK=5, fact=100, doPca=TRUE)
-{ if (doPca && ncol(x)>nrow(x)) { xb=x; x = prcomp(x, scale=FALSE, center=FALSE)$x; } else { doPca=FALSE; }
+mkmeans = function(x, ..., nstart=1000, minNstart=1000, minOK=5, fact=100, doPca=TRUE, mccores=TRUE)
+{ if (mccores) { appl = mclapply; } else { appl=lapply; }
+  if (doPca && ncol(x)>nrow(x)) { xb=x; x = prcomp(x, scale=FALSE, center=FALSE)$x; } else { doPca=FALSE; }
   ns = minNstart;
   while(ns <= nstart)
-  { res = mclapply(1:fact, function(i) kmeans(x, ..., nstart=ceiling(ns/fact)) );
+  { res = appl(1:fact, function(i) kmeans(x, ..., nstart=ceiling(ns/fact)) );
     if (any(sapply(res, is, "try-error"))) { return(res); }
     w = sapply(res, function(i) i$tot.withinss);
     r = res[[which.min(w)]];

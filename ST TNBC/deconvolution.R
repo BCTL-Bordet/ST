@@ -30,6 +30,14 @@ for (nm in names(ist))
 
 # TLS Signature
 ##################
+ids = readRDS(paste0(dataDir, "Clinical/ids.RDS"))
+cli = readRDS(paste0(dataDir, "Clinical/Clinical.RDS"))
+geneMap = readRDS(paste0(dataDir, "misc/geneMap.RDS"))
+# Select only the samples with actual TLS
+hasTLS = c(12,15,16,19,2,20,27,28,29,30,31,32,33,38,39,42,43,44,45,46,48,5,50,52,53,54,56,57,6,61,62,63,64,65,67,69,70,71,72,
+  73,77,78,80,82,85,86,87,88,89,9,92,94)
+cli$hasTLS = rownames(cli) %in% hasTLS;
+
 # 1. Load deconvolution data (Same code in "ST TNBC start.R")
 allS = mclapply(d<-dir(paste0(dataDir, "deconvolution")), function(i)
 { load(paste0(dataDir, "deconvolution/", i))

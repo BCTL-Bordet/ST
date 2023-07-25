@@ -26,7 +26,8 @@ library(FNN)
 library(umap)
 
 for (nm in rownames(cli))
-{ x = readRDS(paste0(dataDir, "Robjects/counts/TNBC", nm, ".RDS"));
+{ message(nm);
+  x = readRDS(paste0(dataDir, "Robjects/counts/TNBC", nm, ".RDS"));
   cntt = x$cnts; spot = x$spot[,c("pixel_x", "pixel_y")];
 
   clusts = sp = list();

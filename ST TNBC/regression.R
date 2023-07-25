@@ -1,4 +1,4 @@
-source("~/prog/ST/STscripts.R")
+source("~/prog/ST/ST TNBC/STscripts.R")
 
 library(NNLM)
 #library(EnsDb.Hsapiens.v86)
@@ -23,7 +23,7 @@ cnt = mclapply(nm, function(i)
   x = readRDS(paste0(dataDir, "Robjects/counts/TNBC", i, ".RDS"));
   w = rownames(ids)[ids$id==i & ids$hasAnnot];
   r = Matrix(t(x$cnts[x$spots$slide==w,]));
-}, mc.cores=4); names(cnt) = nm;
+}, mc.cores=10); names(cnt) = nm;
 
 g = unique(unlist(lapply(cnt, rownames)));
 for (i in seq_along(cnt)) { cnt[[i]] = fullMatSparse(cnt[[i]], g) }
@@ -47,7 +47,7 @@ rot = prc$rotation; rownames(rot) = colnames(x)
 save(pts, pr, annots, file=paste0(dataDir, "classification/LOOstart.RData"))
 saveRDS(list(rot=rot, center=colMeans(x), scale=colSds(x), g=rownames(cnts)),
   file=paste0(dataDir, "classification/baseClassif.RDS"))
-save(pr, xx, cntsT, file=paste0(dataDir, "classification/classifData.RData"))
+save(pr, xx, file=paste0(dataDir, "classification/classifData.RData"))
 
 # Project all samples into the PC and save
 bc = readRDS(paste0(dataDir, "classification/baseClassif.RDS"))
