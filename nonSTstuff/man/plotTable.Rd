@@ -19,5 +19,5 @@ plotTable(x, colHeader='grey80', space=.01, colCell=c('grey96', 'grey90'),
 	\item{showZeros}{If FALSE, values that are 0 are shown as empty cells (and not 0).}
 	\item{parseCells}{If TRUE, the cells are parsed with parse(text=...).}
 }
-\seealso{\link{STstuff}
+\seealso{\link{nonSTstuff}
 }

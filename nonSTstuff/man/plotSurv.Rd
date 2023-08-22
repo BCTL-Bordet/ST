@@ -41,5 +41,5 @@ plotSurv(su, x, pval=TRUE, col=NULL, legend.title=NULL, subset=NULL, addMedian=F
 	  Can be useful if strange things happen at t=0 (e.g. left truncated data). }
 }
 
-\seealso{\link{STstuff}
+\seealso{\link{nonSTstuff}
 }

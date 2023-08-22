@@ -22,5 +22,5 @@ formatNiceP(x, descr=NULL, parse=TRUE, lim=1e-20, pName="p", sepDescr=" - ", bol
 \value{ Either a character string (if parse is FALSE or there is no exponent), or an
   expression (if parse is TRUE and there is an exponent). }
 
-\seealso{\link{STstuff}, \link{formatNice}
+\seealso{\link{nonSTstuff}, \link{formatNice}
 }

@@ -17,5 +17,5 @@ plotScale(cols, v, atV, posx, posy, width=1, height=10, title=NULL, title.font=2
 	\item{title.font}{The font used to display the title}
 }
 
-\seealso{\link{STstuff}
+\seealso{\link{nonSTstuff}
 }

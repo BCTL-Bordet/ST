@@ -46,5 +46,5 @@ myBoxplot(x, f, subset=NULL, subset2=NULL, baseLab=NULL, index=NULL, ylim, subLi
 }
 \value{ The global p-value comparing the groups (typically the kruskal.test). }
 
-\seealso{\link{STstuff}, \link{allForest},
+\seealso{\link{nonSTstuff}, \link{allForest},
 }

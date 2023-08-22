@@ -5,7 +5,7 @@
 	Allows to estimate the contribution on other datasets of megaclusterings from ST.
 }
 \usage{
-getClustFrom(x, prot, sigma, maxIter=3, rescale=TRUE, mccores=options("mc.cores"), quiet=FALSE)
+clustersInOtherDS(x, prot, sigma, maxIter=3, rescale=TRUE, mccores=options("mc.cores"), quiet=FALSE)
 }
 \arguments{
 	\item{x}{The bulk data matrix (genes as rows, samples as columns). Must be in count-like space (not log). }
@@ -27,5 +27,5 @@ getClustFrom(x, prot, sigma, maxIter=3, rescale=TRUE, mccores=options("mc.cores"
     \item{sc}{The scaling factor by genes (if rescale=TRUE).}
     \item{qualb}{The evolution of the model log-likelihood during the iterations.}
 }
-\seealso{\link{STstuff}, \link{clustersInOtherDS}, \link{NNMFfromKM}, \link{NNMFproto}, \link{deconvoluteClusters}
+\seealso{\link{STstuff}, \link{clustersInOtherDS}, \link{deconvoluteClusters}
 }

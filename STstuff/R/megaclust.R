@@ -2,8 +2,11 @@
 ###################################
 
 chooseApply = function(mccores)
-{ if (mccores==0) { return(function(...) lapply(...)); }
-  if (isTRUE(mccores)) { return(function(...) mclapply(..., mc.cores=options("mc.cores"))) }
+{ if (is.list(mccores) || mccores==0) { return(function(...) lapply(...)); }
+  if (isTRUE(mccores))
+  { if (is.list(options("mc.cores"))) { stop("mccores is TRUE but options('mccores') is not defined"); }
+    return(function(...) mclapply(..., mc.cores=options("mc.cores")))
+  }
   return(function(...) mclapply(..., mc.cores=mccores))
 }
 
@@ -344,7 +347,8 @@ expressionInAnnotations = function(x, f, sigma, maxIter=5, mccores=TRUE, quiet=F
   appl = chooseApply(mccores);
 
   # Init
-  g = intersect(rownames(x), rownames(f)); x=x[g,]; f=f[g,];
+  if (nrow(x) != nrow(f)) { stop("Not the same set of spots in x and f"); }
+  #g = intersect(rownames(x), rownames(f)); x=x[g,]; f=f[g,];
   if (missing(sigma)) { s = rep(1, ncol(x)) } else { s = sigma; } 
   s[s>100] = 100; s[s<.5] = .5;
   

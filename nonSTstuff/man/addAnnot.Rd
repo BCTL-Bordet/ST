@@ -21,5 +21,5 @@ addAnnot(name, cols, line, side=1, at=seq_along(cols), heights=1, pch=NA, point.
 	\item{point.cex}{Size of the points (if present). }
 }
 
-\seealso{\link{STstuff}
+\seealso{\link{nonSTstuff}
 }

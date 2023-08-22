@@ -23,5 +23,5 @@ basicForest(x, a, adj=NULL, xlim=NULL, xlog=FALSE, xlab="", col='black', cex.axi
   \item{colWidth}{Width of the columns. Default is based on the max width of each column.}
 }
 
-\seealso{\link{STstuff}, \link{plotTable}
+\seealso{\link{nonSTstuff}, \link{plotTable}
 }

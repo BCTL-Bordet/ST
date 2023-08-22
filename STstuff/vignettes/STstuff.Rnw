@@ -14,7 +14,7 @@
    
 \section{Introduction}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-This vignette quickly presents the features of the STstuff pakckage:
+This vignette quickly presents the features of the STstuff package:
 
 \begin{enumerate}
 \item Estimation of the proportion of each annotation is each spot
@@ -26,32 +26,71 @@ This vignette quickly presents the features of the STstuff pakckage:
 
 \section{Estimation of the proportion of each annotation is each spot}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Detailed morphological annotations were done on 94 triple negative breast cancer. Using those, the fraction of each annotation in each spot (e.g. the percentage of the spot annotated as tumor) was determined.
+Detailed morphological annotations were done on 94 triple negative breast cancer. Using those, the fraction of each annotation in each spot (e.g.\ the percentage of the spot annotated as tumor) was determined.
 Regressors were designed to estimate those fractions from the gene expression data of each spot. Those regressors are available via the command \verb!classifySpots!.
 
-For instance, [ download data and so on ].
+For instance, those regressors can be applied on an example dataset. This correspond to 10 random spots from the TNBC1 sample from the paper.
+
+<<plotFract, fig=TRUE, height=3, width=10>>=
+library(STstuff);
+library(parallel);
+data(TNBC1);
+reg = classifySpots(cnts)
+par(mfrow=c(1,4), mar=c(3,3,1.5,.5), mgp=c(1.5,.5,.0))
+for (i in c("Tumor", "Stroma", "Fat tissue", "Lymphocyte"))
+{ plot(annot[,i], reg[,i], xlab="% annot", ylab="Estimated fraction", main=i);
+}
+@
 
 Of course, those regressors were made on TNBC on a specific platform and there is no guarantee whatsoever of their usefulness on another dataset.
 
 \section{Determination of expression in annotations}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-We assume the for each spot of an ST experiment there is an estimate of the presence of a some annotations. A possibility is that a pathologist would have annotated the slide so that it is possible to estimate the fraction of tumor, stroma, lymphocytes and so on in each spot. Another possibility is to use the estimates obtained with \verb!classifySpots!.  Using those, by deconvolution it is possible to estimate the expression related to each annotation, i.e. the gene expressions that would be obtained if only the cells in those annotations were sequenced. In our experience, using the estimates obtained by regression leads to much better results than using the original annotation counts.
+We assume that for each spot of an ST experiment there is an estimate of the presence of some annotations. A possibility is that a pathologist would have annotated the slide so that it is possible to estimate the fraction of tumor, stroma, lymphocytes and so on in each spot. Another possibility is to use the estimates obtained with \verb!classifySpots!.  Using those, by deconvolution it is possible to estimate the expression related to each annotation, i.e.\ the gene expressions that would be obtained if only the cells in those annotations were sequenced. In our experience, using the estimates obtained by regression leads to better results than using the original annotation counts.
 
+As an example, the method is applied to the example dataset. Note that with only 10 spots great results are not to be expected. We will compare the deconvolution using the original annotations and the estimates computed supra.
+
+<<>>=
+w = c("Tumor", "Stroma", "Fat tissue", "Lymphocyte")
+a = annot[,w]; a = a/rowSums(a);
+x = cnts[rowSums(cnts)>=50,];
+ex = expressionInAnnotations(t(x), a, maxIter=3, quiet=TRUE, mccores=FALSE)
+prot = ex$W; prot = 1e4*prot/rep(colSums(prot), each=nrow(prot));
+ex2 = expressionInAnnotations(t(x), reg[,w], maxIter=3, quiet=TRUE, mccores=FALSE)
+prot2 = ex2$W; prot2 = 1e4*prot2/rep(colSums(prot2), each=nrow(prot2));
+@
+
+We can see how well the two deconvolution fit. The correlations are typically high. However, focusing on genes expressed in lymphocytes using the annotations, we can see that those genes are more typical of stroma than lymphocytes.
+
+<<compDec, fig=TRUE, height=3.5, width=10>>=
+library(nonSTstuff)
+par(mfrow=c(1,3), mar=c(3,3,1.5,.5), mgp=c(1.5,.5,.0))
+barplot(diag(cor(log(prot+1), log(1+prot2))), ylab="Correlation between the two methods")
+smoothScatter(log(prot[,4]+1), log(prot2[,4]+1), xlab="Using annotation",
+  ylab="Using regression", main="Gene expression in lymphocytes")
+w = which(prot2[,4]<.1 & prot[,4]>3);
+points(log(prot[w,4]+1), log(prot2[w,4]+1), col='red')
+plotTable(signif(prot[w,4,drop=FALSE],2));
+title(main="Lympho genes using annots");
+@
 
 \section{Recovery of megaclusters from another dataset}
 %%%%%%%%%%%%%%%%%%%%%%
 Megaclusters (MC) are inter-patients clusters of intra-patient clusters.
-In the TNBC dataset, we determined that there were 14 MC.
-The idea is here is to recover from sequencing on the bulk the level of presence of those MC.
+In the TNBC dataset, we determined that there were 14 MCs.
+The idea is to recover from gene expression on bulk samples the level of presence of those MC.
 The package proposes two functions to do this: a general function (\verb!clustersInOtherDS!) that could be used for any MCs, and the \verb!computeMC! function that uses the MCs that were found in TNBCs.
 
 \section{Determination of ecotypes in another dataset}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 Ecotypes (ET) are groups of tumors that were found by clustering the MC estimates.
-It is possible to recover them in other datasets. The packages proposes the function \vers!computeET! to recover them, starting from the MC estimates obtained by \verb!computeMC!.
+It is possible to recover them in other datasets. The packages proposes the function \verb!computeET! to recover them, starting from the MC estimates obtained by \verb!computeMC!.
 
 \section{Deconvolution of k-means prototypes}
 %%%%%%%%%%%%%%%%%%%%%%%%
+Using k-means on spots from ST, we found that because many spots were not pure (i.e.\ they were localised on the border between different regions) the prototypes of each k-means was a mixture of different signals.
+To address this issue, we designed a method to obtain k-means prototypes that were not as correlated. 
+
 We simulate data, where each spot is a mixture of 3 basic vectors.
 Those vectors are chosen to be correlated, as gene expression is.
 The parameters of the mixture are taken from a Dirichlet distribution, so that they are often close to 1 but not always.
@@ -63,7 +102,7 @@ library(STstuff);
 library(dirmult); # for the Dirichlet (in the simulation)
 
 Nprot = 3; Nspot = 100*Nprot;
-Ngene = 500;
+Ngene = 50;
 gb = rexp(Ngene)^2+1; # Gene specific values
 prot = matrix(rexp(Ngene*Nprot), ncol=Nprot) * gb; # prototypes
 protl = log(1+1e4*t(prot)/colSums(prot))
@@ -73,7 +112,7 @@ X = matrix(rnbinom(base, mu=base, size=1), ncol=ncol(base));
 @
 
 The distribution of the mix is often close to 0 or 1, as wanted.
-<<plotHistMix, fig.height=3>>=
+<<plotHistMix, fig=TRUE, fig.height=3>>=
 hist(mix[,1], breaks=30)
 @
 
@@ -87,7 +126,7 @@ km = kmeans(y, protl);
 
 We can see that the cluster centers, although correlated to the correct prototypes, are also correlated to each other.
 
-<<plotCorKM, fig.height=6>>=
+<<plotCorKM, fig=TRUE, fig.height=6>>=
 pr = t(km$centers)
 prO = (exp(pr)-1)*colSums(prot)/1e4;
 
@@ -104,14 +143,14 @@ for (i in 1:3)
 We can deconvolute the cluster.
 
 <<>>=
-deconv = deconvoluteClusters(X, km$cluster, Niter=10)
-pr2 = deconv$proto; # pr2 are the new prototypes
+deconv = deconvoluteClusters(X, km$cluster, Niter=10, clean=FALSE)
+pr2 = deconv$proto$proto; # pr2 are the new prototypes
 @
 
 The new prototypes are still well correlated with the real prototypes, but they are also less correlated to each other.
 Note that some correlation is still expected because the original prototypes are also correlated.
 
-<<plotCorDeconv, fig.height=6>>=
+<<plotCorDeconv, fig=TRUE, fig.height=6>>=
 par(mfrow=c(3,3), mar=c(3,3,.5,.5), mgp=c(1.5,.5,0))
 for (i in 1:3)
 { for (j in 1:3)
@@ -121,46 +160,6 @@ for (i in 1:3)
   }
 }
 @
-
-We do not typically know the number of factors in the mixture. The number of clusters will typically be larger than this. To simulate this, we use a kmeans with 4 groups.
-
-<<>>=
-km = kmeans(y, 4, nstart=100);
-@
-
-From this, we can use \verb!deconvoluteClusters! function to get the best mixture.
-In this case the \verb!rmCutOff! parameter was increased to ensure that the bad cluster is removed, but that's not recommended in practice.
-<<echo=TRUE>>=
-dec2 = deconvoluteClusters(X, km$cluster, rmCutOff=.6, clean=FALSE)
-@
-
-The \verb!Kill! shown is list of cluters that are removed.
-Note the calculation is done on a subset of 500 genes that fit the clustering well, then the prototypes  are calculated using \verb!NNMFproto! on all genes.
-
-The clusters recovered can be extracted, their name corresponding to the indices of the original kmeans. The prototypes are a list with two items, \verb!proto! indicating the protoype values and \verb!sigma! giving the extra variance from the negative binomial.
-
-<<>>=
-pr3 = dec2$proto$proto
-show(colnames(pr3))
-show(dim(pr3))
-@
-
-We can check that the prototypes still fit well. Of course the ordering is random.
-
-<<plotCorDeconv2, fig.height=6>>=
-par(mfrow=c(3,3), mar=c(3,3,.5,.5), mgp=c(1.5,.5,0))
-for (i in 1:3)
-{ for (j in 1:3)
-  { plot(prot[,i], pr3[,j], xlab=paste("Recovered proto", i),
-      ylab=paste("Real proto", j)); abline(0,1)
-    mtext(paste0("Cor:", round(cor(prot[,i], pr3[,j], method='s')*100), "%"), side=3, line=-2)
-  }
-}
-@
-
-
-\section{Conclusion}
-%%%%%%%%%%%%%%%%%%%%%%
 
 
 \end{document}

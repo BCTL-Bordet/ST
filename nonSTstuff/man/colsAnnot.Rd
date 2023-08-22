@@ -17,5 +17,5 @@ colsAnnot(what=c("pam50", "IHC", "IntSub", "SCM", "leh", "all"))
 	   }
 }
 
-\seealso{\link{STstuff}
+\seealso{\link{nonSTstuff}
 }

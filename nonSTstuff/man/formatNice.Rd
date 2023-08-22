@@ -19,5 +19,5 @@ formatNice(x, parse=TRUE, lim=1e-20, nDigits=2)
 \value{ Either a character string (if parse is FALSE or there is no exponent), or an
   expression (if parse is TRUE and there is an exponent). }
 
-\seealso{\link{STstuff}, \link{formatNiceP}
+\seealso{\link{nonSTstuff}, \link{formatNiceP}
 }

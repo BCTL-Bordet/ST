@@ -71,13 +71,20 @@ for (nm in rownames(cli))
 
 # Deconvoluted prototypes
 ###########################
+PBraw = readRDS(paste0(dataDir, "PB_count.RDS"))
+#PBraw = rowsum(PBraw, geneMap$PB[rownames(PBraw)]);
+PBraw = PBraw[,rownames(cli)];
+PB = normRNAseq(PBraw, lim=1e3)
+genePB = rownames(PB)
+
+g = rownames(PB);
 ers = lapply(rownames(cli), function(nm) 
 { message(nm);
   load(paste0(dataDir, "/clustering/intraPatientClust/TNBC", nm , ".RData"))
   cntt = readRDS(paste0(dataDir, "Robjects/counts/TNBC", nm, ".RDS"))$cnts;
   bst = which.max(qv-1/N)
   k = as.integer(km[,bst]);
-  cntt = cntt[,intersect(colnames(cntt), genePB)]; cntt = cntt[,colSums(cntt)>0];
+  cntt = cntt[,intersect(colnames(cntt), g)]; cntt = cntt[,colSums(cntt)>0];
   tmp = deconvoluteClusters(cntt, k, anchor=1e3, rmCutOff=-Inf, mccores=TRUE, Niter=40, clean=FALSE)
   tmp$prevProt = NULL; tmp$k = k;
   saveRDS(tmp, file=paste0(dataDir, "clustering/clustPrototypes/TNBC", nm , ".RDS"))
@@ -168,6 +175,10 @@ idC$bar = factor(TNBCclassif(y3n, version='bar', shortName=TRUE, rescale=FALSE),
 
 # Kmeans on prototypes
 #######################
+xCn2 = 1e4*xC/rep(colSums(xC), each=nrow(xC))
+w = rowMeans(xCn2>1)>.05;
+y = xCn2[w,];
+y = log(y+1);
 for (i in 5:20)
 { message(i);
   km = mkmeans(t(y), i, nstart=1e7, fact=100)
@@ -244,12 +255,13 @@ ers = lapply(rownames(cli), function(nm)
 { message(nm);
 
   x = readRDS(paste0(dataDir, "Robjects/counts/TNBC", nm, ".RDS"));
-  cnts = t(x$cnts); spots = x$spots; rm(x);
+  cnts = t(x$cnts); idSpots = x$spots; rm(x);
 
-  fm = computeMC(cnts, maxIter=2, rescale=FALSE, mccores=TRUE, quiet=FALSE)
-  fm$spots = spots;
+  fm2 = computeMC(cnts, maxIter=2, rescale=FALSE, mccores=TRUE, quiet=FALSE)
+  
+  m = fm2$W;
 
-  saveRDS(fm, file=paste0(dataDir, "clustering/MC deconv/TNBC", nm, ".RDS"))
+  save(m, idSpot, fm2, file=paste0(dataDir, "clustering/MC deconv/TNBC", nm, ".RData"))
 })
 
 # Load deconvolution per spot
@@ -296,6 +308,7 @@ for (i in names(ds))
   if (i=="METABRIC") { a=a/100; }
   a = a[rowSums(a)>100,];
   z = computeMC(a)
+  #z = clustersInOtherDS(a, proto, sigma)
 
   H = z$W/rowSums(z$W); H[H<1e-3] = 0;
   colnames(H) = paste0("k", colnames(proto))
