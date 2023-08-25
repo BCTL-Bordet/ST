@@ -16,5 +16,5 @@ axisP(Plog, side=2, nice=FALSE, maxVal=NULL)
 	\item{nice}{If TRUE, shows the axis label in scientific notation.}
 	\item{maxVal}{Maximum value to display on the axis (to truncate the axis).}
 }
-\seealso{\link{nonSTstuff}, \link{myBoxplot}
+\seealso{\link{nonSTstuff}, \code{\link{myBoxplot}}, \code{\link{plotWcc}}
 }

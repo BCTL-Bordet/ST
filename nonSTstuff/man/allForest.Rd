@@ -47,7 +47,7 @@ allForest = function(x, y, subset=NULL, control=~1, sig=.05, sigOnFDR=FALSE, fdr
     are still from the base models.}
   \item{graphwidth}{The width of the plot part, in case of version 1 or 2.}
   \item{plot}{If \verb{TRUE}, make the plot (for version 1 or 2). }
-  \item{...}{Additional parameters passed to \verb{forestplot} (version 1 or 2) or \verb{\link{basicForest}} (version 3). }
+  \item{...}{Additional parameters passed to \verb{forestplot} (version 1 or 2) or \code{\link{basicForest}} (version 3). }
 }
 
 \value{
@@ -60,5 +60,5 @@ allForest = function(x, y, subset=NULL, control=~1, sig=.05, sigOnFDR=FALSE, fdr
     \item{grob}{If version is 1 or 2, the grob that can be plotted.}
 }
 
-\seealso{\link{STstuff}, \link{plotTable}, \link{basicForest}
+\seealso{\link{nonSTstuff}, \code{\link{plotTable}}, \code{\link{basicForest}}
 }
