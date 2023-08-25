@@ -6,10 +6,11 @@
 	as basic between group comparisons as "star" notation.
 }
 \usage{
-myBoxplot(x, f, subset=NULL, subset2=NULL, baseLab=NULL, index=NULL, ylim, subLine=NA, subSide=1, subAt=NA,
-  colPoints='blue', Plog=NULL, alternative="two.sided", leg45=FALSE, pch=1, normGroup=NULL, compToAll=FALSE, isComp=FALSE, alpha=1,
-  xlab="", pvalLim=1e-20, xaxt, sepBaselab=" - ", boldBaselab=FALSE, paramTest=FALSE, pairsToShow=NULL,
-  log=ifelse(is.null(Plog) || is.na(Plog), "", "y"), ...)
+myBoxplot(x, f, subset=NULL, subset2=NULL, baseLab=NULL, index=NULL, ylim, subLine=NA,
+  subSide=1, subAt=NA, colPoints='blue', Plog=NULL, alternative="two.sided", leg45=FALSE,
+  pch=1, normGroup=NULL, compToAll=FALSE, isComp=FALSE, alpha=1,
+  xlab="", pvalLim=1e-20, xaxt, sepBaselab=" - ", boldBaselab=FALSE, paramTest=FALSE,
+  pairsToShow=NULL, log=ifelse(is.null(Plog) || is.na(Plog), "", "y"), ...)
 }
 \arguments{
 	\item{x}{The set of numbers for the boxplot. If a matrix, then the columns are considered as

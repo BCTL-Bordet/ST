@@ -112,11 +112,11 @@ X = matrix(rnbinom(base, mu=base, size=1), ncol=ncol(base));
 @
 
 The distribution of the mix is often close to 0 or 1, as wanted.
-<<plotHistMix, fig=TRUE, fig.height=3>>=
+<<plotHistMix, fig=TRUE, height=3>>=
 hist(mix[,1], breaks=30)
 @
 
-From here, we first do a kmeans to get the clusters.
+From here, we first do a k-means to get the clusters.
 We start from the real prototype to ensure that we get the right ordering.
 
 <<>>=

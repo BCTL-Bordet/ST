@@ -4,8 +4,7 @@ Date: 2023-01-26
 Title: Various plotting and bioinformatics functions
 Author: David Venet <davenet@ulb.ac.be>
 Maintainer: David Venet <davenet@ulb.ac.be>
-Depends: matrixStats, parallel, NNLM, RColorBrewer, EBImage, RANN, umap, survival,
-  xgboost, irlba, pROC, FNN, parallel
+Depends: matrixStats, parallel, survival
 Suggests:
 Enhances:
 Description: ...

@@ -7,7 +7,9 @@
 \usage{
 dotPlot(x, cl, efi=NULL, lbls=NULL, toDisp=NULL, maxRange=4, oma=c(0,0,0,5), inMa=.5,
   col.lbl=NULL, maxP=.1, horizontal=FALSE, pch=c("full", "left", "right"), add=FALSE,
-  family="Arial Unicode MS", blackBorder=TRUE, at=NULL, axPos=1, srt=45, pt.lwd=.5, cex.pch=1, ...)
+  family="Arial Unicode MS", blackBorder=TRUE, at=NULL, axPos=1, srt=45, pt.lwd=.5,
+  cex.pch=1, ...)
+}
 \arguments{
 	\item{x}{Matrix / dataframe of features to compare.}
 	\item{cl}{Factor with the classes to be compared.}

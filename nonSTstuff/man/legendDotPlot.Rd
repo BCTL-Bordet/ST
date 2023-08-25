@@ -7,6 +7,7 @@
 \usage{
 legendDotPlot(x, y, double=FALSE, doubleAnnot, interline=1,
   family="Arial Unicode MS", pt.lwd=.5, horizontal=FALSE, cex.pch=1)
+  }
 \arguments{
 	\item{x, y}{Position of the legend}
 	\item{double}{If TRUE, legend is for double analysis (left and right dots)}

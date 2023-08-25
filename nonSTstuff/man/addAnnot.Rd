@@ -6,7 +6,8 @@
 	Useful to annotate heatmaps or dendrograms for instance.
 }
 \usage{
-addAnnot(name, cols, line, side=1, at=seq_along(cols), heights=1, pch=NA, point.col=NA, point.cex=1)
+addAnnot(name, cols, line, side=1, at=seq_along(cols), heights=1, pch=NA,
+  point.col=NA, point.cex=1)
 }
 \arguments{
 	\item{name}{Name of the annotation (displayed next to it)}

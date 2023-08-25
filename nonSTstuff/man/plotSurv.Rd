@@ -4,11 +4,12 @@
 	Plot a survival analysis, sort of like survminer in base graphics.
 }
 \usage{
-plotSurv(su, x, pval=TRUE, col=NULL, legend.title=NULL, subset=NULL, addMedian=FALSE, medianUnit="",
-  addN=FALSE, hr=NULL, ppos=.5, pposx=par("usr")[2]*.95, legSep=" ", useName=TRUE,
-  legendPos='topright', addTable=FALSE, marTable=0,
-    leftTable=3, cexTable=par("cex"), test="survdiff", useCox=FALSE, parseCateg=FALSE, mark.time=TRUE,
-    nperm=1e4, args.legend=NULL, moveTimeOne=0, ...}
+plotSurv(su, x, pval=TRUE, col=NULL, legend.title=NULL, subset=NULL, addMedian=FALSE,
+  medianUnit="", addN=FALSE, hr=NULL, ppos=.5, pposx=par("usr")[2]*.95, legSep=" ",
+  useName=TRUE, legendPos='topright', addTable=FALSE, marTable=0,
+  leftTable=3, cexTable=par("cex"), test="survdiff", useCox=FALSE, parseCateg=FALSE, mark.time=TRUE,
+  nperm=1e4, args.legend=NULL, moveTimeOne=0, ...)
+}
 \arguments{
 	\item{su}{Survival object}
 	\item{x}{Groups on which to the the analysis. If a matrix/data.frame, groups are created by

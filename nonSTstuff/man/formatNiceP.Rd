@@ -7,7 +7,8 @@
 	digits requested.
 }
 \usage{
-formatNiceP(x, descr=NULL, parse=TRUE, lim=1e-20, pName="p", sepDescr=" - ", boldDescr=FALSE)
+formatNiceP(x, descr=NULL, parse=TRUE, lim=1e-20, pName="p", sepDescr=" - ",
+  boldDescr=FALSE)
 }
 \arguments{
 	\item{x}{The number to format}
