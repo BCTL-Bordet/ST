@@ -2,7 +2,7 @@
 \alias{addAnnot}
 \title{Add an annotation line to an existing plot}
 \description{
-	Add an annotation line made of colored rectangles to an existing plot.
+	Adds an annotation line made of colored rectangles to an existing plot, in the plot margins.
 	Useful to annotate heatmaps or dendrograms for instance.
 }
 \usage{

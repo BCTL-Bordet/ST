@@ -694,7 +694,7 @@ legendDotPlot = function(x, y, double=FALSE, doubleAnnot, interline=1,
 
 #######################################################################
 ## Box plot functions
-myBoxplot = function(x, f, subset=NULL, subset2=NULL, baseLab=NULL, index=NULL, ylim, subLine=NA, subSide=1, subAt=NA,
+myBoxplot = function(x, f, subset=NULL, subset2=NULL, baseLab=NULL, ylim, subLine=NA, subSide=1, subAt=NA,
   colPoints='blue', Plog=NULL, alternative="two.sided", parseLeg=FALSE, leg45=FALSE, pch=1, normGroup=NULL, compToAll=FALSE,
   compToConstant=NULL, isComp=FALSE, cexSignif=1, alpha=1, starsOnFDR=FALSE,
   xlab="", ylab="", pvalLim=1e-20, xaxt, sepBaselab=" - ", boldBaselab=FALSE, paramTest=FALSE, pairsToShow=NULL,
@@ -794,8 +794,7 @@ myBoxplot = function(x, f, subset=NULL, subset2=NULL, baseLab=NULL, index=NULL, 
   for (i in unique(fl))
   { points(r[[i]]<-runif(sum(fl==i))*.4+i-.2, x[fl==i], col=colPoints[fl==i], pch=pch);
   }
-  if (!is.null(index)) { addFigIndex(LETTERS[index]); }
-  
+    
   if (isComp)
   { cols = adjustcolor(c("red", "grey", "blue"), alpha.f=.5);
     for (i in 1:(ncol(xb)-1))
@@ -891,9 +890,10 @@ combineFact = function(d, useName=TRUE)
 plotSurv = function(su, x, pval=TRUE, col=NULL, legend.title=NULL, subset=NULL, addMedian=FALSE, medianUnit="",
   addN=FALSE, hr=FALSE, ppos=.5, pposx=par("usr")[2]*.95, legSep=" ", useName=TRUE,
   legendPos='topright', addTable=FALSE, marTable=0,
-    leftTable=3, cexTable=par("cex"), test="survdiff", useCox=FALSE, parseCateg=FALSE, mark.time=TRUE,
+    leftTable=3, cexTable=par("cex"), test=c("survdiff", "cox", "perm"), parseCateg=FALSE, mark.time=TRUE,
     nperm=1e4, args.legend=NULL, moveTimeOne=0, ...)
-{ y = combineFact(x, useName=useName);
+{ test = match.arg(test);
+  y = combineFact(x, useName=useName);
   if (is.null(col)) { col = 1:length(levels(y)); }
   if (!is.null(subset)) { su=su[subset]; y = factor(y[subset, drop=FALSE]); }
   if (addTable) { marBak = par('mar'); bl = par('mar')[1]; par(mar=par("mar")+c(length(levels(y))+1+marTable, 0,0,0)) }
@@ -917,8 +917,7 @@ plotSurv = function(su, x, pval=TRUE, col=NULL, legend.title=NULL, subset=NULL, 
     { if (is.ordered(y)) { y = unclass(y); p = getCoxP(coxph(su~y)); }
       if (is.numeric(y)) { p = getCoxP(coxph(su~y)) }
       else
-      { if (missing(test)) { if (useCox) { test="cox"; } else { test="survdiff"; } }
-        if (test=="cox") { p = getCoxP(coxph(su~y)); }
+      { if (test=="cox") { p = getCoxP(coxph(su~y)); }
         if (test=="survdiff") { fm = survdiff(su~y); p=pchisq(fm$chisq, length(fm$n)-1, lower.tail=FALSE)}
         if (test=="perm") { library(clinfun); data = data.frame(su=su, y=y); p = permlogrank(su~y, data=data, nperm=nperm)$perm.p; }
       }

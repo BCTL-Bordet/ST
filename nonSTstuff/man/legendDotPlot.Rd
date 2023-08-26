@@ -10,7 +10,7 @@ legendDotPlot(x, y, double=FALSE, doubleAnnot, interline=1,
   }
 \arguments{
 	\item{x, y}{Position of the legend}
-	\item{double}{If TRUE, legend is for double analysis (left and right dots)}
+	\item{double}{If \code{TRUE}, legend is for double analysis (left and right dots)}
 	\item{doubleAnnot}{Names of the double annotations}
 	\item{interline}{Interline between the dots}
 	\item{family}{Font family}

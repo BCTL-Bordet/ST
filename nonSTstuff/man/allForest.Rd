@@ -2,7 +2,7 @@
 \alias{allForest}
 \title{Display all tests between dataframe of predictors and an output as a forest plot.}
 \description{
-	Display all tests between dataframe of predictors and an output as a forest plot.
+	Displays all tests between dataframe of predictors and an output as a forest plot.
 	The output can be either binary (in which case logistic regressions will be used for the
 	determination of the confidence intervals and potentially \verb{wilcox.test} or \verb{fisher.test}
 	for the p-values) or
