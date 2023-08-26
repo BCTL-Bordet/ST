@@ -4,7 +4,7 @@ Date: 2023-01-26
 Title: Functions for ST
 Author: David Venet <davenet@ulb.ac.be>
 Maintainer: David Venet <davenet@ulb.ac.be>
-Depends: matrixStats, parallel, xgboost, FNN
+Depends: R (>= 3.5.0), matrixStats, parallel, xgboost, FNN
 Suggests:
 Enhances:
 Description: ...

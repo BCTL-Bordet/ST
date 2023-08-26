@@ -4,7 +4,7 @@ Date: 2023-01-26
 Title: Various plotting and bioinformatics functions
 Author: David Venet <davenet@ulb.ac.be>
 Maintainer: David Venet <davenet@ulb.ac.be>
-Depends: matrixStats, parallel, survival
+Depends: R (>= 3.5.0), matrixStats, parallel, survival
 Suggests:
 Enhances:
 Description: ...
