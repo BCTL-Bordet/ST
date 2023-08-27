@@ -10,11 +10,12 @@ classifySpots(x, type="TNBC")
 }
 \arguments{
 	\item{x}{The count matrix, not normalized. Genes are in rows, samples in columns. }
-	\item{type}{The classifiers to use (at this stage only TNBC is allowed). }
+	\item{type}{The classifiers to use (at this stage only \code{"TNBC") is allowed, which
+	  relates to classifiers obtained on the triple negative breast cancer study). }
 }
 \value{
     A matrix giving the results of the various classifiers / regressors at the spot level.
 }
 \seealso{\link{STstuff},
-  \link{computeMC}
+  \code{\link{computeMC}}
 }

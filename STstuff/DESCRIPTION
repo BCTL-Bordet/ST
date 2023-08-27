@@ -1,7 +1,7 @@
 Package: STstuff
 Version: 0.99.0
 Date: 2023-01-26
-Title: Functions for ST
+Title: Functions for spatial transcriptomics
 Author: David Venet <davenet@ulb.ac.be>
 Maintainer: David Venet <davenet@ulb.ac.be>
 Depends: R (>= 3.5.0), matrixStats, parallel, xgboost, FNN

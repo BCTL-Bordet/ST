@@ -1,19 +1,21 @@
 \name{expressionInAnnotations}
 \alias{expressionInAnnotations}
-\title{Calculate the prototypes from the mixture matrix}
+\title{Calculate the gene expression related to a morphological annotation}
 \description{
-	Given a matrix of gene expression per spots, and the 
+	Given a matrix of gene expression per spots, and the proportion of each
+	annotation per spot, will compute the gene expression representative of each annotation.
 }
 \usage{
 expressionInAnnotations(x, f, sigma, maxIter = 5, mccores = TRUE, quiet = FALSE)
 }
 \arguments{
 	\item{x}{Matrix of expression (genes as columns, spots as rows), in non-log space (counts). }
-	\item{f}{The contribution of the prototypes. It's a matrix with as many rows as spot and as many columns as prototypes.}
+	\item{f}{The proportion of each annotation in each spot.
+	    It's a matrix with as many rows as spot and as many columns as annotations.}
 	\item{sigma}{Starting value for the extra variance by gene.}
-	\item{maxIter}{Maximum number of iterations (between sigma / counts estimates)}
-	\item{mccores}{If 0, then use lapply, otherwise use mclapply with the requested number of core}
-	\item{quiet}{If FALSE, print some information while running}
+	\item{maxIter}{Maximum number of iterations (between \code{sigma} / counts estimates)}
+	\item{mccores}{If 0, then use \code{lapply}, otherwise use \code{mclapply} with the requested number of cores}
+	\item{quiet}{If \code{FALSE}, print some information while running}
 }
 \value{
     A list containing the following components:
@@ -26,6 +28,6 @@ expressionInAnnotations(x, f, sigma, maxIter = 5, mccores = TRUE, quiet = FALSE)
     \item{scp}{sc at each iteration.}
 }
 
-\seealso{\link{STstuff}, \link{clustersInOtherDS}, \link{expressionInAnnotations},
-  \link{deconvoluteClusters}
+\seealso{\link{STstuff}, \code{\link{clustersInOtherDS}},
+  \code{\link{deconvoluteClusters}}
 }

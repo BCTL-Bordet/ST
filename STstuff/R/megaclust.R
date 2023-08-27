@@ -90,7 +90,7 @@ allLikelihood = function(X, W, H, sigma)
 
 
 ## Do the deconvolution
-deconvoluteClusters = function(X, k, clean=TRUE, rmCutOff=.5, quiet=FALSE, killK = c(), Niter=10,
+deconvoluteClusters = function(X, k, clean=TRUE, rmCutOff=0, quiet=FALSE, killK = c(), Niter=10,
   mccores=options("mc.cores"), anchor=1e3)
 { if (clean)
   { X = X[, colSums(X)>0]
