@@ -2,7 +2,7 @@
 \alias{classifySpots}
 \title{Classify each spot of a spatial slide}
 \description{
-	Assign to each spot of a spatial slide the proportion of various annotations.
+	Assigns to each spot of a spatial slide the proportion of various annotations.
 	
 }
 \usage{
@@ -10,7 +10,7 @@ classifySpots(x, type="TNBC")
 }
 \arguments{
 	\item{x}{The count matrix, not normalized. Genes are in rows, samples in columns. }
-	\item{type}{The classifiers to use (at this stage only \code{"TNBC") is allowed, which
+	\item{type}{The classifiers to use (at this stage only \code{"TNBC"} is allowed, which
 	  relates to classifiers obtained on the triple negative breast cancer study). }
 }
 \value{
