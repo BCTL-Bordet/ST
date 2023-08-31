@@ -15,7 +15,7 @@ expressionInAnnotations(x, f, sigma, maxIter = 5, mccores = TRUE, quiet = FALSE)
 	\item{sigma}{Starting value for the extra variance by gene.}
 	\item{maxIter}{Maximum number of iterations (between \code{sigma} / counts estimates)}
 	\item{mccores}{If 0, then use \code{lapply}, otherwise use \code{mclapply} with the requested number of cores.}
-	\item{quiet}{If \code{FALSE}, print some information while running}
+	\item{quiet}{If \code{FALSE}, print some information while running.}
 }
 \value{
     A list containing the following components:
