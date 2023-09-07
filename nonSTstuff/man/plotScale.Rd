@@ -1,4 +1,5 @@
 \name{plotScale}
+\alias{plotScale}
 \title{Add a scale to an existing plot}
 \description{
 	Add a color scale to an existing plot.

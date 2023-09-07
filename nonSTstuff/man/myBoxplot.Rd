@@ -1,4 +1,5 @@
 \name{myBoxplot}
+\alias{myBoxplot}
 \title{Boxplot with some bells and whistles}
 \description{
 	Draw a boxplot which display p-values and other bells and whistles.

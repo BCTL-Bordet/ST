@@ -1,4 +1,5 @@
 \name{plotSurv}
+\alias{plotSurv}
 \title{Plot a survival analysis.}
 \description{
 	Plot a survival analysis, similar to \code{survminer} in base graphics.
