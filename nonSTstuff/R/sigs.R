@@ -143,7 +143,8 @@ TNBCclassif = function(x, version=c("lehmann", "bareche", "burstein", "burstein2
     return(blis_subtype);
   }
   
-  if (rescale) { s = rowSds(x, na.rm=TRUE); y = (x-rowMeans(x, na.rm=TRUE))/s); y=y[which(s>0),]; } else { y = x; }
+  if (rescale) { s = rowSds(x, na.rm=TRUE); y = (x-rowMeans(x, na.rm=TRUE))/s; y=y[which(s>0),]; }
+  else { y = x; }
   
   if (version=="jiang")
   { library(pamr);
