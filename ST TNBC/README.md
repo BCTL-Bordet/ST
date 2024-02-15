@@ -3,7 +3,9 @@
 First, the two packages `STstuff` and `nonSTstuff` must be installed.
 
 Then the `STscript.R` file must be sourced.
-The first line of that file specify where the data is (in  `dataDir`).
+The first line of that file specify the directory where the data is (in  `dataDir`).
+The data is supposed to correspond to the one on [Zenodo](https://zenodo.org/records/8135722).
+The `.tar.gz` should be decompressed in that directory, to obtain the expected directory structure.
 
 After this, it is possible to reproduce the analysis done.
 

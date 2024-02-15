@@ -8,8 +8,8 @@
 	Optionally, remove prototypes that are a mix of two other protoypes.
 }
 \usage{
-deconvoluteClusters(X, k, rmCutOff=0, clean=TRUE, quiet=FALSE,
-  killK = c(), Niter=10, mccores=options("mc.cores"))
+deconvoluteClusters(X, k, clean=TRUE, rmCutOff=0, quiet=FALSE, killK = c(), Niter=10,
+  mccores=options("mc.cores"), anchor=1e3)
 }
 \arguments{
 	\item{X}{The data matrix (genes are columns, spots as rows).}
@@ -23,6 +23,8 @@ deconvoluteClusters(X, k, rmCutOff=0, clean=TRUE, quiet=FALSE,
 	\item{killK}{List of clusters that should not be used for the prototypes.}
 	\item{Niter}{Number of iterations for the optimization.}
 	\item{mccores}{If 0, then use \code{lapply}, otherwise use \code{mclapply} with the requested number of cores.}
+  \item{anchor}{A weight given to the anchor the deconvoluted values to the original input.
+    A higher anchor leads to stronger anchoring, and so output values closer to the original ones.}
 }
 \value{
     A list containing the following

@@ -26,10 +26,11 @@ This vignette quickly presents the features of the STstuff package:
 
 \section{Estimation of the proportion of each annotation is each spot}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Detailed morphological annotations were done on 94 triple negative breast cancer. Using those, the fraction of each annotation in each spot (e.g.\ the percentage of the spot annotated as tumor) was determined.
+Detailed morphological annotations were done on 94 triple negative breast cancer (TNBC). Using those, the fraction of each annotation in each spot (e.g.\ the percentage of the spot annotated as tumor) was determined.
 Regressors were designed to estimate those fractions from the gene expression data of each spot. Those regressors are available via the command \verb!classifySpots!.
 
 For instance, those regressors can be applied on an example dataset. This correspond to 10 random spots from the TNBC1 sample from the paper.
+The normalized counts are in \verb!cnts! while \verb!annot! contains the fraction of each annotation in each spot.
 
 <<plotFract, fig=TRUE, height=3, width=10>>=
 library(STstuff);
@@ -60,7 +61,7 @@ ex2 = expressionInAnnotations(t(x), reg[,w], maxIter=3, quiet=TRUE, mccores=FALS
 prot2 = ex2$W; prot2 = 1e4*prot2/rep(colSums(prot2), each=nrow(prot2));
 @
 
-We can see how well the two deconvolution fit. The correlations are typically high. However, focusing on genes expressed in lymphocytes using the annotations, we can see that those genes are more typical of stroma than lymphocytes.
+We can see how well the two deconvolution fit (in \verb!prot! and \verb!prot2!). The correlations are typically high. However, focusing on genes expressed in lymphocytes using the annotations, we can see that those genes are more typical of stroma than lymphocytes.
 
 <<compDec, fig=TRUE, height=3.5, width=10>>=
 library(nonSTstuff)

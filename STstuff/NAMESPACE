@@ -1,5 +1,9 @@
 import(matrixStats)
 import(parallel)
 import(FNN)
+import(xgboost)
+importFrom("stats", "cor", "dnbinom", "optim", "predict", "quantile",
+             "sigma")
+importFrom("utils", "data")
 export(computeET, computeMC, deconvoluteClusters, clustersInOtherDS, expressionInAnnotations,
   classifySpots)
