@@ -16,9 +16,11 @@ symb2Entrez = function(d, tryHard=FALSE)
   if (tryHard)
   { w = which(is.na(dd[,2]));
     if (length(w)>0)
-    { t2 = suppressMessages(biomaRt::select(org.Hs.eg.db, dd[w,1], columns="ENTREZID", keytype="ALIAS"));
-      t2 = t2[!duplicated(t2[,1]),];
-      dd[w,2] = t2[,2];
+    { t2 = try(suppressMessages(biomaRt::select(org.Hs.eg.db, dd[w,1], columns="ENTREZID", keytype="ALIAS")), silent = TRUE);
+      if (!is(t2, 'try-error'))
+      { t2 = t2[!duplicated(t2[,1]),];
+        dd[w,2] = t2[,2];
+      }
     }
   }
   dd[is.na(dd[,2]),2] = "";
@@ -141,7 +143,7 @@ TNBCclassif = function(x, version=c("lehmann", "bareche", "burstein", "burstein2
     return(blis_subtype);
   }
   
-  if (rescale) { y = (x-rowMeans(x, na.rm=TRUE))/rowSds(x, na.rm=TRUE) } else { y = x; }
+  if (rescale) { s = rowSds(x, na.rm=TRUE); y = (x-rowMeans(x, na.rm=TRUE))/s); y=y[which(s>0),]; } else { y = x; }
   
   if (version=="jiang")
   { library(pamr);

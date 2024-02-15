@@ -3,7 +3,7 @@ library(TeachingDemos)
 library(xlsx)
 
 #load("~/Data/Spatial/TNBC/res/start2.RData")
-# source('~/prog/ngs/Studies/ST TNBC start.R')
+# source('~/prog/ST/ST TNBC/ST TNBC start.R')
 
 ###############################
 # Generate starting data
@@ -12,13 +12,13 @@ library(xlsx)
 # Signatures
 sigs = readRDS(paste0(dataDir, "misc/signatures.RDS"))
 sigs = sigs[c("ESR1", "CIN70", "GGI", "GENE70", "Immune1", "Immune2", "Stroma1", "Stroma2",
-  "AR_gene", "TLS_Lundeberg", "VCpred_TN", "Parpi7", "Parpi7.norm")]
+  "AR_gene", "TLS_Lundeberg", "VCpred_TN", "Parpi7", "Parpi7.norm", "TLS Meylan")]
 names(sigs)[names(sigs)=="ESR1"] = "ESR1 gene";
 names(sigs) = sub("_", " ", names(sigs));
 
 si = readRDS(paste0(dataDir, "misc/hallmarks.RDS"))
 names(si) = tolower(sub("HALLMARK_", "h_", names(si)));
-si$h_spermatogenesis = si$h_pancreas_beta_cells = si$h_uv_response = NULL;
+si$h_spermatogenesis = si$h_pancreas_beta_cells = si$h_uv_response = si$h_allograft_rejection = NULL;
 nsi = strsplit(names(si), "_");
 for (i in seq_along(nsi))
 { w= nsi[[i]] %in% c("e2f", "il2", "stat5", "il6", "jak", "stat3", "kras", "mtorc1", "myc", "notch", "pi3k",
@@ -31,7 +31,9 @@ names(si) = sub("MTOR", "mTOR", names(si)); names(si) = sub("P53", "p53", names(
 names(si) = sub("NFKB", "NF-kB", names(si))
 names(si) = sub("^H ", "", names(si))
 
-x = readRDS(paste0(dataDir, "misc/signatures.RDS"))[c("CAF_29455927", "Trm_36026440", "TAM")];
+x = readRDS(paste0(dataDir, "misc/signatures.RDS"));
+x = x[c("CAF_29455927", "Trm_36026440", "TAM", "Normal Fibroblast", "TLS Cabrita",
+  grep("CAF$", names(x), value=TRUE))];
 names(x) = sub("_.+", "", names(x));
 
 y = readRDS(paste0(dataDir, "misc/signature ST.RDS"))
@@ -40,7 +42,7 @@ sigH = c(si,x, y);
 sigH = lapply(sigH, function(i) as.character(i$name));
   
 load(paste0(dataDir, "misc/sigInfo.RData")) # sigInfo, colSig
-colSig[5]="darkred";
+#colSig[5]="darkred";
 
 # 1. Clinical etc
 ###################

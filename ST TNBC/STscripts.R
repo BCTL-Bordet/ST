@@ -5,7 +5,7 @@ library(nonSTstuff)
 library(STstuff)
 #library(jpeg);
 library(parallel);
-options(mc.cores=detectCores()-1);
+options(mc.cores=4)#detectCores()-1);
 library(gplots);
 library(matrixStats)
 library(RColorBrewer)
@@ -211,7 +211,7 @@ ring.genes = c("FTH1", "EEF2", "BEST1", "LRRC59", "PRDX1", "CD63", "DYNC1H1", "E
 colEcot = palette.colors(palette="Polychrome 36")[-c(1, 5)][1:12]
 
 bubullePlot = function(x, cmps, what="Other", fileName, width=NULL,
-  leftMar=NULL, horizontal=TRUE)
+  leftMar=NULL, horizontal=TRUE, vertical=FALSE, colDots=c("#0072B2", "#F27052"))
 { co=NULL;
   if (what=="Genes")
   { x = x[, colnames(x) %in% rownames(geneList)];
@@ -250,10 +250,12 @@ bubullePlot = function(x, cmps, what="Other", fileName, width=NULL,
   
   if (what !="Other") { fileName = sub("pdf$", paste0(what, ".pdf"), fileName); } 
   
-  cairo_pdf(fileName, height=(length(w)+7)/7, width=width)
-  par(mar=c(3,leftMar,.5,.5), mgp=c(1.5,.5,0), cex=.5);
-  dotPlot(x[,w,drop=FALSE], factor(cmps), col.lbl=co[w], maxP=cutOff);
-  dev.off()
+  if (vertical)
+  { cairo_pdf(fileName, height=(length(w)+7)/7, width=width)
+    par(mar=c(5,leftMar,.5,.5), mgp=c(1.5,.5,0), cex=.5, oma=c(0,0,0,5));
+    dotPlot(x[,w,drop=FALSE], factor(cmps), col.lbl=co[w], maxP=cutOff, colDots=colDots, legend=TRUE);
+    dev.off()
+  }
   
   if (horizontal)
   { sl = pmax(0.06*(max(nchar(w))+3)*.7, 0.06*max(nchar(colnames(ps))+8)); sb=0.06*leftMar*.7+2;  
@@ -261,9 +263,10 @@ bubullePlot = function(x, cmps, what="Other", fileName, width=NULL,
       height=ncol(ps)*.45+sb)
     #par(mar=c(leftMar*.7+7, leftMar*.7,.5,.5), mgp=c(1.5,.5,0));
     par(mai=c(sb, sl, .01, .01), mgp=c(1.5,.5,0));
-    dotPlot(x[,w,drop=FALSE], factor(cmps), col.lbl=co[w], horizontal=TRUE, maxP=cutOff, inMa=.8, oma=NULL);
+    dotPlot(x[,w,drop=FALSE], factor(cmps), col.lbl=co[w], horizontal=TRUE, maxP=cutOff, inMa=.8, legend=FALSE,
+      colDots=colDots);
     legendDotPlot(par('usr')[1], par('usr')[3]-(leftMar+4)*.75*strheight("M"),
-      horizontal=TRUE)
+      horizontal=TRUE, colDots=colDots)
     dev.off()
   }
   
@@ -738,10 +741,10 @@ plotPie = function(x, y, radius, values, colors, Nsegments=100)
   polygon(x2[,1], x2[,2], col=co, border=NA);
 }
 
-pointsDta = function(x, ...)
+pointsDta = function(x, pch=16, ...)
 { fa = 1/(max(dim(x$im)[1:2])/238);
   #message(fa);
-  points(x$spots[,"pixel_x"], x$spots[,"pixel_y"], ..., cex=fa, pch=16)
+  points(x$spots[,"pixel_x"], x$spots[,"pixel_y"], ..., cex=fa, pch=pch)
 }
 
 #########################

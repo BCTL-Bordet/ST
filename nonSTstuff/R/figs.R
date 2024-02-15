@@ -42,7 +42,7 @@ plotTable = function(x, colHeader='grey80', space=.01, colCell=c('grey96', 'grey
 }
 
 basicForest = function(x, a, adj=NULL, xlim=NULL, xlog=FALSE, xlab="", col='black', cex.axis=.7,
-  titles=names(x), annotDir=NULL, lineHeight=1.5, cexAnnot=0.7, colWidth=NULL, pch=16)
+  titles=names(x), annotDir=NULL, lineHeight=1.5, cexAnnot=0.7, colWidth=NULL, pch=16, beforePlot=NULL)
 { if (is.data.frame(x)) { nr = nrow(x); } else { nr = length(x[[1]]); }
   if (nr != nrow(a)) { stop("Not same number of rows in x and a"); }
   if (is.null(adj)) { adj = c("left", rep("right", length(x)-1)) }
@@ -90,6 +90,7 @@ basicForest = function(x, a, adj=NULL, xlim=NULL, xlog=FALSE, xlab="", col='blac
   par(new=TRUE, plt=c(xx,yy), mgp=c(1.5,.5,0), cex.axis=cex.axis);
   xl = range(a, na.rm=TRUE);
   plot.new(); plot.window(xlim=xlim, ylim=c(1,0), yaxs='i', xaxs='i', log=ifelse(xlog, "x", ""))
+  if (!is.null(beforePlot)) { beforePlot(); }
   axis(1, line=1); title(xlab=xlab, line=2.5, cex.lab=cex.axis);
   lines(c(xlog, xlog), c(1-strheight("M")*1.5, 0+strheight("M")), col='lightgrey', xpd=TRUE);
   
@@ -121,6 +122,8 @@ basicForest = function(x, a, adj=NULL, xlim=NULL, xlog=FALSE, xlab="", col='blac
     arrows(exp(med+v), h, xlim[2], h, xpd=TRUE, length=le)
     text(annotDir, x= sqrt(c(exp(med-v), exp(med+v))*xlim), y=h-strheight("M"), xpd=NA, cex=cexAnnot);
   }
+  return(invisible(list(figInfo=list(xx=xx, yy=yy, xlim=xlim, ylim=c(1,0), li=li2), colWidth=cw,
+    linePos=li)))
 }
 
 colsAnnot = function(what=c("pam50", "IHC", "IntSub", "SCM", "leh", "all"))
@@ -473,8 +476,8 @@ allForest = function(x, y, subset=NULL, control=~1, sig=.05, sigOnFDR=FALSE, fdr
   }
   else
   { nm = lapply(tt, function(i) i[[1]]); tt2 = lapply(tt, function(i) i[-1]);
-    if (plot) { basicForest(tt2, tn[-1,c(2,1,3)], xlog=TRUE, titles=nm, xlim=clip, xlab=xl, col=col[-1], pch=pch, ...) }
-    return(invisible(list(tt=tt, tn=tn, p=pp)))
+    if (plot) { bf = basicForest(tt2, tn[-1,c(2,1,3)], xlog=TRUE, titles=nm, xlim=clip, xlab=xl, col=col[-1], pch=pch, ...) }
+    return(invisible(list(tt=tt, tn=tn, p=pp, basicForest=bf)))
   }
 }
 
@@ -537,9 +540,10 @@ addAnnotArrows = function(side=1, xlab="OR", annotDir=c("Better", "Worse"), le=.
 
 #######################################################################
 ## Dot plot
-dotPlot = function(x, cl, efi=NULL, lbls=NULL, toDisp=NULL, maxRange=4, oma=c(0,0,0,5), inMa=.5,
+dotPlot = function(x, cl, efi=NULL, lbls=NULL, toDisp=NULL, maxRange=4, legend=TRUE, inMa=.5,
   col.lbl=NULL, maxP=.1, horizontal=FALSE, pch=c("full", "left", "right"), add=FALSE,
-  family="Arial Unicode MS", blackBorder=TRUE, at=NULL, axPos=1, srt=45, pt.lwd=.5, cex.pch=1, ...)
+  family="Arial Unicode MS", blackBorder=TRUE, at=NULL, axPos=1, srt=45, pt.lwd=.5, cex.pch=1,
+  colDots=c("#0072B2", "#F27052"), ...)
 { pch= match.arg(pch); 
   if (pch == "full") { blackBorder=FALSE; }
   pch = c(full=21, left=-0x25D6L, right=-0x25D7L)[pch];
@@ -576,7 +580,6 @@ dotPlot = function(x, cl, efi=NULL, lbls=NULL, toDisp=NULL, maxRange=4, oma=c(0,
     names(cl2) = levels(cl); cl=cl2;
   }
 
-  if (!is.null(oma)) { par(oma=oma); }
   if (is.null(efi))
   { if (is.list(cl))
     { pif = lapply(cl, function(ws)
@@ -600,7 +603,7 @@ dotPlot = function(x, cl, efi=NULL, lbls=NULL, toDisp=NULL, maxRange=4, oma=c(0,
   efi = efi/log(maxRange); # Map to -1/1
   if (!add) { plot.new(); }
   #par(mar=c(3,7,.5,.5), mgp=c(1.5,.5,0));
-  if (pch==21) { fill=ifelse(efi>0, "green3", "red"); col='black'; } else { fill=NULL; col=ifelse(efi>0, "green3", "red"); }
+  if (pch==21) { fill=colDots[(efi>0)+1]; col='black'; } else { fill=NULL; col=colDots[(efi>0)+1]; }
   
   if (is.null(at)) { at = 1:nrow(efi); }
   
@@ -617,10 +620,11 @@ dotPlot = function(x, cl, efi=NULL, lbls=NULL, toDisp=NULL, maxRange=4, oma=c(0,
       { Map(axis, side=2, at=at, col.axis=col.lbl, labels=lbls, lwd=0, las=2)
         axis(2,at=at,labels=FALSE)
       }
-      if (!is.null(oma))
-      { legend(x=par('usr')[2], y=par('usr')[4], bty='n', xpd=NA, legend=c("≤.25", ".5", ".66",
-        "1.5", "2", "≥4"), col='black', pt.bg=rep(c("red", "green3"), each=3), title="Effect size",
-        pt.cex=4*abs(log(c(.25, .5, 2/3, 3/2, 2, 4)))/log(4), pch=21, pt.lwd=.25, y.intersp=1.5);
+      if (legend)
+      { legendDotPlot(par('usr')[2]+strwidth("M")*3, par('usr')[4], colDots=colDots)
+        #legend(x=par('usr')[2], y=par('usr')[4], bty='n', xpd=NA, legend=c("≤.25", ".5", ".66",
+        #"1.5", "2", "≥4"), col='black', pt.bg=rep(colDots, each=3), title="Effect size",
+        #pt.cex=4*abs(log(c(.25, .5, 2/3, 3/2, 2, 4)))/log(4), pch=21, pt.lwd=.25, y.intersp=1.5);
       }
     }
     if (blackBorder)
@@ -643,10 +647,11 @@ dotPlot = function(x, cl, efi=NULL, lbls=NULL, toDisp=NULL, maxRange=4, oma=c(0,
       if (axPos==1) { axis(1,at=at,labels=FALSE); cpy = par()$usr[3]-par()$cxy[2]*.5; adj=1; }
       else { axis(3,at=at,labels=FALSE); cpy = par()$usr[4]+par()$cxy[2]*.5; adj=0; }
       text(x=at, y=cpy, labels=lbls, srt=srt, adj=adj, xpd=NA, col=col.lbl);
-      if (!is.null(oma))
-      { legend(x=par('usr')[2], y=par('usr')[4], bty='n', xpd=NA, legend=c("≤.25", ".5", ".66",
-        "1.5", "2", "≥4"), col='black', pt.bg=rep(c("red", "green3"), each=3), title="Effect size",
-        pt.cex=4*abs(log(c(.25, .5, 2/3, 3/2, 2, 4)))/log(4), pch=21, pt.lwd=pt.lwd, y.intersp=1.5);
+      if (legend)
+      { legendDotPlot(par('usr')[2], par('usr')[4], colDots=colDots, horizontal=TRUE)
+        #legend(x=par('usr')[2], y=par('usr')[4], bty='n', xpd=NA, legend=c("≤.25", ".5", ".66",
+        #"1.5", "2", "≥4"), col='black', pt.bg=rep(colDots, each=3), title="Effect size",
+        #pt.cex=4*abs(log(c(.25, .5, 2/3, 3/2, 2, 4)))/log(4), pch=21, pt.lwd=pt.lwd, y.intersp=1.5);
       }
     }
     #points(at[row(efi)], col(efi), col=col, bg=fill, pch=pch, cex=abs(efi)*4, family=family, lwd=.2);
@@ -659,8 +664,8 @@ dotPlot = function(x, cl, efi=NULL, lbls=NULL, toDisp=NULL, maxRange=4, oma=c(0,
   return(invisible(list(pi=pi, efi=efi)));
 }
 
-legendDotPlot = function(x, y, double=FALSE, doubleAnnot, interline=1,
-  family="Arial Unicode MS", pt.lwd=.5, horizontal=FALSE, cex.pch=1)
+legendDotPlot = function(x, y, double=FALSE, doubleAnnot, interline=2,
+  family="Arial Unicode MS", pt.lwd=.5, horizontal=FALSE, cex.pch=1, colDots=c("#0072B2", "#F27052"))
 { li = strheight("M", cex=par('cex'))*1.5*interline;
   em = strwidth("M", cex=par('cex'));
   
@@ -672,19 +677,22 @@ legendDotPlot = function(x, y, double=FALSE, doubleAnnot, interline=1,
   
   if (horizontal)
   { xs = x + 3*(0:5)*em; dxs=0;
-    ys = rep(y2-2*li, 6); dys=-2*li; adj = c(.5,0);
+    ys = rep(y2-li, 6); dys=-li; adj = c(.5,0);
   }
-  else { xs = rep(x-em, 6); dxs = 2*em; ys = y2 - (0:5)*li*1.5-2.5*li; dys = 0; adj=c(0,.5) }
+  else
+  { xs = rep(x-em, 6); dxs = 3*em; ys = y2 - (0:5)*li*1.5-2.5*li; dys = 0; adj=c(0,.5)
+    xs = rev(xs); ys = rev(ys);
+  }
   
   v = 4*abs(log(c(.25, .5, 2/3, 3/2, 2, 4)))/log(4)
   points(xs, ys, pch=21, lwd=pt.lwd, cex=v*cex.pch, xpd=NA,
-     bg = rep(c("red", "green3"), col='black', each=3))
+     bg = rep(colDots, col='black', each=3))
   text(xs + dxs, ys+dys, c("≤.25", ".5", ".66", "1.5", "2", "≥4"), adj=adj, xpd=NA)
   if (double) # OK bug if horizontal
   { z = strheight("M", cex=par('cex'));
     for (i in 1:6)
     { lines(c(xs[i], xs[i]), ys[i]+c(-z, z)*v[i]*.6, col='black', lwd=pt.lwd, xpd=NA) }
-    y3 = ys[6]-1.5*li;
+    y3 = ys[1]-1.5*li;
     text(x-em+c(-em, em)/2, rep(y3, 2), doubleAnnot, pos=c(2,4), xpd=NA)
     text(x-em, y3, "|", xpd=NA)
     #arrows(x-em+3*c(em, -em), rep(y3-3*li, 2), x-em+.3*c(em, -em), c(y3, y3), lwd=1, length=.1)
