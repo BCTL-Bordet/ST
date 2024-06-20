@@ -10,7 +10,7 @@ library(gplots);
 library(matrixStats)
 library(RColorBrewer)
 require(corrplot)
-library(NNLM)
+#library(NNLM)
 library(EnsDb.Hsapiens.v86)
 
 library(EBImage)
@@ -224,7 +224,7 @@ bubullePlot = function(x, cmps, what="Other", fileName, width=NULL,
   }
   if (what=="xCell")
   { x = x[,!grepl("Score", colnames(x)),drop=FALSE];
-    x = x[,order(-match(colnames(x), names(colXct))),drop=FALSE];
+    x = x[,rev(intersect(names(colXct), colnames(x))),drop=FALSE];
     co = colXct[colnames(x)]; names(co) = colnames(x);
   }
   if (what=="Sigs")
@@ -258,15 +258,15 @@ bubullePlot = function(x, cmps, what="Other", fileName, width=NULL,
   }
   
   if (horizontal)
-  { sl = pmax(0.06*(max(nchar(w))+3)*.7, 0.06*max(nchar(colnames(ps))+8)); sb=0.06*leftMar*.7+2;  
+  { sl = pmax(0.06*(max(nchar(w))+3)*.7, 0.06*max(nchar(colnames(ps))+8)); sb=0.08*leftMar*.7+2;  
     cairo_pdf(sub(".pdf$", ".horiz.pdf", fileName), width=2*(length(w)+7)/7+sl,
       height=ncol(ps)*.45+sb)
     #par(mar=c(leftMar*.7+7, leftMar*.7,.5,.5), mgp=c(1.5,.5,0));
     par(mai=c(sb, sl, .01, .01), mgp=c(1.5,.5,0));
     dotPlot(x[,w,drop=FALSE], factor(cmps), col.lbl=co[w], horizontal=TRUE, maxP=cutOff, inMa=.8, legend=FALSE,
       colDots=colDots);
-    legendDotPlot(par('usr')[1], par('usr')[3]-(leftMar+4)*.75*strheight("M"),
-      horizontal=TRUE, colDots=colDots)
+    legendDotPlot(par('usr')[1], par('usr')[3]-(leftMar+4)*.85*strheight("M"),
+      horizontal=TRUE, colDots=colDots, significantLabel=c("FDR ≤ 5%", "FDR > 5%"))
     dev.off()
   }
   

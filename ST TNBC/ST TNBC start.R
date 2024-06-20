@@ -1,8 +1,9 @@
 source("~/prog/ST/ST TNBC/STscripts.R")
 library(TeachingDemos)
+options(java.parameters = "-Xmx12g")
 library(xlsx)
 
-#load("~/Data/Spatial/TNBC/res/start2.RData")
+#load("~/Data/Spatial/TNBC/res/start.RData")
 # source('~/prog/ST/ST TNBC/ST TNBC start.R')
 
 ###############################
@@ -160,6 +161,7 @@ colXc = c(`Lymphocytes B`="#FFB730" ,`Lymphocytes T CD4+`="#00A74E" ,`Lymphocyte
   `Other lymphocytes`="#C74E1F" ,`Myeloid cells`="#FF0017" ,`Stromal cells`="#BB8322" ,
   `Stem cells`="#6A2B91" ,`Other cells`="#A9BFE1")
 colXct = colXc[a]; names(colXct) = names(a);
+colXct = colXct[!(names(colXct) %in% c("Macrophages M1", "Macrophages M2"))]
 
 # Short clinical
 ccn = cli[,c("Age", "Histology.invasive.tumor", "Number.of.tumor.foci", "Tumor.size_millimeters",
@@ -263,6 +265,10 @@ w = colnames(x)[sapply(x, is, "Surv")];
 w = setdiff(w, c("OS", "DRFS", "EFS"))
 x[w]=NULL;
 ds$METABRIC$cli = x;
+
+for (i in names(ds))
+{ ds[[i]]$cs = calcAllSig(ds[[i]]$dn)
+}
 
 # Survival all 3 dataasets together
 sus = list(iBCFS = rbind(ds[[1]]$cli$EFS, ds[[2]]$cli$iBCFS, ds[[3]]$cli$iBCFS),

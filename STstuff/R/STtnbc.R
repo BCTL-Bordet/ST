@@ -1,11 +1,11 @@
 computeMC = function(x, maxIter=3, rescale=TRUE, mccores=options("mc.cores"), quiet=FALSE)
-{ data(MC);
+{ data(MC, envir = environment());
   clustersInOtherDS(x, prot=proto, sigma=sigma, maxIter=maxIter, rescale=rescale,
     mccores=mccores, quiet=quiet)
 }
 
 computeET = function(MC)
-{ data(ET);
+{ data(ET, envir = environment());
   h = do.call(cbind, lapply(1:ncol(MC), function(i) quantile(faN[,i],
     (rank(MC[,i])-1)/(nrow(MC)-1), type=7)));
   di = knnx.index(log10(faN), log10(h), k=1);

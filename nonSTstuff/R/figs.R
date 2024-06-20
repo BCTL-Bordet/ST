@@ -179,6 +179,7 @@ formatNice = function(x, parse=TRUE, lim=1e-20, nDigits=2)
   }
   if (x < lim) { return("0"); }
   if (abs(x)>=1e-3 && abs(x)<=1e3) { return(formatNdig(x, n=nDigits)); }
+  x = signif(x, nDigits);
   ex = ceiling(-log10(x));
   ma = formatNdig(x*10^ex, n=nDigits);
   #ret = paste(ma,"%*%10^{",-ex,"}");
@@ -395,6 +396,8 @@ allForest = function(x, y, subset=NULL, control=~1, sig=.05, sigOnFDR=FALSE, fdr
         co = coxphf(fn, data=x2);
         me = co$coefficients[1];
         cint = c(co$ci.lower[1], co$ci.upper[1]);
+        if (is.na(cint[1])) { cint[1] = 0; }
+        if (is.na(cint[2])) { cint[2] = +Inf; }
       }
     }
     else
@@ -541,10 +544,12 @@ addAnnotArrows = function(side=1, xlab="OR", annotDir=c("Better", "Worse"), le=.
 #######################################################################
 ## Dot plot
 dotPlot = function(x, cl, efi=NULL, lbls=NULL, toDisp=NULL, maxRange=4, legend=TRUE, inMa=.5,
-  col.lbl=NULL, maxP=.1, horizontal=FALSE, pch=c("full", "left", "right"), add=FALSE,
+  col.lbl=NULL, maxP=.05, horizontal=FALSE, pch=c("full", "left", "right"), add=FALSE,
   family="Arial Unicode MS", blackBorder=TRUE, at=NULL, axPos=1, srt=45, pt.lwd=.5, cex.pch=1,
   colDots=c("#0072B2", "#F27052"), ...)
-{ pch= match.arg(pch); 
+{ if (!require(colorspace)) { stop("Need colorspace package"); }
+
+  pch= match.arg(pch); 
   if (pch == "full") { blackBorder=FALSE; }
   pch = c(full=21, left=-0x25D6L, right=-0x25D7L)[pch];
   if (is.null(lbls)) { lbls = colnames(x); }
@@ -596,17 +601,22 @@ dotPlot = function(x, cl, efi=NULL, lbls=NULL, toDisp=NULL, maxRange=4, legend=T
       pi = tmp$p; efi = tmp$efi;
     }
     p = pi; p[] = p.adjust(pi, method='fdr');
-    if (!is.null(toDisp)) { efi[!toDisp] = NA; }
-    else { efi[p>maxP]=NA }
+    #if (!is.null(toDisp)) { efi[!toDisp] = NA; }
+    #else { efi[p>maxP]=NA }
+    if (is.null(toDisp)) { toDisp = p<=maxP; }
   } else { pi=NULL; }
   efi[efi>log(maxRange)]=log(maxRange); efi[efi< -log(maxRange)] = -log(maxRange);
   efi = efi/log(maxRange); # Map to -1/1
   if (!add) { plot.new(); }
   #par(mar=c(3,7,.5,.5), mgp=c(1.5,.5,0));
-  if (pch==21) { fill=colDots[(efi>0)+1]; col='black'; } else { fill=NULL; col=colDots[(efi>0)+1]; }
+  
+  colDots = rbind(colDots, lighten(colDots, .6))
+  co = colDots[cbind(2-as.vector(toDisp), (as.vector(efi)>0)+1)];
+  if (pch==21) { fill=co;  col=c(NA, 'black')[toDisp+1]; } else
+  { fill=NULL; col=co; }
+  
   
   if (is.null(at)) { at = 1:nrow(efi); }
-  
   if (!horizontal)
   { if (!add)
     { plot.window(xlim=c(1-inMa, ncol(efi)+inMa), ylim=range(at)+c(-inMa, inMa), xaxs="i", yaxs="i");
@@ -627,14 +637,19 @@ dotPlot = function(x, cl, efi=NULL, lbls=NULL, toDisp=NULL, maxRange=4, legend=T
         #pt.cex=4*abs(log(c(.25, .5, 2/3, 3/2, 2, 4)))/log(4), pch=21, pt.lwd=.25, y.intersp=1.5);
       }
     }
+
     if (blackBorder)
-    { points(col(efi), at[row(efi)], col='black', bg=fill, pch=pch, cex=abs(efi)*4*cex.pch, family=family, lwd=.2);
-      points(col(efi), at[row(efi)], col=col, bg=fill, pch=pch,
-        cex=cex.pch*(abs(efi)*4-pt.lwd/2), family=family, lwd=.2);
-      
+    { td = as.vector(toDisp);
+      #browser();
+      points(col(efi)[td], at[row(efi)][td], col='black', pch=pch,
+        cex=abs(efi[td])*4*cex.pch, family=family);
+        
+      points(col(efi), at[row(efi)], col=col, pch=pch,
+         cex=cex.pch*(abs(efi)*4-pt.lwd/2), family=family);
+
       z = strheight("M", cex=par('cex')*cex.pch);
-      xs = rbind(as.vector(col(efi)), as.vector(col(efi)), NA);
-      ys = rbind(as.vector(at[row(efi)]-abs(efi)*4*z*.56), as.vector(at[row(efi)]+abs(efi)*4*z*.56), NA);
+      xs = rbind(as.vector(col(efi)[td]), as.vector(col(efi)[td]), NA);
+      ys = rbind(as.vector(at[row(efi)]-abs(efi)*4*z*.56)[td], as.vector(at[row(efi)]+abs(efi)*4*z*.56)[td], NA);
       lines(as.vector(xs), as.vector(ys), col='black', lwd=pt.lwd)
     }
     else { points(col(efi), at[row(efi)], col=col, bg=fill, pch=pch, cex=cex.pch*abs(efi)*4, family=family, lwd=pt.lwd); }
@@ -665,29 +680,33 @@ dotPlot = function(x, cl, efi=NULL, lbls=NULL, toDisp=NULL, maxRange=4, legend=T
 }
 
 legendDotPlot = function(x, y, double=FALSE, doubleAnnot, interline=2,
-  family="Arial Unicode MS", pt.lwd=.5, horizontal=FALSE, cex.pch=1, colDots=c("#0072B2", "#F27052"))
+  family="Arial Unicode MS", pt.lwd=.5, horizontal=FALSE, cex.pch=1, colDots=c("#0072B2", "#F27052"),
+  significantLabel=c("Significant", "Not significant"))
 { li = strheight("M", cex=par('cex'))*1.5*interline;
   em = strwidth("M", cex=par('cex'));
   
   par(xpd=NA);
   
-  if (horizontal) {text(x+7.5*em,y,"Effect size", adj=c(.5,1), font=2); }
+  if (horizontal) {text(x+6.25*em,y,"Effect size", adj=c(.5,1), font=2); }
   else { text(x,y,"Effect size", adj=c(.5,1), font=2); }
   y2 = y;
   
   if (horizontal)
-  { xs = x + 3*(0:5)*em; dxs=0;
+  { xs = x + 2.5*(0:5)*em; dxs=0;
     ys = rep(y2-li, 6); dys=-li; adj = c(.5,0);
+    xs2 = x + 2.5*em*c(8, 12); ys2 = rep(y2, 2); adj2=c(.5,1); li2=li;
   }
   else
   { xs = rep(x-em, 6); dxs = 3*em; ys = y2 - (0:5)*li*1.5-2.5*li; dys = 0; adj=c(0,.5)
     xs = rev(xs); ys = rev(ys);
+    xs2 = rep(x, 2); ys2 = ys[1]-li*1.5*c(1.5,4)-1.5*li*double; adj2=NULL; li2=1.5*li;
   }
   
   v = 4*abs(log(c(.25, .5, 2/3, 3/2, 2, 4)))/log(4)
   points(xs, ys, pch=21, lwd=pt.lwd, cex=v*cex.pch, xpd=NA,
      bg = rep(colDots, col='black', each=3))
   text(xs + dxs, ys+dys, c("≤.25", ".5", ".66", "1.5", "2", "≥4"), adj=adj, xpd=NA)
+  
   if (double) # OK bug if horizontal
   { z = strheight("M", cex=par('cex'));
     for (i in 1:6)
@@ -697,6 +716,14 @@ legendDotPlot = function(x, y, double=FALSE, doubleAnnot, interline=2,
     text(x-em, y3, "|", xpd=NA)
     #arrows(x-em+3*c(em, -em), rep(y3-3*li, 2), x-em+.3*c(em, -em), c(y3, y3), lwd=1, length=.1)
     #text(x-em-3*c(em, -em), rep(y3-3*li, 2), doubleAnnot, adj=c(1,.5), srt=90)
+  }
+  
+  if (!is.null(significantLabel)) 
+  { do2 = lighten(colDots, .6)
+    text(xs2, ys2, significantLabel, xpd=NA, font=2, adj=adj2)
+    points(xs2[1]+c(-1.5*em, 1.5*em)/par('cex'), rep(ys2[1]-li2,2), pch=21, col='black', lwd=pt.lwd, cex=3*cex.pch, xpd=NA,
+      bg = colDots);
+    points(xs2[2]+c(-1.5*em, 1.5*em)/par('cex'), rep(ys2[2]-li2,2), pch=16, col=do2, lwd=pt.lwd, cex=3*cex.pch, xpd=NA);
   }
 }
 
@@ -963,7 +990,7 @@ plotSurv = function(su, x, pval=TRUE, col=NULL, legend.title=NULL, subset=NULL, 
 
 ###############################################################
 ## barplot with confidence intervals
-barplotConfint = function(a, b, length=.1, addN=FALSE, addP=FALSE, lineP=3, sideP=1, p, ...)
+barplotConfint = function(a, b, length=.1, addN=FALSE, addP=FALSE, lineP=3, sideP=1, p, B=1e6,...)
 { if (missing(b))
   { if (ncol(a)==2) { a = t(a); }
     if (nrow(a)==2) { b = colSums(a); a=a[1,]; } else { stop("not a matrix and not 2 params")}
@@ -973,7 +1000,10 @@ barplotConfint = function(a, b, length=.1, addN=FALSE, addP=FALSE, lineP=3, side
   arrows(x0=w, y0=ci[1,], y1=ci[2,], angle=90, code=3, length=length)
   if (addN) { mtext(paste0("N=",b), line=2, at=w, side=1, cex=par('cex')); }
   if (addP)
-  { if (missing(p)) { p=fisher.test(rbind(a,b-a))$p.value; }
+  { if (missing(p))
+    { p=try(fisher.test(rbind(a,b-a),  workspace=1e6)$p.value, silent=TRUE);
+      if (is(p, "try-error")) { p = fisher.test(rbind(a,b-a), simulate=TRUE, B=B)$p.value; }
+    }
     mtext(formatNiceP(p), line=lineP, side=sideP, cex=par('cex'));
     w = list(at=w, p=p);
   }

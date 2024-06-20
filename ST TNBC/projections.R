@@ -44,12 +44,12 @@ ers = mclapply(rownames(cli), function(nm)
   for (i in seq_along(img))
   { display(img[[i]]$im, 'r')
     fa = 1/(max(dim(img[[i]]$im)[1:2])/238);
-    plotPie(img[[i]]$spots[,"pixel_x"], img[[i]]$spots[,"pixel_y"], values=i2[id==i,], colors=c('red', 'green', 'black'),
+    plotPie(img[[i]]$spots[,"pixel_x"], img[[i]]$spots[,"pixel_y"], values=i2[id==i,], colors=c("#33761F", "#F19E86", 'black'),
       radius=fa*1.6)
   }
-  legend('topright', c("Tumor", "Stroma", "Other"), fill=c('red', 'green', 'black'), inset=c(-.25, 0), xpd=NA, cex=.8)
+  legend('topright', c("Tumor", "Stroma", "Other"), fill=c("#33761F", "#F19E86", 'black'), inset=c(-.25, 0), xpd=NA, cex=.8)
   dev.off();
-}, mc.cores=4)
+}, mc.cores=2)
 
 # Signatures and so on by spots
 ################################
