@@ -1,6 +1,6 @@
 source("~/prog/ST/ST TNBC/STscripts.R")
 
-library(NNLM)
+#library(NNLM)
 #library(EnsDb.Hsapiens.v86)
 library(survival)
 library(xgboost)

@@ -4,6 +4,7 @@ figDataDir = "~/Documents/BCTL/ST/TNBC/figsData/";
 library(vioplot); library(colorspace);
 library(alluvial);
 library(NbClust)
+library(scales)
 colDisp = c(Immune="#68339A", Stroma="#2F6EBA", Oncogenic="#AF2318", `Stress response`="#4EAD5B",
   Metabolism="#F8DA78");
 
@@ -15,6 +16,7 @@ colDisp = c(Immune="#68339A", Stroma="#2F6EBA", Oncogenic="#AF2318", `Stress res
 # x Fig 4c - tumorCompartment.pdf
 # x Fig 4d - stromaCompartment.pdf
 # x Fig 4e - TvsS.Mbp.hm.pdf
+# Fig 4f - survTSdec.final.1.pdf
 # x Fig 5b - tlsViolin.pdf
 # x Fig 5c - tlsGO.VSlympho.blueOnly.pdf
 # x Fig 5d - tlsGene.pdf
@@ -34,19 +36,65 @@ colDisp = c(Immune="#68339A", Stroma="#2F6EBA", Oncogenic="#AF2318", `Stress res
 # x Fig 8g - survEcotypeNew2.pdf
 #
 # Supplementary figures
-# Fig S2a - aucs.pdf
-# Fig S3a - TvsS.bar.dec.Tumor.*.horiz.pdf
-# Fig S3b - TvsS.bar.dec.Stroma.*.horiz.pdf
+# x Fig S2a - aucs.pdf
+# x Fig S3a - TvsS.bar.dec.Tumor.*.horiz.pdf
+# x Fig S3b - TvsS.bar.dec.Stroma.*.horiz.pdf
+# Fig S4 -
+# x Fig S5a - tlsXcl.pdf
+# x Fig S5b - tlsGO.VSlympho.pdf
+# x Fig S5c - tlsGO.VSrest.pdf
+# x Fig S6a - aucTLS2.pdf
+# x Fig S6b - aucTLS.pdf
+# x Fig S6c - compTLSsigs.pdf
+# x Fig S7a - tlsIspy.pdf
+# Fig S7b - 
+# Fig S7c - tlsAllCliRest.pdf
+# Fig S7d - fpTLSimmuno.pdf
+# x Fig S8a - controlTLS_TNBC.pdf
+# x Fig S8b - controlTLSby_TNBC.pdf
+# x Fig S9a - controlTLSispy.pdf
+# x Fig S9b - controlTLSbyispy.pdf
+# x Fig S9cd - controlTLSimmunoT.all.pdf
+# x Fig S9ef - controlTLSby_immunoT.all.pdf
+# x Fig S11a - meanAUC.pdf
+# x Fig S11bc - MCcomp.Sigs.pdf
+# x Fig S12 - MCcomp.Genes.pdf
+# x Fig S13 - MCcomp.xCell.pdf
+# x Fig S14 - forestMC.PB.pdf
+# x Fig S15 - forestMC.Bulk.pdf
+# x Fig S16 - forestMC.MB.pdf
+# x Fig S17 - forestMC.SCANB.pdf
+# x Fig S18 - forestMC.All3.pdf
+# x Fig S19a - N_ET.pdf
+# x Fig S19b - barEcot.pdf
+# x Fig S19c - EcoComp.Annot.pdf
+# x Fig S19d - EcoComp.Cli.pdf
+# x Fig S20ac - ET.HM.xc.pdf
+# x Fig S20bd - ET.HM.sig.pdf
+# x Fig S21ab - ET.HM.genes.pdf
+# x Fig S22a - EcoComp.Sigs.Bulk.pdf
+# x Fig S22b - EcoComp.Sigs.MB.pdf
+# x Fig S23 - EcoComp.Sigs.ScanB.pdf
+# x Fig S24 - EcoComp.xCell.Bulk.pdf
+# x Fig S25 - EcoComp.xCell.MB.pdf
+# x Fig S26 - EcoComp.xCell.ScanB.pdf
+# x Fig S27a - EcoComp.Genes.Bulk.pdf
+# x Fig S27b - EcoComp.Genes.MB.pdf
+# x Fig S28 - EcoComp.Genes.ScanB.pdf
+# x Fig S29ab - forestET.PB.pdf
+# x Fig S30ab - forestET.Bulk.pdf
+# x Fig S31ab - forestET.MB.pdf
+# x Fig S32ab - forestET.SCANB.pdf
+# x Fig S33ab - forestMC.All3.pdf
+
 # Fig S4a/b/c - survTSdec.final.2.pdf
 # Fig S4d - TvsS.bar.dec.Mpb.Cli.horiz.pdf, TvsS.bar.dec.Mpb.Annot.horiz.pdf
-# Fig S5a - tlsXcl.pdf
+
 # Fig S5b - sigCharoentongInTLS.FP.pdf
 # Fig S5c - sigCharoentongInTLS.pdf
-# Fig S5d - tlsGO.VSlympho.pdf
-# Fig S5e - tlsGO.VSrest.pdf
-# Fig S6a/b - aucTLS.pdf
+
 # Fig S6c - tlsAllCliRest.pdf
-# Fig S6d - tlsIspy.pdf
+
 # Fig S6e - fpTLSimmuno.pdf
 # Fig S6f/g/h - tlsAllCliRest.pdf
 # Fig S9a - meanAUC.pdf
@@ -66,24 +114,6 @@ colDisp = c(Immune="#68339A", Stroma="#2F6EBA", Oncogenic="#AF2318", `Stress res
 # Fig S18a/b - ET.HM.sig.pdf
 # Fig S19a/b - ET.HM.genes.pdf
 # Fig S20a - confMatEcot.pdf
-# Fig S20b - EcoComp.Sigs.Bulk.pdf
-# Fig S20c - EcoComp.Sigs.MB.pdf
-# Fig S21 - EcoComp.Sigs.ScanB.pdf
-# Fig S22a - EcoComp.xCell.Bulk.pdf
-# Fig S22b - EcoComp.xCell.MB.pdf
-# Fig S22c - EcoComp.Sigs.ScanB.pdf
-# Fig S23a - EcoComp.Genes.Bulk.pdf
-# Fig S23b - EcoComp.Genes.MB.pdf
-# Fig S24 - EcoComp.Genes.ScanB.pdf
-# Fig S25 - survEco1vAll.DRFS.pdf / survEco1vAll.Bulk.DRFS.pdf / survEco1vAll.MB.DRFS.pdf / survEco1vAll.SCANB.DRFS.pdf
-# Fig S26 - survEco1vAll.iBCFS.pdf / survEco1vAll.Bulk.iBCFS.pdf / survEco1vAll.MB.EFS.pdf / survEco1vAll.SCANB.iBCF.pdf
-# Fig S27 - survEco1vAll.OS.pdf / survEco1vAll.Bulk.OS.pdf / survEco1vAll.MB.OS.pdf / survEco1vAll.SCANB.OS.pdf
-# Fig S28 - survEco1vAll.RFS.pdf / survEco1vAll.Bulk.RFS.pdf
-# Fig S29a/b - forestET.PB.pdf
-# Fig S30a/b - forestET.Bulk.pdf
-# Fig S31a/b - forestET.MB.pdf
-# Fig S32a/b - forestET.SCANB.pdf
-# FIg S33a/b - forestET.All3.pdf
 
 # Morpho etc
 ##############
@@ -125,15 +155,27 @@ for (i in colnames(n2))
 dev.off()
 
 # Other datasets
-x=cli$patches.Tumor[,c("N", "Np", "evenness", "N0.5")];
-x[,2] = x[,2]/x[,1];
-colnames(x) = c("Number", "Size", "Evenness", "50% surface recovery");
-x = data.frame(ID=rownames(cli), Subtype=cli$barPB, x, check.names=FALSE);
-write.xlsx2(x, file=paste0(figDataDir, "morphoPatch.xlsx"), row.names=FALSE)
+###################
+for (i in c("Tumor", "Stroma"))
+{ x=cli[[paste0("patches.", i)]][,c("N", "Np", "evenness", "N0.5")];
+  x[,2] = x[,2]/x[,1];
+  colnames(x) = c("Number", "Size", "Evenness", "50% surface recovery");
+  x = data.frame(ID=rownames(cli), Subtype=cli$barPB, x, check.names=FALSE);
+  write.xlsx2(x, file=paste0(figDataDir, "morphoPatch.", i, ".xlsx"), row.names=FALSE)
+}
 
 x = data.frame(ID=rownames(cli), cli$annotations, check.names=FALSE);
 write.xlsx2(x, file=paste0(figDataDir, "morphoTotal.xlsx"), row.names=FALSE)
 
+x = csAnT;
+y = cli$patches.Tumor; y = y[,"Np"]/y[,"N"];
+x = data.frame(ID=rownames(cli), `Mean tumor patch size`=y, x, check.names=FALSE);
+write.xlsx2(x, file=paste0(figDataDir, "patchSizeVsSig.Tumor.xlsx"), row.names=FALSE)
+
+x = csAnS;
+y = cli$patches.Stroma; y = y[,"Np"]/y[,"N"];
+x = data.frame(ID=rownames(cli), `Mean stroma patch size`=y, x, check.names=FALSE);
+write.xlsx2(x, file=paste0(figDataDir, "patchSizeVsSig.Stroma.xlsx"), row.names=FALSE)
 
 #####################
 ## Tumor / stroma PB
@@ -154,6 +196,11 @@ for (i in a)
   if (any(names(nm2)==i)) { title(main=nm2[i], xpd=NA); } else { title(main=i); }
 }
 dev.off();
+
+x = data.frame(n[,a]>0,do.call(cbind, loos[a]), check.names=FALSE);
+w = colnames(x) %in% names(nm2); colnames(x)[w] = nm2[colnames(x)[w]];
+colnames(x) = paste(colnames(x), rep(c("Presence (TRUE/FALSE)", "LPO regression"), each=length(a)))
+write.xlsx2(x, file=paste0(figDataDir, "aucs.xlsx"), row.names=FALSE);
 
 pdf(paste0(figDir, "aucs2.pdf"), height=4, width=length(a)*2)
 par(mfcol=c(2,length(a)), mar=c(3,3,1.5,.5), mgp=c(1.5,.5,0))
@@ -227,7 +274,7 @@ me[!(me %in% c("MSL MSL", "M MSL", "M M"))] = NA; me[cli$barT.an!="M"] = NA;
 me2 = paste("Stroma", cli$barS.an); me2[cli$barPB!="M" | !(cli$barS.an %in% c("M", "MSL"))] = NA;
 rownames(geneList) = geneList$symbol;
 for (what in c("Sigs", "xCell", "Genes", "Annot", "Cli"))
-{ for (version in c("StromaByTumor", "Tumor", "Stroma", "BL", "M", "Mpb"))
+{ for (version in c("StromaByTumor", "Tumor", "Stroma", "BL", "M", "Mpb")[2:3])
   { v2 = c(StromaByTumor="Stroma", Tumor2="Tumor", Tumor="Tumor", Stroma="Stroma", Stroma2="Stroma",
       BL="Stroma", M.Tumor="Tumor", M="Stroma", Mpb="Stroma")[version]
     cc = list(Tumor=list(Sigs=csAnT, SigsH=csAnT, xCell=xcAnT, Genes=t(tumorAn[intersect(rownames(tumorAn), geneList$symbol),]), Annot=cli$annotClean, Cli=ccn),
@@ -246,7 +293,7 @@ for (what in c("Sigs", "xCell", "Genes", "Annot", "Cli"))
     }
     
     bubullePlot(cc, cmps, what=what,
-      fileName=paste0(figDir, "TvsS.bar.dec.",version, ".pdf"))
+      fileName=paste0(figDir, "TvsS.bar.dec.",version, ".pdf"), dataDir=figDataDir, dataNfo=paste(version,"subtype"))
   }
 }
 
@@ -284,10 +331,10 @@ col = c(colDisp, Proliferation=colDisp[["Oncogenic"]], Pathway=MC.colors[[1]]);
 for (what in c("T", "S"))
 { a = aa[[what]];
   if (what=="T")
-  { x = list(Sigs=csAnT, xCell=xcAnT, Genes=t(tumorAn[intersect(rownames(tumorAn), geneList$symbol), ]))
+  { x = list(Sigs=csAnT, xCell=xcAnT[,names(colXct)], Genes=t(tumorAn[intersect(rownames(tumorAn), geneList$symbol), ]))
     cmps = f(cli$barT.an); cmps[cmps=="IM"]=NA; 
   } else
-  { x = list(Sigs=csAnS, xCell=xcAnS, Genes=t(stromaAn[intersect(rownames(stromaAn), geneList$symbol), ]))
+  { x = list(Sigs=csAnS, xCell=xcAnS[,names(colXct)], Genes=t(stromaAn[intersect(rownames(stromaAn), geneList$symbol), ]))
     cmps = f(cli$barS.an); cmps[cmps=="BL"]=NA;
   }
   #x = lapply(names(x), function(i) x[[i]][,grepl(what, nfo[[i]][colnames(x[[i]]), 3]),drop=FALSE]) # Tumor/stroma features only
@@ -310,7 +357,7 @@ for (what in c("T", "S"))
   colLbls = c('grey45', 'black', 'darkblue'); names(colLbls) = c("Cell types", "Signatures", "Single genes");
 
   z = p.adjust(p1$p[ww,], method='fdr');
-  cutOff = max(z[p1$fdr[ww,]<=.05])+1e-10;
+  cutOff = max(z[p1$fdr[ww,]<.05])+1e-10;
 
   at = 1:nrow(a);
   for (i in which(!duplicated(a$Main_classes))[-1]) { at[i:length(at)] = at[i:length(at)]+1; }
@@ -341,7 +388,7 @@ for (what in c("T", "S"))
     xs = xs+5;
     xs2 = rep(xs, 2);
     ys2 = ys-li*1.5*c(0,2.5)
-    text(xs2, ys2, c("FDR ≤ 5%", "FDR > 5%"), xpd=NA, font=2, adj=c(.5, 1))
+    text(xs2, ys2, c("FDR < 5%", "FDR ≥ 5%"), xpd=NA, font=2, adj=c(.5, 1))
     points(xs2[1]+c(-1.5*em, 1.5*em)/par('cex'), rep(ys2[1]-li*2,2), pch=21, col='black', lwd=.5,
       cex=3, xpd=NA, bg = c("#0072B2", "#F27052"));
     points(xs2[2]+c(-1.5*em, 1.5*em)/par('cex'), rep(ys2[2]-li*2,2), pch=16,
@@ -391,6 +438,11 @@ plotSurv(cli$DRFS, a, addTable=TRUE, xlab='Time (yr)', ylab="DRFS", main="M subt
  test="perm", ppos=.1, nperm=1e5, legendPos=NULL, parseCateg=TRUE, titleTable=NULL);
 dev.off();
 
+x = data.frame(ID=rownames(cli), Class=a, DRFS.time=cli$DRFS[,1], DRFS.event=cli$DRFS[,2])
+x = x[!is.na(x[,2]),];
+x$Class = ifelse(grepl("MSL", x$Class), "M-MSLstroma", "M-Mstroma")
+write.xlsx2(x, file=paste0(figDataDir, "survTSdec.final.xlsx"), row.names=FALSE);
+
 set.seed(123);
 pdf(paste0(figDir, "survTSdec.final.2.pdf"), height=3, width=10);
 par(mfrow=c(1,3), mar=c(3,9,1.5,.5), mgp=c(1.5,.5,0))
@@ -439,7 +491,8 @@ abline(h = wi[nd]-wi[2]/2, col='white', lwd=2)
 xi = c(length(sp[[1]])*.5, length(sp[[1]])+.5*length(sp[[2]]))/(nrow(y));
 xi = xi*diff(par('usr')[1:2])+par('usr')[1]
 text(xi, rep(par('usr')[4]+strheight("M"), 2), xpd=NA,
-  parse(text=c("bold(paste('M'['TUMOR'], '-M'['STROMA']))", "bold(paste('M'['TUMOR'], '-MSL'['STROMA']))")), col=1:2)
+ # parse(text=c("bold(paste('M'['TUMOR'], '-M'['STROMA']))", "bold(paste('M'['TUMOR'], '-MSL'['STROMA']))")), col=1:2)
+  parse(text=c("bold(paste('M-M'['STROMA']))", "bold(paste('M-MSL'['STROMA']))")), col=1:2)
 sl = par('usr')[2]; em = strwidth("M");
 for (i in 1:3)
 { lines(c(sl+em/2, sl+em/2), c(c(0, wi[nd])[i], c(wi[nd-1], 1)[i]), xpd=NA,
@@ -577,6 +630,7 @@ dev.off();
 x = do.call(cbind, pi);
 rownames(x) = rownames(xCan);
 colnames(x) = paste(c("Log FC", "P-value"), rep(names(pi), each=2), "vs TLS")
+w = grep("Log FC", colnames(x)); x[,w] = exp(x[,w]); colnames(x)[w]=sub("Log ", "", colnames(x)[w])
 x = data.frame(Gene=rownames(x), x, check.names=FALSE);
 write.xlsx2(x, file=paste0(figDataDir, "tlsGene.xlsx"), row.names=FALSE);
 
@@ -586,7 +640,7 @@ ax = function(i)
 { a=axTicks(i); lbl = paste0("10^-", abs(a)); lbl[a==0] = 1;
   axis(i, at=a, labels=parse(text=lbl));
 }
-p = psGo$xCell; p=p[!grepl("Score", rownames(p)),];
+p = psGo$xCell[names(colXct), ]; p=p[!grepl("Score", rownames(p)),];
 p1 = -pmin(1, 2*rowMins(p[,c("Lymphocyte Higher", "Lymphocyte Lower")])) *
   sign(p[,"Lymphocyte Lower"]-p[,"Lymphocyte Higher"])
 a = rowMins(p[,grepl("Lower", colnames(p)) & colnames(p) != "Lymphocyte Lower"])
@@ -612,6 +666,9 @@ myAddTextLabels(logAbs(p1), logAbs(p2), lbl, cex.label=.7, col.label=colXct[name
 legend('topleft', legend=names(colXc), fill=colXc, bty='n');
 dev.off();
 
+x = data.frame(t(psGo$xCell[names(colXct), -(1:2)]), check.names=FALSE)
+x = cbind(comparison=rownames(x), x)
+write.xlsx2(x, file=paste0(figDataDir, "tlsXcl.xlsx"), row.names=FALSE);
 
 co1 = colorspace::lighten('#405D92', .5); co2 = lighten('#E86E4D', .15)
 p = psGo$xCell[names(colXct),];
@@ -639,7 +696,7 @@ dev.off();
 
 w = idCan[,1] %in% c("Lymphoid nodule", "Lymphocyte");
 x = data.frame(ID=idCan[w,2], Compartment=
-  c(`Lymphoid nodule`="TLS", Lymphocyte="Lymphocytes")[idCan[w,1]], xcAn[w,], check.names=FALSE);
+  c(`Lymphoid nodule`="TLS", Lymphocyte="Lymphocytes")[idCan[w,1]], xcAn[w,names(colXct)], check.names=FALSE);
 write.xlsx2(x, file=paste0(figDataDir, "tlsViolin.xlsx"), row.names=FALSE)
 
 # tlsAllCli
@@ -704,7 +761,9 @@ par(mfrow=c(1,4), mar=c(3,3,2,.5), mgp=c(1.5,.5,0), cex.main=1, cex=1);
 #  xlab="Time (yr)", legendPos='bottomleft', legend.title="TLS ST sig", ppos=.2, marTable=1.5, , args.legend=list(bty='n', inset=c(.02, 0)), leftTable=5)
 qrt = unlist(lapply(ds, function(i) quartiles(i$cs[,"TLS ST"])))
 plotSurv(censor(sus$DRFS), qrt, addTable=TRUE, main="TNBC - all cohorts", ylab="DRFS",
-  xlab="Time (yr)", legendPos='bottomleft', legend.title="TLS ST sig", ppos=.2, marTable=1.5, , args.legend=list(bty='n', inset=c(.02, 0)), leftTable=5)
+  pval=getCoxP(coxph(censor(sus$DRFS) ~ qrt +strata(stud)) ),
+  xlab="Time (yr)", legendPos='bottomleft', legend.title="TLS ST sig", ppos=.2, marTable=1.5,
+  args.legend=list(bty='n', inset=c(.02, 0)), leftTable=5)
 #myBoxplot(csI[,"TLS ST"], cliIspy$pcr, subset=cliIspy$wI & cliIspy$arm=="Pembro", ylab="TLS ST sig", subSide=3, subLine=-1.5,
 #  main="I-SPY2 - TNBC cohort - Pembrolizumab arm", alpha=.9, addN=TRUE)
 myBoxplot(csI[,"TLS ST"], cliIspy$pcr, subset=cliIspy$arm=="Pembro", ylab="TLS ST sig", subSide=3, subLine=-1.5,
@@ -762,7 +821,8 @@ for (i in c("pfs", "os"))
   colnames(x)[3:4] = paste(i, "-", c("time (yrs)", "event"))
   write.xlsx2(x, paste0(figDataDir, "tlsAllCliSmall", c(pfs="C", os="D")[i], ".xlsx"), row.names=FALSE)
 }
- 
+
+d = dIm;
 ps = lapply(colnames(suI), function(what)
 { s = suI[,what];
   p = t(apply(d, 2, function(i) getCoxP(coxph(s~i+ strata(st)), HR=TRUE))) #, subset=cancer=="Bladder")))
@@ -805,6 +865,10 @@ for (i in c("pfs", "os"))
 }
 dev.off();
 
+x = data.frame(ID=rownames(dIm), Study=st, as.matrix(suI$os), dIm, check.names=FALSE)
+colnames(x)[3:4] = paste("OS", colnames(x)[3:4]);
+write.xlsx2(x, file=paste0(figDataDir, "TLSimmunoOS.xlsx"), row.names=FALSE);
+
 # Signatures from Charoentong on TLS
 #####################################
 w = idAn[,"Lymphoid nodule"]; w[!cli$hasTLS]=NA;
@@ -835,6 +899,28 @@ dev.off()
 
 # AUCs of TLS sig
 #####################
+x = readRDS("~/tmp/regsFull.RDS");
+cl= x[,"ann.Lymphoid.nodule"]>.25;
+
+pdf(paste0(figDir, "aucTLS2.pdf"), width=7.5, height=2.5);
+par(mfrow=c(1,3), mar=c(3,3,1.5,.5), mgp=c(1.5,.5,0))
+for (i in c("loos.Lymphoid.nodule", "pred.Lymphoid.nodule", "sig.TLS.ST"))
+{ z = roc(response=cl, predictor=x[,i], direction="<", ci=TRUE);
+  plot(z, mar=par('mar'), mgp=par('mgp'))
+  mtext(paste("AUC:", round(z$auc, digits=2)), side=1, line=-3, adj=0, at=.6, cex=.8)
+  mtext(paste0("(", round(z$ci[1], digits=2), "-",round(z$ci[3], digits=2), ")"),
+      side=1, line=-1.4, adj=0, at=.6, cex=.8)
+  title(main=c(loos.Lymphoid.nodule="Regression (LOO)", pred.Lymphoid.nodule="Regression (Final)",
+    sig.TLS.ST='TLS ST signature')[i])
+}
+dev.off();
+
+z = data.frame(cl, x[,c("loos.Lymphoid.nodule", "pred.Lymphoid.nodule", "sig.TLS.ST")]);
+colnames(z) = c("Presence TLS", "Regression (LOO)", "Regression (Final)", 'TLS ST signature')
+write.xlsx2(z, file=paste0(figDataDir, "aucTLS2.xlsx"), row.names=FALSE);
+
+# AUC TLS
+###################
 y = list(cli$annotClean[,"Lymphoid nodule"]>0, cli$hasTLS)
 pdf(paste0(figDir, "aucTLS.pdf"), width=4*2+.2, height=2*2+.4);
 par(mfrow=c(2,4), mar=c(3,3,.5,.5), mgp=c(1.5,.5,0), omi=c(0,.2,.4,0))
@@ -857,6 +943,127 @@ mtext(c("Bulk", "PB"), side=3, at=c(.25, .75), outer=TRUE, line=1.5)
 mtext(rep(c("ST sig", "Lundeberg sig"), 2), side=3, at=(.5:3.5)/4, outer=TRUE, line=0.3, cex=.8)
 dev.off();
 
+x = data.frame(ID=rownames(cli), `TLS by annotation`=y[[1]], `TLS by regression`=y[[2]],
+  csPB[,c("TLS ST", "TLS Lundeberg")], csBulk[,c("TLS ST", "TLS Lundeberg")], check.names=FALSE)
+colnames(x)[4:7] = paste(colnames(x)[4:7], c("PB", "PB", "Bulk", "Bulk"));
+write.xlsx2(x, file=paste0(figDataDir, "aucTLS.xlsx"), row.names=FALSE);
+
+
+# Genes in other TLS sigs
+##########################
+si = c(Lundeberg=list(sigs[["TLS Lundeberg"]]$name), Cabrita=unname(sigH["TLS Cabrita"]),
+  Meylan=list(sigs[["TLS Meylan"]]$name))
+pdf(paste0(figDir, "compTLSsigs.pdf"), width=15, height=5)
+gB = names(idG); #g = names(ok)[ok]
+m1 = rowMins(ms[,colnames(ms)!="Lymphocyte"])/log(2)
+m2 = ms[,"Lymphocyte"]/log(2); names(m1) = names(m2);
+par(mfrow=c(1,3), mar=c(3,3,3,3), mgp=c(1.5,.5,0));
+for (i in names(si))
+{ z = smoothScatter(log2(1+2^m2), log2(1+2^m1), xlab="Fold-change TLS vs. lymphocyte compartment",
+    ylab='Min fold-change TLS vs. another compartment',
+    pch=NA, nrpoint=100, ret.selection = TRUE, xaxt='n', yaxt='n', transformation = function(x) {pmin(x,2) ^.25}) # 
+  a=c(0, .5, 1, 2, 4, 8, 16, 32); axis(1, at=log2(1+a), labels=a);
+  a=c(0, .5, 1, 2, 4, 8); axis(2, at=log2(1+a), labels=a);
+  abline(h=1, v=1, col='grey');
+
+  z = intersect(si[[i]], rownames(ms));
+  co = ifelse(z %in% gB, "black", "red");
+
+  points(log2(1+2^m2[z]), log2(1+2^m1[z]), col=co)
+  #abline(h=-10, v=-10, col='red'); 
+
+  #m1b = c(m1[z], rep(seq(from=-2, to=.9, len=10), 10), rep(seq(from=.5, to=3, len=10), 10))
+  #m2b = c(m2[z], rep(seq(from=-2, to=.9, len=10), each=10), rep(seq(from=-4, to=-1, len=10), each=10))
+  m1b = c(m1[z], rep(seq(from=-2, to=.9, len=10), 10), rep(seq(from=-3, to=1.5, len=10), 10))
+  m2b = c(m2[z], rep(seq(from=-2, to=.9, len=10), each=10), rep(seq(from=-2, to=5, len=10), each=10))
+  myAddTextLabels(log2(1+2^m2b), log2(1+2^m1b), c(z, rep(NA, 200)), cex.label=.8, col.label=c(co, rep(NA, 200)),
+    heightPad=.3, widthPad=.1, figBorder=.03)
+
+  di = 1.6;
+  arrows(c(-.1, .1)+log2(2), par('usr')[4]+di*strheight("I"), par('usr')[1:2], par('usr')[4]+di*strheight("I"), xpd=NA, length=.17)
+  mtext(c("Lymphocytes", "TLS"), line=di/2+.7, at=(par('usr')[1:2]+1)/2, side=3)
+  arrows(a<-(par('usr')[2]+di*strwidth("N")), c(-.1, .1)+log2(2), a, par('usr')[3:4], xpd=NA, length=.17)
+  text(a+strwidth("N")*1.6, (par('usr')[3:4]+1)/2, xpd=NA, srt=270, c("Other non-lymphocytes","TLS")); 
+  mtext(i, side=3, line=-1.2, font=2)
+}
+dev.off();
+
+x = data.frame(Gene=rownames(ms), 2^cbind(m1, m2));
+for (i in c("TLS ST", names(si)))
+{ x[paste("Present in signature",i)] = x$Gene %in% c(`TLS ST`=list(gB), si)[[i]];
+}
+colnames(x)[2:3] = c('Min fold-change TLS vs. another compartment', "Fold-change TLS vs. lymphocyte compartment")
+write.xlsx2(x, file=paste0(figDataDir, "compTLSsigs.xlsx"), row.names=FALSE);
+
+# TLS in TNBC (controlled)
+########################
+ws = c("Immune1", "Immune2", "Inflammatory response", "Interferon alpha response",
+  "Interferon gamma response", "IL2 STAT5 signaling", "IL6 JAK STAT3 signaling",
+  "TLS Lundeberg", "TLS Cabrita", "TLS Meylan")
+  
+x = do.call(rbind, lapply(ds, function(i) scale(i$cs[,c("TLS ST", ws)])))
+colnames(x)[colnames(x)=="Interferon alpha response"] = "IFN-α response";
+colnames(x)[colnames(x)=="Interferon gamma response"] = "IFN-γ response";
+x = data.frame(x, `IM subtype`=unlist(lapply(ds, function(i) i$cli$bar=="IM")), check.names=FALSE)
+y = cbind(x, ctrTot, stud=stud)
+
+ctr = list(METABRIC=ctrlMB, `Spatial TNBC`=ctrl[rownames(ds[["Spatial TNBC"]]$cli),], `SCAN-B`=ctrlSB)
+ctrTot = do.call(rbind, ctr[names(ds)])
+ct = update(ctrlForm, ~.+strata(stud))
+
+f = update(ct, sus[[i]] ~ . + loc);
+f2 = update(ct, sus[[i]] ~ . + loc + `TLS ST`);
+
+nf=list();
+for (iter in 1:2) {
+cairo_pdf(paste0(figDir, "controlTLS_TNBC.pdf"), width=10, height=3);
+par(mfrow=c(1,3), mar=c(.5,1,1.5,1), mgp=c(1.5,.5,0))
+for (i in names(sus))
+{ co = do.call(rbind, lapply(colnames(x)[-1], function(j)
+  { y$loc = x[,j];
+    fm = coxph(f, data=y)
+    fm2 = coxph(f2, data=y)
+    p = anova(fm, fm2)[2,"Pr(>|Chi|)"]
+    c(p=p, coef(summary(fm2))["`TLS ST`", c("coef", "se(coef)")]);
+  }))
+  
+  p1 = coef(summary(coxph(update(f2, ~ . -loc), data=y)))["`TLS ST`",c(5, 1, 3)]
+  
+  r = list();
+  r[[1]] = c(list(expression(bold('TLS ST')), expression(bold('TLS ST controlled for'))), 
+    colnames(x)[-1])
+  r[[2]] = c(list(formatNice(p1[1]), NA), lapply(co[,'p'], formatNice))
+  
+  col = ifelse(c(p1[1], NA, co[,'p'])<.05, "#00AFBB", "slategray4") 
+
+  m = rbind(p1[2:3], NA, co[,2:3])
+  m = exp(m[,1] +1.96*cbind(-m[,2], 0, +m[,2]));
+  
+  nfo = nf[[i]]$figInfo;
+  nf[[i]] = basicForest(r, m, lineHeight=cumsum(c(1.5,2,2,rep(1.5, nrow(m)-2))),
+      xlab="HR", xlog=TRUE, xlim=c(.5, 1.1), annotDir=c("Better", "Worse"),
+      titles=c("", expression(bolditalic(P))), col=col, beforePlot=bf)
+  title(main=i);
+}
+dev.off();
+}
+
+cairo_pdf(paste0(figDir, "controlTLSby_TNBC.pdf"), width=10, height=2.6);
+par(mfrow=c(1,3), mar=c(.5,1,1.5,1), mgp=c(1.5,.5,0))
+for (i in names(sus))
+{ b = allForest(y, sus[[i]], control=update(ct, ~.+TLS.ST), annotDir=c("Better", "Worse"), 
+    clip=c(.5, 1.3), columns="P", lineHeight=c(1.5, (2:ncol(x))*1.5+1.5), colWidth=c(1,.3,.6))
+  b = b$basicForest$linePos;
+  text(1, (b[1]+b[2])/2, "Signatures controlled for TLS ST", adj=0, font=2)#, cex=par('cex'))
+  title(main=i);
+}
+dev.off();
+
+z = data.frame(ID=rownames(y), Study=rep(names(ds), sapply(ds, function(i) nrow(i$cli))),
+  do.call(cbind, sus), y, check.names=FALSE);
+colnames(z)[2+(1:6)] = paste(rep(names(sus), each=2), colnames(z)[2+(1:6)])
+write.xlsx2(z, file=paste0(figDataDir, "controlTLS_TNBC.xlsx"), row.names=FALSE);
+
 # TLS in iSPY
 ##############
 x = makeAllSubgroups(csI[,"TLS ST"], cliIspy[,c("Receptor.Subtype", "Arm..short.name.")]);
@@ -873,6 +1080,56 @@ allForest(x, cliIspy$pcr, useWilcox=TRUE,
 #ch = abs(strheight("!")); 
 #mtext(names(m), side=2, at=m*ch)
 dev.off();
+
+x = data.frame(ID=rownames(cliIspy), `Receptor`=cliIspy$Receptor.Subtype, Arm=cliIspy$Arm..short.name.,
+  pCR=cliIspy$pcr, `TLS ST`=csI[,"TLS ST"], check.names=FALSE)
+write.xlsx2(x, file=paste0(figDataDir, "tlsIspy.xlsx"), row.names=FALSE);
+
+w = cliIspy$arm=="Pembro";
+x = scale(csI[w,c("TLS ST", ws)])
+colnames(x)[colnames(x)=="Interferon alpha response"] = "IFN-α response";
+colnames(x)[colnames(x)=="Interferon gamma response"] = "IFN-γ response";
+
+pcr = cliIspy$pcr[w]
+p1 = wilcox.test(x[,1] ~ pcr)$p.value;
+m1 = coef(summary(glm(pcr ~ x[,1], family=binomial)))[2,1:2]
+p2 = t(apply(x[,-1], 2, function(i) coef(summary(glm(pcr ~ i + x[,1], family=binomial)))["x[, 1]", c(4,1,2)]))
+
+r = list();
+r[[1]] = c(list(expression(bold('TLS ST')), expression(bold('TLS ST controlled for'))), 
+  colnames(x)[-1])
+r[[2]] = c(list(formatNice(p1), NA), lapply(p2[,1], formatNice))
+
+m = rbind(m1, NA, p2[,2:3])
+m = exp(m[,1] +1.96*cbind(-m[,2], 0, +m[,2]));
+
+bf = function()
+{ if (is.null(nfo)) { return(); }
+  rect(m[1,1], nfo$li[1], m[1,3], nfo$li[length(nfo$li)]+.5/length(nfo$li), col=alpha('lightgrey', .5), border=NA, xpd=NA)
+}
+nfo=NULL;
+
+for (iter in 1:2)
+{ cairo_pdf(paste0(figDir, "controlTLSispy.pdf"), height=3.5, width=5);
+  par(mar=c(.5, .5, .5, 1));
+  nfo = basicForest(r, m, lineHeight=cumsum(c(2,1.5,2,rep(1.5, nrow(m)-2))),
+      xlab="OR", xlog=TRUE, xlim=c(.9, 5), annotDir=c("Worse", "Better"), titles=c("", expression(bolditalic(p))),
+      beforePlot=bf, col = ifelse(c(p1[1], NA, p2[,1])<.05, "#00AFBB", "slategray4"))
+  nfo = nfo$figInfo
+  dev.off();
+}
+
+cairo_pdf(paste0(figDir, "controlTLSbyispy.pdf"), height=3.5, width=5);
+par(mar=c(.5, .5, .5, 1));
+bf = allForest(x, cliIspy$pcr[w], control=~TLS.ST, columns=c("P"), annotDir=c("Worse", "Better"),
+  lineHeight=c(1.5, (2:ncol(x))*1.5+1.5), colWidth=c(1,.3,.6))
+bf = bf$basicForest$linePos;
+text(1, (bf[1]+bf[2])/2, "Signatures controlled for TLS ST", adj=0, font=2, cex=par('cex'))
+dev.off();
+
+z = data.frame(ID=rownames(cliIspy)[w], pCR=cliIspy$pcr[w], x, check.names=FALSE);
+z = z[!is.na(z[,1]),]
+write.xlsx2(z, file=paste0(figDataDir, "controlTLSispy.xlsx"), row.names=FALSE);
 
 # TLS vs. GO
 #############
@@ -907,9 +1164,12 @@ gos = lapply(1:4, function(i) { x = gos[[i]]; data.frame(x[,1], x[,2], i%%2) } )
 goss = list(rbind( gos[[1]], gos[[2]]), rbind(gos[[3]], gos[[4]]) )
 goss = lapply(goss, function(x) x[order(-x[,2]),])
 
+a = psGo$GO;
+a[,"Max other lower"] = rowMins(a[,grepl("Lower", colnames(a)) & colnames(a) != "Lymphocyte Lower"])
 cols=c('lightblue', 'yellow')
-p = cbind(psGo$GO[,"Lymphocyte Higher"], psGo$GO[,"Lymphocyte Lower"],
-  psGo$GO[,"Max other higher"], psGo$GO[,"Max other lower"]);
+p = cbind(a[,"Lymphocyte Higher"], a[,"Lymphocyte Lower"],
+  a[,"Max other higher"], a[,"Max other lower"]);
+  
 for (j in 1:2)
 { cairo_pdf(paste0(figDir, "tlsGO", c(".VSlympho", ".VSrest")[j], ".pdf"),
     height=12, width=5)
@@ -919,7 +1179,7 @@ for (j in 1:2)
   ii = p[,j*2 + c(-1, 0)];
   i = cbind(2*rowMins(ii), ii[,1]<ii[,2]);
   i[,1] = p.adjust(i[,1], method='fdr'); i = i[nm,];
-  o = order(-i[,1]); i=i[o,]; ii=ii[o,]; nm = nm[o];
+  o = order(-i[,1]); i=i[o,]; nm = nm[o];
   at = barplot(-log10(abs(i[,1])), horiz=TRUE, yaxt='n', xlab="FDR", #expression(paste(italic('P'), '-value')),
     col=cols[2-i[,2]], border=NA,
     yaxs='i', ylim=c(0, 1.2*nrow(i)), xaxt='n');
@@ -931,15 +1191,19 @@ for (j in 1:2)
       col=colorspace::darken(cols,.4), line=.5, adj=c(.25,.75), cex=par('cex')) 
   dev.off();
   
+  x = data.frame(rownames(ii), ii, rownames(ii) %in% nm);
+  colnames(x) = c("GO", paste(c("FDR TLS >", "FDR TLS <"), c("Lymphocyte", "Rest")[j]), "Displayed?")
+  write.xlsx2(x, file=paste0(figDataDir, "tlsGO", c(".VSlympho", ".VSrest")[j], ".xlsx"), row.names=FALSE); 
+  
   cairo_pdf(paste0(figDir, "tlsGO", c(".VSlympho", ".VSrest")[j], ".blueOnly.pdf"),
     height=5, width=4+1)
-  par(mar=c(3,15,2,1), mgp=c(1.5,.5,0))
+  par(mar=c(3,15,2,1), mgp=c(1.5,.5,0), cex.axis=3/4)
   #par(mar=c(3,.5,3,1), mgp=c(1.5,.5,0))
   i = i[i[,2]==1,];
   at = barplot(-log10(abs(i[,1])), horiz=TRUE, yaxt='n', xlab="FDR", #expression(paste(italic('P'), '-value')),
     col=cols[1], border=NA,
     yaxs='i', ylim=c(0, 1.2*nrow(i)), xaxt='n');
-  a = axTicks(1); a = a[seq(1, length(a), by=2)];
+  a = axTicks(1); if (length(a)>5) { a = a[seq(1, length(a), by=2)]; }
   lbl = paste0("10^-", a); lbl[a==0]=1; axis(1, at=a, label=parse(text=lbl));
   #text(0, at, cutText(paste0(" ",f(rownames(i))), cex=.75), adj=0, cex=.75)
   mtext(cutText(f(rownames(i)), maxSz=par('mai')[2]*diff(par('usr')[1:2])/par('pin')[1], cex=.75),
@@ -1008,6 +1272,11 @@ for (i in c(1, 3, 2))
   title(main=toupper(names(pp)[i]))
 }
 dev.off();
+
+su = do.call(cbind, suI); colnames(su) = paste(rep(toupper(names(suI)), each=2), colnames(su));
+x = data.frame(ID=unlist(lapply(dsIm, function(i) rownames(i$cl)))[w], Study=st2, `Cancer origin`=ty2,
+  RECIST=s, su[w,], `TLS ST`=dIm[w,"TLS ST"], check.names=FALSE);
+write.xlsx2(x, file=paste0(figDataDir, "fpTLSimmuno.xlsx"), row.names=FALSE);
 
 ## TLS correlogram
 ##################
@@ -1136,13 +1405,40 @@ x = data.frame(id=rownames(dIm), `PFS - time`=suI$pfs[,1], `PFS - event`=suI$pfs
   dIm[,c("TLS ST", ws)], check.names=FALSE);
 write.xlsx2(x, file=paste0(figDataDir, "controlTLSby_immunoT.all.xlsx"), row.names=FALSE);
 
-## Datasets for last 2 figs
+x = data.frame(id=rownames(dIm), `OS - time`=suI$os[,1], `OS - event`=suI$os[,2], RECIST=resp,
+  dIm[,c("TLS ST", ws)], check.names=FALSE);
+write.xlsx2(x, file=paste0(figDataDir, "controlTLSby_immunoT.all.SI.xlsx"), row.names=FALSE);
+
+## Comparison of TLS signatures
+#################################
+pdf(paste0(figDir, "compTLS.pdf"), width=7, height=7.5)
+f = factor(idCan[,1], levels=c('Lymphoid nodule','Lymphocyte','Fat tissue','in situ',
+  'Lactiferous duct','Necrosis','Stroma','Tumor','Vessels'));
+par(mfrow=c(4,1), mar=c(6,3,1.5,1.5), mgp=c(1.5,.5,0))
+for (i in c("TLS ST", "TLS Lundeberg", "TLS Cabrita", "TLS Meylan"))
+{ myBoxplot(csAn[,i], f, leg45=TRUE, ylab=i)
+  for (j in 2:length(levels(f)))
+  { w = f %in% c('Lymphoid nodule',levels(f)[j]);
+    p = wilcox.test(csAn[w,i] ~ f[w])$p.value
+    mtext(formatNiceP(p), side=3, at=j, cex=par('cex'))
+  }
+}
+dev.off()
+
+x = data.frame(idCan[,2:1], csAn[,c("TLS ST", "TLS Lundeberg", "TLS Cabrita", "TLS Meylan")], check.names=FALSE);
+colnames(x)[2:1] = c("Compartment", "Sample ID")
+write.xlsx2(x, file=paste0(figDataDir, "compTLS.xlsx"), row.names=FALSE);
+
+## Datasets for other figs
 #############################
 x = data.frame(ID=rownames(cli), Subtype=cli$barPB, `TLS ST signature`=csPB[,"TLS ST"], check.names=FALSE)
 write.xlsx(x, file=paste0(figDataDir, "TLSsigVsBar.xlsx"), row.names=FALSE);
 
 x = data.frame(ID=rownames(cli), TIME=cli$TIME_classes.bypathologist, `TLS ST signature`=csPB[,"TLS ST"], check.names=FALSE)
 write.xlsx(x, file=paste0(figDataDir, "TLSsigVsTIME.xlsx"), row.names=FALSE);
+
+x = data.frame(`Sample ID`=idCan[,2], `Compartment`=idCan[,1], csAn[,grep("^TLS", colnames(csAn))], check.names=FALSE);
+write.xlsx2(x, file=paste0(figDataDir, "TLSbyCompartment.xlsx"), row.names=FALSE);
 
 #######################
 ## MC & ET
@@ -1314,7 +1610,7 @@ for (what in c("Sigs", "xCell", "Genes"))
   if (length(w)==0) { next; }
   
   z = p.adjust(p1$p[w,], method='fdr');
-  cutOff = max(z[p1$fdr[w,]<=.05])+1e-10;
+  cutOff = max(z[p1$fdr[w,]<.05])+1e-10;
   
   cairo_pdf(paste0(figDir, "MCcomp.", what, ".pdf"),
       height=(length(w)+7)/7+1, width=6+10+max(nchar(w))/20)
@@ -1322,7 +1618,7 @@ for (what in c("Sigs", "xCell", "Genes"))
   layout(matrix(1:2, nrow=1), width=c(.4,.6));
   
   dotPlot(cc[,w,drop=FALSE], K2, col.lbl=co[w], maxP=cutOff,legend=FALSE, cex.pch=.45, srt=45);
-  legendDotPlot(-1,-6*strheight("M"), horizontal=TRUE, cex.pch=.45, interline=1.7, significantLabel=c("FDR ≤ 5%", "FDR > 5%"))
+  legendDotPlot(-1,-6*strheight("M"), horizontal=TRUE, cex.pch=.45, interline=1.7, significantLabel=c("FDR < 5%", "FDR ≥ 5%"))
 
   
   a = cc[,w]; o = order(K2); ko = K2[o]
@@ -1350,6 +1646,9 @@ for (what in c("Sigs", "xCell", "Genes"))
     .5-strwidth("M")*10, -strheight("M")*10, horizontal=TRUE, width=20, height=2)
   
   dev.off();
+  
+  x = data.frame(`Sample ID`=idC[,1], ClustNr=idC[,2], Megacluster=K2, cc, check.names=FALSE)
+  write.xlsx2(x, file=paste0(figDataDir, "MCcomp.", what, ".xlsx"), row.names=FALSE);
 }
 
 # Number of MC
@@ -1364,6 +1663,11 @@ par(mar=c(3,3,.5,.5), mgp=c(1.5,.5,0))
 plot(sapply(ploo, length), sapply(ploo, mean), ylab="Mean AUC", xlab="N megaclusters", col=(names(ploo)=="15")+1)
 abline(v=14, col='grey')
 dev.off();
+
+x=matrix(ncol=length(ploo), nrow=max(sapply(ploo, length)))
+for (i in seq_along(ploo)) { x[seq_along(ploo[[i]]),i] = ploo[[i]]; }
+colnames(x) = paste(names(ploo), "MCs");
+write.xlsx(x, file=paste0(figDataDir, "meanAUC.xlsx"), row.names=FALSE);
 
 
 ## Number of ET
@@ -1446,9 +1750,9 @@ par(mar=c(3,3,.5,.5), mgp=c(1.5,.5,0))
 barplot(table(nb$Best.nc[1,]), ylab="N indices", xlab="N Ecotypes");
 dev.off();
 
-a = split(colnames(nb$Best.nc), nb$Best.nc[1,])
-a["0"]=NULL
-invisible(sapply(names(a), function(i) cat(i, ":", a[[i]], "\n")))
+x = nb$Best.nc[1,]; x=x[!is.na(x)];
+x = data.frame(`Index name`=names(x), `Best number of clusters`=x, check.names=FALSE);
+write.xlsx2(x, file=paste0(figDataDir, "N_ET.xlsx"), row.names=FALSE);
 
 # Content ET
 #############
@@ -1485,8 +1789,8 @@ x = data.frame(ID=unlist(lapply(ds, function(i) rownames(i$cli))),
   study=rep(names(ds), sapply(ds, function(i) nrow(i$cli))), Ecotype=e, subtype=b, check.names=FALSE)
 write.xlsx2(x, file=paste0(figDataDir, "barplotETs.xlsx"), row.names=FALSE);
 
-pdf(paste0(figDir, "barEcot.pdf"), width=12, height=4);
-par(mfcol=c(2,4), mar=c(2,3,1.5,.5), mgp=c(1.5,.5,0))
+pdf(paste0(figDir, "barEcot.pdf"), width=12, height=2);
+par(mfcol=c(1,4), mar=c(2,3,1.5,.5), mgp=c(1.5,.5,0))
 for (i in 1:4)
 { e = paste0("ET", list(ecot, ecotRec[stud=="S"], ecotRec[stud=="M"], ecotRec[stud=="SC"])[[i]]);
   b = list(cli$barPB, ds$`Spatial TNBC`$cli$bar, ds$METABRIC$cli$bar, ds$`SCAN-B`$cli$bar)[[i]]
@@ -1496,11 +1800,17 @@ for (i in 1:4)
   h = barplot(t, col=colBar, main=nm, ylab="N samples", xaxt='n')
   mtext(colnames(t), side=1, at=h, line=par("mgp")[2], cex=par('cex'))#, col=ET.colors);
   t=t/rep(colSums(t), each=nrow(t));
-  barplot(100*t, col=colBar, main=nm, ylab="% samples", xaxt='n')
-  mtext(colnames(t), side=1, at=h, line=par("mgp")[2], cex=par('cex'))#, col=ET.colors);
+  #barplot(100*t, col=colBar, main=nm, ylab="% samples", xaxt='n')
+  #mtext(colnames(t), side=1, at=h, line=par("mgp")[2], cex=par('cex'))#, col=ET.colors);
 }
 dev.off();
 
+x = data.frame(ID=c(rownames(cli), unlist(lapply(ds, function(i) rownames(i$cli)))),
+  Study=rep(c("Global ST PB", names(ds)), c(nrow(cli), sapply(ds, function(i) nrow(i$cli)))),
+  Subtype=c(as.character(cli$barPB), unlist(lapply(ds, function(i) as.character(i$cli$bar)))),
+  Ecotype=paste0("ET", c(ecot, ecotRec)))
+write.xlsx2(x, file=paste0(figDataDir, "barEcot.xlsx"), row.names=FALSE);
+  
 pdf(paste0(figDir, "barEcot2.pdf"), width=6, height=4);
 par(mfcol=c(2,2), mar=c(2,3,1.5,.5), mgp=c(1.5,.5,0), cex=2/3)
 for (i in 1:2)
@@ -1530,22 +1840,26 @@ for (i in c("PB", "All3", names(ds)))
   { sus = susDs;
     x = do.call(rbind, lapply(ds, function(i) i[["15"]]$H));
     e = ecotRec;
+    id = unlist(lapply(ds, function(i) rownames(i$cli)))
   }
   if (i=="PB")
   { sus = cli[,sapply(cli, is, "Surv")]; sus$iDFS=NULL;
     x = fa;
     e = ecot;
+    id = rownames(cli);
   }
   if (i %in% names(ds))
   { x = ds[[i]]$cli;
+    id = rownames(x);
     sus = x[,sapply(x, is, "Surv")];
     if (ncol(sus)>4) { sus = sus[,2:5]; }  # Remove RFS for Bulk
     x = ds[[i]][["15"]]$H;
     e = ds[[i]]$ecot[,1];
   }
-    
-  x[x<.01] = .01; 
   colnames(x) = paste0("MC", 1:ncol(x));
+  xb = x;
+    
+  x[x<.01] = .01;
   x = scale(log10(x)); 
   
   x2 = matrix(FALSE, nrow=nrow(x), ncol=max(e));
@@ -1610,6 +1924,14 @@ for (i in c("PB", "All3", names(ds)))
     }
   }
   dev.off();
+  
+  z = data.frame(ID=id, ctr, check.names=FALSE);
+  if (i=="All3") { z = cbind(z, Study=rep(names(ds), sapply(ds, function(i) nrow(i$cli)))); x$stud=NULL; }
+  ss = do.call(cbind, sus); colnames(ss) = paste(rep(names(sus), 2), colnames(ss))
+  z1 = cbind(z, ss, xb);
+  write.xlsx2(z1, file=paste0(figDataDir, "forestMC.", nm, ".xlsx"), row.names=FALSE);
+  z1 = cbind(z, ss, Ecotype=paste0("ET", e));
+  write.xlsx2(z1, file=paste0(figDataDir, "forestET.", nm, ".xlsx"), row.names=FALSE);
 }
 
 x = fa; colnames(x) = paste0("MC", 1:14);
@@ -1782,16 +2104,26 @@ for (version in c("MB", "Bulk", "ScanB"))
       ccM = ccM[,intersect(names(sigInfo), colnames(ccM))];
       co = colSig[sigInfo[colnames(cc)]]; names(co) = colnames(cc);
     }
+    
+    if (is.null(ccM))
+    { z = data.frame(ID=rownames(cli), Ecotype=e, cc, check.names=FALSE);
+      write.xlsx2(z, file=paste0(figDataDir, "EcoComp.", what, ".xlsx"), row.names=FALSE);
+    } else
+    { z = data.frame(ID=c(rownames(cli), rownames(d$cli)),
+        study=rep(c("ST",c(MB="METABRIC", Bulk="Spatial TNBC", ScanB="SCAN-B")[version]), c(nrow(cli), nrow(d$cli))),
+        Ecotype=c(e, e2), rbind(cc, ccM), check.names=FALSE);
+      write.xlsx2(z, file=paste0(figDataDir, "EcoComp.", what, ".", version, ".xlsx"), row.names=FALSE);
+    }
   
     p1 = calcP(cc, ecot); 
     p = rowMins(p1$fdr);  
     if (!is.null(ccM)) { p2 = calcP(ccM, e2); p = pmin(p, rowMins(p2$fdr))  }
     
-    w = colnames(cc)[which(p<=.05)];
+    w = colnames(cc)[which(p<.05)];
     if (length(w)==0) { next; }
     
     z = p.adjust(p1$p[w,], method='fdr');
-    cutOff = max(z[p1$fdr[w,]<=.05])+1e-10;
+    cutOff = max(z[p1$fdr[w,]<.05])+1e-10;
     
     if (is.null(ccM))
     { cairo_pdf(paste0(figDir, "EcoComp.", what, ".pdf"),
@@ -1809,10 +2141,10 @@ for (version in c("MB", "Bulk", "ScanB"))
       dotPlot(ccM[,w,drop=FALSE], e2, pch='right', add=TRUE, maxP=cutOff, legend=FALSE);
       legendDotPlot(x=par('usr')[2]+strwidth("M")*6, y=par('usr')[4]-strheight("J")*1, interline=2,
         double=TRUE, doubleAnnot=c("ST PB", c(ScanB="SCAN-B", MB="METABRIC", Bulk="ST Bulk")[version]),
-        significantLabel=c("FDR ≤ 5%", "FDR > 5%"))
+        significantLabel=c("FDR < 5%", "FDR ≥ 5%"))
     } else
     { legendDotPlot(x=par('usr')[2]+strwidth("M")*6, y=par('usr')[4]-strheight("J")*3, interline=2,
-        significantLabel=c("FDR ≤ 5%", "FDR > 5%")) }
+        significantLabel=c("FDR < 5%", "FDR ≥ 5%")) }
 
     dev.off()
   }
@@ -1835,14 +2167,17 @@ for (i in c("xc", "sig", "genes"))
   x = x[, rev(names(annots)[names(annots)%in%colnames(x)])];
   if (all(annots%in%names(colAnnots))) { z=colAnnots[annots]; names(z)=names(annots); annots=z; }
   
+  z = data.frame(ID=rownames(cli), Ecotype=paste0("ET", ecot), x, check.names=FALSE);
+  write.xlsx2(z, file=paste0(figDataDir, "ET.HM.", i, ".xlsx"), row.names=FALSE);
+  
   p1 = calcP(x, ecot); 
   p = rowMins(p1$fdr);  
   
-  w = colnames(x)[which(p<=.05)];
+  w = colnames(x)[which(p<.05)];
   x = x[,w];
   
   z = p.adjust(p1$p[w,], method='fdr');
-  cutOff = max(z[p1$fdr[w,]<=.05])+1e-10;
+  cutOff = max(z[p1$fdr[w,]<.05])+1e-10;
   
   cairo_pdf(paste0(figDir, "ET.HM.", i, ".pdf"),
       height=1.2*((length(w)+7)/7+1), width=5+8+max(nchar(w))/10)
@@ -1850,8 +2185,8 @@ for (i in c("xc", "sig", "genes"))
   layout(matrix(1:2, nrow=1), width=c(.4,.6));
   
   dotPlot(x, ecot2, col.lbl=annots[colnames(x)], maxP=cutOff, legend=FALSE, cex.pch=.45);
-  legendDotPlot(-1.5,-3*strheight("M"), horizontal=TRUE, cex.pch=.45, interline=1.6,
-    significantLabel=c("FDR ≤ 5%", "FDR > 5%"))
+  legendDotPlot(par("usr")[1]-2*strwidth("M"),-3*strheight("M"), horizontal=TRUE, cex.pch=.45, interline=1.6,
+    significantLabel=c("FDR < 5%", "FDR ≥ 5%"))
 
   if (i=="xc") { x = log(x+.01);  }
 
@@ -1928,7 +2263,7 @@ for (i in 1:(length(wi)-1))
 wi2 = setdiff(at[which(toDisp[-1,2] != toDisp[-nrow(toDisp),2])+1], wi)
 rect(wi2-.8, rep(9.7,4), wi2-.2, rep(10.5, 4), col='white', xpd=NA, border=NA);
 
-legendDotPlot(par('usr')[2]+2, par('usr')[4]+1, significantLabel=c("FDR ≤ 5%", "FDR > 5%"))
+legendDotPlot(par('usr')[2]+2, par('usr')[4]+1, significantLabel=c("FDR < 5%", "FDR ≥ 5%"))
 #legend(par('usr')[2]+2, par('usr')[4]-6, names(colLbls)[c(2,3,1)], fill=colLbls[c(2,3,1)], bty='n', xjust=.5,
 #  text.col=colLbls[c(2,3,1)], border=NA)
 dev.off();
@@ -2018,17 +2353,53 @@ write.xlsx2(x, file=paste0(figDataDir, "TLSsigVsET.xlsx"), row.names=FALSE);
 ## Merge source data
 ######################
 or = list(
-  fig3=c(b="morphoTotal", c="morphoDistUp", e="morphoPatch"),
+  fig3=c(b="morphoTotal", c="morphoDistUp", e="morphoPatch.Tumor"),
   fig4=c(b="alluvialDec.2", c="tumorCompartment", d="stromaCompartment",
-    f="TvsS.Mbp.hm"),
+    e="TvsS.Mbp.hm", f="survTSdec.final"),
   fig5=c(b="tlsViolin", c="tlsGO.VSlympho.blueOnly", d="tlsGene", f="TLSsigVsBar", g="TLSsigVsTIME"),
   fig6=c(a="tlsAllCliSmallA", b="tlsAllCliSmallB", c="tlsAllCliSmallC", d="tlsAllCliSmallD",
     e="controlTLSby_immunoT.all", f="controlTLSby_immunoT.all"),
   fig7=c(c="barByClust", d="tblsMC2", e="forestMC.PB", f="forestMC.All3"),
   fig8=c(a="heatmapMC", b="barplotMCvsET", c="barplotETs", d="TLSsigVsET",
-    e="EcoSingle.horiz", f="hmTargets", g="forestET.All3", h="survEcotypeNew2")
+    e="EcoSingle.horiz", f="hmTargets", g="forestET.All3", h="survEcotypeNew2"),
+  figS1=c(a="morphoDistUp",b="morphoPatch.Stroma"),
+  figS2=c(a="aucs"),
+  figS3=c(a1="TvsS.bar.dec.Tumor.Annot.horiz", a2="TvsS.bar.dec.Tumor.Genes.horiz", a3="TvsS.bar.dec.Tumor.Sigs.horiz",
+    b1="TvsS.bar.dec.Stroma.Annot.horiz", b2="TvsS.bar.dec.Stroma.xCell.horiz",
+    b3="TvsS.bar.dec.Stroma.Genes.horiz", b4="TvsS.bar.dec.Stroma.Sigs.horiz"),
+  figS4=c(a="patchSizeVsSig.Tumor", b="patchSizeVsSig.Stroma"),
+  figS5=c(a="tlsXcl", b="tlsGO.VSlympho", c="tlsGO.VSrest"),
+  figS6=c(a="aucTLS2", b='aucTLS', c="compTLSsigs", d="TLSbyCompartment"),
+  figS7=c(ab="tlsIspy", c='TLSimmunoOS', d='fpTLSimmuno'),
+  figS8=c(ab="controlTLS_TNBC"),
+  figS9=c(ab="controlTLSispy", cdef="controlTLSby_immunoT.all.SI"),
+  figS11=c(a="meanAUC", bc="MCcomp.Sigs"),
+  figS12=c(ab="MCcomp.Genes"),
+  figS13=c(ab="MCcomp.xCell"),
+  figS14=c(ab="forestMC.PB"),
+  figS15=c(ab="forestMC.Bulk"),
+  figS16=c(ab="forestMC.MB"),
+  figS17=c(ab="forestMC.SCANB"),
+  figS18=c(ab="forestMC.All3"),
+  figS19=c(a="N_ET", b="barEcot", c="EcoComp.Annot", d="EcoComp.Cli"),
+  figS20=c(ac="ET.HM.xc", bd="ET.HM.sig"),
+  figS21=c(ab="ET.HM.genes"),
+  figS22=c(a="EcoComp.Sigs.Bulk", b="EcoComp.Sigs.Bulk"),
+  figS23=c(a="EcoComp.Sigs.ScanB"),
+  figS24=c(a="EcoComp.xCell.Bulk"),
+  figS25=c(a="EcoComp.xCell.MB"),
+  figS26=c(a="EcoComp.xCell.ScanB"),
+  figS27=c(a="EcoComp.Genes.Bulk", b="EcoComp.Genes.MB"),
+  figS28=c(a="EcoComp.Genes.ScanB"),
+  figS29=c(ab="forestET.PB"),
+  figS30=c(ab="forestET.Bulk"),
+  figS31=c(ab="forestET.MB"),
+  figS32=c(ab="forestET.SCANB"),
+  figS33=c(ab="forestET.All3")
 );
-  
+
+names(or) = sub("figS", "Supplementary Fig. ", names(or))
+names(or) = sub("^fig", "Fig. ", names(or))
 for (f in names(or))
 { wb = createWorkbook();
   csT = CellStyle(wb, font=Font(wb, isBold=TRUE))
@@ -2039,5 +2410,5 @@ for (f in names(or))
     sheet = createSheet(wb, paste0(f, i));
     addDataFrame(x, sheet, row.names=FALSE, colnamesStyle=csT)
   }
-  saveWorkbook(wb, file=paste0(figDataDir, f, ".xlsx"))
+  saveWorkbook(wb, file=paste0(figDataDir, "final/", f, ".xlsx"))
 }

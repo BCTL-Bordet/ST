@@ -211,7 +211,7 @@ ring.genes = c("FTH1", "EEF2", "BEST1", "LRRC59", "PRDX1", "CD63", "DYNC1H1", "E
 colEcot = palette.colors(palette="Polychrome 36")[-c(1, 5)][1:12]
 
 bubullePlot = function(x, cmps, what="Other", fileName, width=NULL,
-  leftMar=NULL, horizontal=TRUE, vertical=FALSE, colDots=c("#0072B2", "#F27052"))
+  leftMar=NULL, horizontal=TRUE, vertical=FALSE, colDots=c("#0072B2", "#F27052"), dataDir=NULL, dataNfo="Type")
 { co=NULL;
   if (what=="Genes")
   { x = x[, colnames(x) %in% rownames(geneList)];
@@ -236,7 +236,7 @@ bubullePlot = function(x, cmps, what="Other", fileName, width=NULL,
   { apply(x,2,function(i) wilcox.test(i[w], i[setdiff(ok, w)])$p.value)
   }, simplify=FALSE))
   p = ps; p[] = p.adjust(ps, method='fdr');
-  w = rownames(p)[which(rowAnys(p<=.05))];
+  w = rownames(p)[which(rowAnys(p<.05))];
 
   if (length(w)==0) { return(invisible("Nothing significant")); }
   
@@ -266,8 +266,16 @@ bubullePlot = function(x, cmps, what="Other", fileName, width=NULL,
     dotPlot(x[,w,drop=FALSE], factor(cmps), col.lbl=co[w], horizontal=TRUE, maxP=cutOff, inMa=.8, legend=FALSE,
       colDots=colDots);
     legendDotPlot(par('usr')[1], par('usr')[3]-(leftMar+4)*.85*strheight("M"),
-      horizontal=TRUE, colDots=colDots, significantLabel=c("FDR ≤ 5%", "FDR > 5%"))
+      horizontal=TRUE, colDots=colDots, significantLabel=c("FDR < 5%", "FDR ≥ 5%"))
     dev.off()
+  }
+  
+  if (!is.null(dataDir))
+  { fn = sub(".pdf$", ".horiz.xlsx", fileName); fn = paste0(dataDir, sub(".+/", "", fn));
+    y = data.frame(ID=rownames(cli), Type=cmps, x, check.names=FALSE);
+    y = y[!is.na(y$Type),];
+    colnames(y)[2] = dataNfo;
+    write.xlsx2(y, file=fn, row.names=FALSE);
   }
   
   return(invisible(list(p, w)));

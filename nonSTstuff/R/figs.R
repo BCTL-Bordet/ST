@@ -603,7 +603,7 @@ dotPlot = function(x, cl, efi=NULL, lbls=NULL, toDisp=NULL, maxRange=4, legend=T
     p = pi; p[] = p.adjust(pi, method='fdr');
     #if (!is.null(toDisp)) { efi[!toDisp] = NA; }
     #else { efi[p>maxP]=NA }
-    if (is.null(toDisp)) { toDisp = p<=maxP; }
+    if (is.null(toDisp)) { toDisp = p<maxP; }
   } else { pi=NULL; }
   efi[efi>log(maxRange)]=log(maxRange); efi[efi< -log(maxRange)] = -log(maxRange);
   efi = efi/log(maxRange); # Map to -1/1
