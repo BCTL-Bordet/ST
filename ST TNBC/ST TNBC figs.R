@@ -1,5 +1,5 @@
-figDir = "~/Documents/BCTL/ST/TNBC/figs3/";
-figDataDir = "~/Documents/BCTL/ST/TNBC/figsData/";
+figDir = "~/Documents/BCTL/ST/TNBC/figsSP/";
+figDataDir = "~/Documents/BCTL/ST/TNBC/figsDataSP/";
 
 library(vioplot); library(colorspace);
 library(alluvial);
@@ -8,6 +8,8 @@ library(scales)
 colDisp = c(Immune="#68339A", Stroma="#2F6EBA", Oncogenic="#AF2318", `Stress response`="#4EAD5B",
   Metabolism="#F8DA78");
 
+# Note: originally spatial Archetypes were called ecotypes, hence the "ET" and "ecot" all around
+# the code and the file names
 
 # Figure files
 #
@@ -228,7 +230,6 @@ dev.off();
 
 x = cbind(ID=rownames(cli), x);
 write.xlsx2(x, file=paste0(figDataDir, "alluvialDec.2.xlsx"), row.names=FALSE)
-
 
 pdf(paste0(figDir, "alluvialDec.3.pdf"));
 par(mfrow=c(1,1), mar=c(3,3,0.5,.5), mgp=c(1.5,.5,0), xpd=NA)
@@ -474,8 +475,8 @@ rownames(x) = rownames(cli);
 p = moulinette(x, me2);
 p2 = p.adjust(p, method='fdr');
 y = x[, p2<.05]; wh = what[p2<.05]
-sp = lapply(split(rownames(y), me2), function(i) as.character(sort(as.numeric(i))));
-y = y[unlist(sp),];
+SA = lapply(split(rownames(y), me2), function(i) as.character(sort(as.numeric(i))));
+y = y[unlist(SA),];
 rq = colQuantiles(y, probs=c(.05, .95));
 y = (y-rep(rq[,1], each=nrow(y)))/rep(rowDiffs(rq), each=nrow(y))
 y[y<0] = 0; y[y>1] = 1;
@@ -486,9 +487,9 @@ image(y[,ncol(y):1], col=colorRampPalette(c('blue', 'yellow'))(100), xaxt='n', y
 wi = seq(0,1,length=ncol(y)); nd = which(!duplicated(rev(wh)))[-1];
 mtext(rev(colnames(y)), side=2, at=wi, las=2, line=.5, font=1+2*(rev(wh)=="Gene")) 
 mtext(rownames(y), side=1, at=seq(0,1,length=nrow(y)), cex=.5, line=-.3)
-abline(v = (length(sp[[1]])-.5)/(nrow(y)-1), col='white', lwd=2)
+abline(v = (length(SA[[1]])-.5)/(nrow(y)-1), col='white', lwd=2)
 abline(h = wi[nd]-wi[2]/2, col='white', lwd=2) 
-xi = c(length(sp[[1]])*.5, length(sp[[1]])+.5*length(sp[[2]]))/(nrow(y));
+xi = c(length(SA[[1]])*.5, length(SA[[1]])+.5*length(SA[[2]]))/(nrow(y));
 xi = xi*diff(par('usr')[1:2])+par('usr')[1]
 text(xi, rep(par('usr')[4]+strheight("M"), 2), xpd=NA,
  # parse(text=c("bold(paste('M'['TUMOR'], '-M'['STROMA']))", "bold(paste('M'['TUMOR'], '-MSL'['STROMA']))")), col=1:2)
@@ -538,8 +539,8 @@ for (what in c("Sigs", "xCell", "Genes"))
     p2 = p.adjust(p, method='fdr');
     y = x[, p2<.05];# wh = what[p2<.05]
     co = co[p2<.05];
-    sp = lapply(split(rownames(y), cmps), function(i) as.character(sort(as.numeric(i))));
-    y = y[unlist(sp),];
+    SA = lapply(split(rownames(y), cmps), function(i) as.character(sort(as.numeric(i))));
+    y = y[unlist(SA),];
     rq = colQuantiles(y, probs=c(.05, .95));
     y = (y-rep(rq[,1], each=nrow(y)))/rep(rowDiffs(rq), each=nrow(y))
     y[y<0] = 0; y[y>1] = 1;
@@ -550,11 +551,11 @@ for (what in c("Sigs", "xCell", "Genes"))
     wi = seq(0,1,length=ncol(y)); #nd = which(!duplicated(rev(wh)))[-1];
     mtext(rev(colnames(y)), side=2, at=wi, las=2, line=.5, col=rev(co), cex=.7)#, font=1+2*(rev(wh)=="Gene")) 
    #mtext(rownames(y), side=1, at=seq(0,1,length=nrow(y)), cex=.5, line=-.3)
-    ni = (cumsum(sapply(sp, length))-.5)/(nrow(y)-1)
+    ni = (cumsum(sapply(SA, length))-.5)/(nrow(y)-1)
     abline(v = ni[-3], col='white', lwd=2)
     xi = (c(0, ni[-3]) + ni)/2;
     #xi = xi*diff(par('usr')[1:2])+par('usr')[1]
-    mtext(names(sp), side=3, at=xi, col=colBar[names(sp)])
+    mtext(names(SA), side=3, at=xi, col=colBar[names(SA)])
     dev.off();
   }
 }
@@ -1670,7 +1671,7 @@ colnames(x) = paste(names(ploo), "MCs");
 write.xlsx(x, file=paste0(figDataDir, "meanAUC.xlsx"), row.names=FALSE);
 
 
-## Number of ET
+## Number of SA
 ###############
 pdf(paste0(figDir, "Ncluster.pdf"), height=3.5, width=4);
 par(mar=c(3,3,.5,.5), mgp=c(1.5,.5,0))
@@ -1678,7 +1679,7 @@ par(mar=c(3,3,.5,.5), mgp=c(1.5,.5,0))
 #    method="ward.D2", index ="allNonGraph"); 
 nb = NbClust(log10(100*(faN)), distance = "euclidean", min.nc = 5, max.nc = 15,
     method="ward.D2"); 
-barplot(table(nb$Best.nc[1,]), ylab="N indices", xlab='N ecotypes');
+barplot(table(nb$Best.nc[1,]), ylab="N indices", xlab='N Spatial Archetypes');
 
 dev.off();
 
@@ -1690,7 +1691,7 @@ cu = which(diff(cutree(hc, max(ecot))[hc$order])!=0);
 
 ff = faN; colnames(ff) = paste0("MC", colnames(ff));
 pdf(paste0(figDir, "heatmapMC.pdf"), width=13, height=10)
-par(cex.axis=1.3, mgp=c(1,.5,0))
+par(cex.axis=1.3, mgp=c(1,.5,0), oma=c(0,1,0,0))
 h = heatmap.3(log10(100*(t(ff))), scale='none', col=colorRampPalette(c('blue', 'yellow'), space='Lab')(100),
   Rowv=FALSE, key=FALSE,
   Colv=as.dendrogram(hc), colsep=cu,  dendrogram='column',
@@ -1702,12 +1703,13 @@ h = heatmap.3(log10(100*(t(ff))), scale='none', col=colorRampPalette(c('blue', '
   margins=c(2,.5), trace='none', sepcolor="white", side.height.fraction=1)#,
 par(new=TRUE); plot.new();
 layout(matrix(1:4, ncol=2), height=c(2,10), width=c(.75,10))
-par(cex=0.2 + 1/log10(94)); par(mar=c(0,0,0,.5))#, cex=10);
+par(cex=0.2 + 1/log10(94)); par(mar=c(0,0,0,.5), oma=c(0,1,0,0));
 plot.new(); plot.window(xlim=c(0,1), ylim=c(0,1), xaxs='i');
 w = c(0, cumsum(tabulate(ecot))); w = (w[-1]+w[-length(w)])/(2*w[length(w)])
 w = w*94.5/94;
-mtext(paste0("ET", 1:max(ecot)), side=3, cex=1.3, col='black', at=w, font=2, line=-.95)
-mtext("Ecotype", side=3, cex=1.3, col='red', at=-.003, font=1, line=-.8, adj=1);
+mtext(paste0("SA", 1:max(ecot)), side=3, cex=1.3, col='black', at=w, font=2, line=-.95)
+mtext("Spatial", side=3, cex=1.2, col='red', at=-.003, font=1, line=-.3, adj=1);
+mtext("Archetype", side=3, cex=1.2, col='red', at=-.003, font=1, line=-1.3, adj=1);
 mtext(c("TIME", "Subtype"), side=3, cex=1.2, at=-.003, line=c(-2.8,-4.1), adj=1);
 
 mtext(paste0("MC", 1:14), side=3, cex=1.8, at=-.003, line=-7 - (0:13)*3.8, adj=1 )
@@ -1747,7 +1749,7 @@ nb = NbClust2(log10(100*(faN)), distance = "euclidean", min.nc = 5, max.nc = 15,
     method="ward.D2", index ="allNonGraph"); 
 pdf(paste0(figDir, "N_ET.pdf"), height=3, width=4);
 par(mar=c(3,3,.5,.5), mgp=c(1.5,.5,0))
-barplot(table(nb$Best.nc[1,]), ylab="N indices", xlab="N Ecotypes");
+barplot(table(nb$Best.nc[1,]), ylab="N indices", xlab="N Spatial Archetypes");
 dev.off();
 
 x = nb$Best.nc[1,]; x=x[!is.na(x)];
@@ -1758,7 +1760,7 @@ write.xlsx2(x, file=paste0(figDataDir, "N_ET.xlsx"), row.names=FALSE);
 #############
 n = do.call(cbind, tapply(seq_along(ecot), ecot, function(i) colMeans(fa[i,])))
 n = 100*n/rep(colSums(n), each=nrow(n));
-colnames(n) = paste0("ET", colnames(n));
+colnames(n) = paste0("SA", colnames(n));
 
 pdf(paste0(figDir, "barplotMCvsET.pdf"), height=2, width=3)
 par(mar=c(2,3,1.5,.5), mgp=c(1.5,.5,0), cex=2/3);
@@ -1769,12 +1771,12 @@ title(main="ST TNBC cohort", cex.main=1)
 dev.off();
 
 x = fa; colnames(x) = paste0("MC", colnames(x));
-x = data.frame(ID=rownames(cli), Ecotype=paste0("ET", ecot), x, check.names=FALSE)
+x = data.frame(ID=rownames(cli), `Spatial Archetype`=paste0("SA", ecot), x, check.names=FALSE)
 write.xlsx2(x, file=paste0(figDataDir, "barplotMCvsET.xlsx"), row.names=FALSE);
 
 pdf(paste0(figDir, "barplotETs.pdf"), height=2, width=3)
 par(mar=c(2,3,1.5,.5), mgp=c(1.5,.5,0), cex=2/3)
-e = paste0("ET", ecotRec);
+e = paste0("SA", ecotRec);
 b = unlist(lapply(ds, function(i) as.character(i$cli$bar)))
 #nm = c("ST global pseudobulk", "TNBC cohorts")[i]
 b = factor(b, levels=names(colBar));
@@ -1786,13 +1788,13 @@ mtext(colnames(t), side=1, at=at, line=par("mgp")[2], cex=par('cex'))#, col=ET.c
 dev.off();
 
 x = data.frame(ID=unlist(lapply(ds, function(i) rownames(i$cli))), 
-  study=rep(names(ds), sapply(ds, function(i) nrow(i$cli))), Ecotype=e, subtype=b, check.names=FALSE)
+  study=rep(names(ds), sapply(ds, function(i) nrow(i$cli))), `Spatial Archetype`=e, subtype=b, check.names=FALSE)
 write.xlsx2(x, file=paste0(figDataDir, "barplotETs.xlsx"), row.names=FALSE);
 
 pdf(paste0(figDir, "barEcot.pdf"), width=12, height=2);
 par(mfcol=c(1,4), mar=c(2,3,1.5,.5), mgp=c(1.5,.5,0))
 for (i in 1:4)
-{ e = paste0("ET", list(ecot, ecotRec[stud=="S"], ecotRec[stud=="M"], ecotRec[stud=="SC"])[[i]]);
+{ e = paste0("SA", list(ecot, ecotRec[stud=="S"], ecotRec[stud=="M"], ecotRec[stud=="SC"])[[i]]);
   b = list(cli$barPB, ds$`Spatial TNBC`$cli$bar, ds$METABRIC$cli$bar, ds$`SCAN-B`$cli$bar)[[i]]
   nm = c("ST global pseudobulk", "ST bulk", "METABRIC", "SCAN-B")[i]
   b = factor(b, levels=names(colBar));
@@ -1808,13 +1810,13 @@ dev.off();
 x = data.frame(ID=c(rownames(cli), unlist(lapply(ds, function(i) rownames(i$cli)))),
   Study=rep(c("Global ST PB", names(ds)), c(nrow(cli), sapply(ds, function(i) nrow(i$cli)))),
   Subtype=c(as.character(cli$barPB), unlist(lapply(ds, function(i) as.character(i$cli$bar)))),
-  Ecotype=paste0("ET", c(ecot, ecotRec)))
+  `Spatial Archetype`=paste0("SA", c(ecot, ecotRec)))
 write.xlsx2(x, file=paste0(figDataDir, "barEcot.xlsx"), row.names=FALSE);
   
 pdf(paste0(figDir, "barEcot2.pdf"), width=6, height=4);
 par(mfcol=c(2,2), mar=c(2,3,1.5,.5), mgp=c(1.5,.5,0), cex=2/3)
 for (i in 1:2)
-{ e = paste0("ET", list(ecot, ecotRec)[[i]]);
+{ e = paste0("SA", list(ecot, ecotRec)[[i]]);
   b = list(cli$barPB, unlist(lapply(ds, function(i) i$cli$bar)))[[i]]
   nm = c("ST global pseudobulk", "TNBC cohorts")[i]
   b = factor(b, levels=names(colBar));
@@ -1835,8 +1837,8 @@ ctrTot = do.call(rbind, ctr[names(ds)])
 ct = update(ctrlForm, ~.+strata(stud))
 
 colWidth = c(1.5,1.5,4,2.5,2,5);
-for (i in c("PB", "All3", names(ds)))
-{ if (i=="All3")
+for (i in c("PB", "All2", "All3", names(ds)))
+{ if (i %in% c("All2", "All3"))
   { sus = susDs;
     x = do.call(rbind, lapply(ds, function(i) i[["15"]]$H));
     e = ecotRec;
@@ -1862,26 +1864,28 @@ for (i in c("PB", "All3", names(ds)))
   x[x<.01] = .01;
   x = scale(log10(x)); 
   
-  x2 = matrix(FALSE, nrow=nrow(x), ncol=max(e));
+  x2 = matrix(FALSE, nrow=nrow(x), ncol=max(ecot));
   x2[cbind(1:nrow(x2), e)]=TRUE;
-  colnames(x2) = paste0("ET", 1:ncol(x2));
+  colnames(x2) = paste0("SA", 1:ncol(x2));
   
-  ctr = list(All3=ctrTot, PB=ctrl[rownames(cli),], METABRIC=ctrlMB, `Spatial TNBC`=ctrl[rownames(ds[[i]]$cli),], `SCAN-B`=ctrlSB)[[i]];
+  ctr = list(All3=ctrTot, All2=ctrTot, PB=ctrl[rownames(cli),], METABRIC=ctrlMB, `Spatial TNBC`=ctrl[rownames(ds[[i]]$cli),], `SCAN-B`=ctrlSB)[[i]];
 
-  nm = c(All3="All3", PB="PB", METABRIC="MB", `Spatial TNBC`="Bulk", `SCAN-B`="SCANB")[i]
-  nm2 = c(All3="All 3 studies", PB="Pseudo-bulk", METABRIC="METABRIC", `Spatial TNBC`="ST cohort (bulk RNA-seq)", `SCAN-B`="SCAN-B")[i]
+  nm = c(All3="All3", All2="All2", PB="PB", METABRIC="MB", `Spatial TNBC`="Bulk", `SCAN-B`="SCANB")[i]
+  nm2 = c(All3="All 3 studies", All2="METABRIC and SCAN-B", B="Pseudo-bulk", METABRIC="METABRIC",
+  	`Spatial TNBC`="ST cohort (bulk RNA-seq)", `SCAN-B`="SCAN-B")[i]
   
-  if (i=="All3") { x = data.frame(x, stud=stud); x2 = data.frame(x2, stud=stud); ct1 = ~strata(stud); ct2=ct; }
+  if (i%in%c("All2", "All3")) { x = data.frame(x, stud=stud); x2 = data.frame(x2, stud=stud); ct1 = ~strata(stud); ct2=ct; }
   else { ct1 = ~1; ct2 = ctrlForm; }
   if (nm=="Bulk") { clip = c(.2, 5) } else { clip = c(.5, 2); }
   
+  sbs = rep(TRUE, length(e)); if (i=="All2") { sbs = stud!="S"; }
   cairo_pdf(paste0(figDir, "forestMC.", nm, ".pdf"), width=8.5, height=13.5)
   par(mar=c(.1,1,1,1));
   layout(mat=matrix(1:8, ncol=2, byrow=TRUE), heights=rep(c(1.05, 1), 4))
   for (j in seq_along(sus))
   { if (j<=2) { par(mar=c(.1,1,4,1));} else { par(mar=c(.1,1,1,1));}
     allForest(x, sus[[j]], control=ct1, clip=clip, annotDir=c("Better", "Worse"),
-      lineHeight=2, colWidth=colWidth, sigOnFDR=TRUE)
+      lineHeight=2, colWidth=colWidth, sigOnFDR=TRUE, subset=sbs)
     mtext(names(sus)[[j]], side=3, line=0, cex=par('cex'), font=2);
     if (j==1)
     { mtext(paste0("Univariable - ", nm2), side=3, line=2, cex=par('cex')*1.3, font=2, at=11);
@@ -1892,7 +1896,7 @@ for (i in c("PB", "All3", names(ds)))
   for (j in seq_along(sus))
   { if (j<=2) { par(mar=c(.1,1,4,1));} else { par(mar=c(.1,1,1,1));}
     allForest(data.frame(x, ctr), sus[[j]], control=ct2,
-      clip=clip, annotDir=c("Better", "Worse"), lineHeight=2, colWidth=colWidth, sigOnFDR=TRUE)
+      clip=clip, annotDir=c("Better", "Worse"), lineHeight=2, colWidth=colWidth, sigOnFDR=TRUE, subset=sbs)
     mtext(names(sus)[[j]], side=3, line=0, cex=par('cex'), font=2);
     if (j==1)
     { mtext(paste0("Multivariable - ", nm2), side=3, line=2, cex=par('cex')*1.3, font=2, at=11);
@@ -1906,7 +1910,7 @@ for (i in c("PB", "All3", names(ds)))
   for (j in seq_along(sus))
   { if (j<=2) { par(mar=c(.1,1,4,1));} else { par(mar=c(.1,1,1,1));}
     allForest(x2, sus[[j]], control=ct1, clip=clip, annotDir=c("Better", "Worse"),
-      lineHeight=2, colWidth=colWidth, sigOnFDR=TRUE)
+      lineHeight=2, colWidth=colWidth, sigOnFDR=TRUE, subset=sbs)
     mtext(names(sus)[[j]], side=3, line=0, cex=par('cex'), font=2);
     if (j==1)
     { mtext(paste0("Univariable - ", nm2), side=3, line=2, cex=par('cex')*1.3, font=2, at=11);
@@ -1917,7 +1921,7 @@ for (i in c("PB", "All3", names(ds)))
   for (j in seq_along(sus))
   { if (j<=2) { par(mar=c(.1,1,4,1));} else { par(mar=c(.1,1,1,1));}
     allForest(data.frame(x2, ctr), sus[[j]], control=ct2,
-      clip=clip, annotDir=c("Better", "Worse"), lineHeight=2, colWidth=colWidth, sigOnFDR=TRUE)
+      clip=clip, annotDir=c("Better", "Worse"), lineHeight=2, colWidth=colWidth, sigOnFDR=TRUE, subset=sbs)
     mtext(names(sus)[[j]], side=3, line=0, cex=par('cex'), font=2);
     if (j==1)
     { mtext(paste0("Multivariable - ", nm2), side=3, line=2, cex=par('cex')*1.3, font=2, at=11);
@@ -1926,11 +1930,11 @@ for (i in c("PB", "All3", names(ds)))
   dev.off();
   
   z = data.frame(ID=id, ctr, check.names=FALSE);
-  if (i=="All3") { z = cbind(z, Study=rep(names(ds), sapply(ds, function(i) nrow(i$cli)))); x$stud=NULL; }
+  if (i%in%c("All2", "All3")) { z = cbind(z, Study=rep(names(ds), sapply(ds, function(i) nrow(i$cli)))); x$stud=NULL; }
   ss = do.call(cbind, sus); colnames(ss) = paste(rep(names(sus), 2), colnames(ss))
-  z1 = cbind(z, ss, xb);
+  z1 = cbind(z, ss, xb)[sbs,];
   write.xlsx2(z1, file=paste0(figDataDir, "forestMC.", nm, ".xlsx"), row.names=FALSE);
-  z1 = cbind(z, ss, Ecotype=paste0("ET", e));
+  z1 = cbind(z, ss, `Spatial Archetype`=paste0("SA", e)); z1 = z1[sbs,];
   write.xlsx2(z1, file=paste0(figDataDir, "forestET.", nm, ".xlsx"), row.names=FALSE);
 }
 
@@ -1947,23 +1951,23 @@ x = data.frame(ID=unlist(lapply(ds, function(i) rownames(i$cli))),
 write.xlsx2(x, file=paste0(figDataDir, "forestMC.All3.xlsx"), row.names=FALSE);
 
 x = data.frame(ID=unlist(lapply(ds, function(i) rownames(i$cli))),
-  Study=rep(names(ds), sapply(ds, function(i) nrow(i$cli))), Ecotype=paste0("ET", ecotRec),
+  Study=rep(names(ds), sapply(ds, function(i) nrow(i$cli))), `Spatial Archetype`=paste0("SA", ecotRec),
   `iBCFS - time`=susDs[["iBCFS"]][,1], `iBCFS - event`=susDs[["iBCFS"]][,2], ctrTot, check.names=FALSE);
 write.xlsx2(x, file=paste0(figDataDir, "forestET.All3.xlsx"), row.names=FALSE);
 
-## KM Survival Ecotypes (OK)
+## KM Survival Ecotypes
 ###############################
 bar = unlist(lapply(ds, function(i) as.character(i$cli$bar)));
-a = ifelse(ecotRec!=4 & bar=="IM", "IM not ET4", "Others") 
-et4im = ifelse(ecotRec==4 & bar=="IM", "IM ET4", "Others")
-et4 = ifelse(ecotRec==4, "ET4", "Others")
+a = ifelse(ecotRec!=4 & bar=="IM", "IM not SA4", "Others") 
+et4im = ifelse(ecotRec==4 & bar=="IM", "IM SA4", "Others")
+et4 = ifelse(ecotRec==4, "SA4", "Others")
 b = a; b[et4im!="Others"]=et4im[et4im!="Others"];
 pdf(paste0(figDir, "survEcotypeNew2.pdf"), height=7.5, width=7.5);
 par(mfrow=c(3,3), mar=c(2.5,4.5,1.5,.5), mgp=c(1.5,.5,0), oma=c(0,1,0,0))
 for (i in names(susDs))
 { su = susDs[[i]];
   plotSurv(su, et4, ylab=toupper(i), xlab="Time (yrs)",
-    legendPos=NULL, addTable=TRUE, leftTable=4, ppos=.2, col=c(ET.colors["ET4"], "black"),
+    legendPos=NULL, addTable=TRUE, leftTable=4, ppos=.2, col=c( "black", ET.colors["SA4"]),
     pval = getCoxP(coxph(su ~ et4+strata(stud))))
   #plotSurv(su, ifelse(ecotRec==3, "ET3", "Others"), ylab=toupper(i), xlab="Time (yrs)",
   #  legendPos=NULL, addTable=TRUE, leftTable=4, ppos=.2, col=c(ET.colors["ET3"], "black"),
@@ -1975,18 +1979,18 @@ for (i in names(susDs))
   #  legendPos=NULL, addTable=TRUE, leftTable=4, ppos=.2, col=ET.colors[c("ET3", "ET4")],
   #  pval = getCoxP(coxph(su ~ ecotRec+strata(stud), subset=ecotRec%in%3:4)))
   plotSurv(su, b, subset=b!="Others", ylab=toupper(i), xlab="Time (yrs)",
-    legendPos=NULL, addTable=TRUE, leftTable=4, ppos=.2, col=c(ET.colors["ET4"], palette()[2]),
+    legendPos=NULL, addTable=TRUE, leftTable=4, ppos=.2, col=c(ET.colors["SA4"], palette()[2]),
     pval = getCoxP(coxph(su ~ b+strata(stud), subset=b!="Others")))
-  plotSurv(su, ifelse(ecotRec==8, "ET8", "Others"), ylab=toupper(i), xlab="Time (yrs)",
-    legendPos=NULL, addTable=TRUE, leftTable=4, ppos=.2, col=c(ET.colors["ET8"], "black"),
+  plotSurv(su, ifelse(ecotRec==8, "SA8", "Others"), ylab=toupper(i), xlab="Time (yrs)",
+    legendPos=NULL, addTable=TRUE, leftTable=4, ppos=.2, col=c("black", ET.colors["SA8"]),
     pval = getCoxP(coxph(su ~ (ecotRec==8)+strata(stud))))
 }
 dev.off();
 
 x = data.frame(ID=unlist(lapply(ds, function(i) rownames(i$cli))),
   Study=rep(names(ds), sapply(ds, function(i) nrow(i$cli))), Bareche=bar,
-  Ecotype=paste0("ET", ecotRec), `Ecotype comp 1`=et4, `Ecotype comp 2`=b,
-  `Ecotype comp 3`=ifelse(ecotRec==8, "ET8", "Others"),
+  `Spatial Archetype`=paste0("SA", ecotRec), `Spatial Archetype comp 1`=et4, `Spatial Archetype comp 2`=b,
+  `Spatial Archetype comp 3`=ifelse(ecotRec==8, "SP8", "Others"),
   `iBCFS - time`=susDs[["iBCFS"]][,1], `iBCFS - event`=susDs[["iBCFS"]][,2], check.names=FALSE)
 write.xlsx2(x, file=paste0(figDataDir, "survEcotypeNew2.xlsx"), row.names=FALSE);
 
@@ -1995,9 +1999,9 @@ for (i in c("ST", names(ds)))
   { z = ds[[i]]; nm = c(METABRIC="MB", `Spatial TNBC`="Bulk", `SCAN-B`="SCANB")[i];
     e = z$ecot[,1]; cl = z$cli;
   } else { e=ecot; cl=cli; nm="ST"; }
-  a = ifelse(e!=4 & cl$bar=="IM", "IM not ET4", "Others") 
-  et4 = ifelse(e==4, "ET4", "Others")
-  et4im = ifelse(e==4 & cl$bar=="IM", "IM ET4", "Others")
+  a = ifelse(e!=4 & cl$bar=="IM", "IM not SA4", "Others") 
+  et4 = ifelse(e==4, "SA4", "Others")
+  et4im = ifelse(e==4 & cl$bar=="IM", "IM SA4", "Others")
   b = a; b[et4im!="Others"]=et4im[et4im!="Others"];
   w = names(cl)[sapply(cl, is, "Surv")];
   pdf(paste0(figDir, "survEcotype.", nm, ".pdf"), height=2.5*length(w), width=7.5);
@@ -2005,13 +2009,13 @@ for (i in c("ST", names(ds)))
   for (j in w)
   { su = cl[[j]];
     plotSurv(su, et4, ylab=toupper(j), xlab="Time (yrs)",
-      legendPos=NULL, addTable=TRUE, leftTable=4, ppos=.2, col=c(ET.colors["ET4"], "black"))
+      legendPos=NULL, addTable=TRUE, leftTable=4, ppos=.2, col=c("black", ET.colors["SA4"]))
     #plotSurv(su, a, ylab=toupper(j), xlab="Time (yrs)",
     #  legendPos=NULL, addTable=TRUE, leftTable=4, ppos=.2, col=2:1)
     plotSurv(su, b, subset=b!="Others", ylab=toupper(j), xlab="Time (yrs)",
-      legendPos=NULL, addTable=TRUE, leftTable=4, ppos=.2, col=c(ET.colors["ET4"], palette()[2]))   
-    plotSurv(su, ifelse(e==8, "ET8", "Others"), ylab=toupper(j), xlab="Time (yrs)",
-      legendPos=NULL, addTable=TRUE, leftTable=4, ppos=.2, col=c(ET.colors["ET8"], "black"))   
+      legendPos=NULL, addTable=TRUE, leftTable=4, ppos=.2, col=c(ET.colors["SA4"], palette()[2]))   
+    plotSurv(su, ifelse(e==8, "SP8", "Others"), ylab=toupper(j), xlab="Time (yrs)",
+      legendPos=NULL, addTable=TRUE, leftTable=4, ppos=.2, col=c("black", ET.colors["SA8"]))   
   }
   dev.off()
 }
@@ -2025,7 +2029,7 @@ for (i in c("ST", names(ds)))
   pdf(paste0(figDir, "kmET.",nm, ".pdf"), height=10, width=10)
   par(mfrow=c(2,2), mar=c(3,3,.5,.5), mgp=c(1.5,.5,0));
   for (what in colnames(cl)[sapply(cl, is, "Surv")])
-  { plotSurv(cl[[what]], paste0("ET", e), col=ET.colors, addTable=TRUE, legendPos='bottomleft',
+  { plotSurv(cl[[what]], paste0("SA", e), col=ET.colors, addTable=TRUE, legendPos='bottomleft',
       ppos=.1, ylab=what, xlab="Time (yr)")
   }
   dev.off();
@@ -2035,7 +2039,7 @@ for (what in c("RFS", "iBCFS", "DRFS", "OS")) #colnames(cli)[sapply(cli, is, "Su
 { pdf(paste0(figDir, "survEco1vAll.", what, ".pdf"), width=12, height=6);
   par(mfrow=c(2,5), mar=c(2.5,3,1.5,.5), mgp=c(1.5,.5,0))
   for (i in 1:max(ecot))
-  { plotSurv(cli[[what]], ifelse(ecot==i, paste0("ET", i), "Other"), xlab="Time (yrs)", ylab=what,
+  { plotSurv(cli[[what]], ifelse(ecot==i, paste0("SA", i), "Other"), xlab="Time (yrs)", ylab=what,
       ppos=.1, legendPos=NULL, addTable=TRUE, col=c(ET.colors[i], 'black'));
   }
   dev.off();
@@ -2061,13 +2065,13 @@ for (nm in names(ds))
 b = ds[["Spatial TNBC"]]$ecot[,1]; names(b) = rownames(ds[["Spatial TNBC"]]$cli); b = b[rownames(cli)]
 sum(diag(table(ecot, b)))
 t = matrix(as.character(table(ecot, factor(b, levels=1:max(ecot)))), ncol=max(ecot));
-t[t=="0"] = "''"; colnames(t) = rownames(t) = paste0("ET", 1:max(ecot));
+t[t=="0"] = "''"; colnames(t) = rownames(t) = paste0("SA", 1:max(ecot));
 diag(t) = paste0("bold('", diag(t), "')");
 t[t=="bold('''')"] = "''"; 
 cairo_pdf(paste0(figDir, "confMatEcot.pdf"), width=4, height=4)
 par(mar=c(0,1.5,1.5,0))
 plotTable(t, parseCells=TRUE,
-  tableLabels=c("Real ecotype", "Recovered ecotype"))
+  tableLabels=c("Real Spatial Archetype", "Recovered Spatial Archetype"))
 dev.off();
 
 ## Eco comp
@@ -2083,8 +2087,8 @@ for (version in c("MB", "Bulk", "ScanB"))
     ccM = list(Sigs=d$cs, Genes=t(d$dn[wg,]), xCell=d$xc)[[what]];
     e2 = factor(d$ecot[,1]);
     
-    levels(e2) = paste0("ET", levels(e2));
-    e = factor(ecot); levels(e) = paste0("ET", levels(e));
+    levels(e2) = paste0("SA", levels(e2));
+    e = factor(ecot); levels(e) = paste0("SA", levels(e));
     
     if (!is.null(ccM)) { w = intersect(colnames(cc), colnames(ccM)); cc=cc[,w]; ccM=ccM[,w]; }
   
@@ -2111,7 +2115,7 @@ for (version in c("MB", "Bulk", "ScanB"))
     } else
     { z = data.frame(ID=c(rownames(cli), rownames(d$cli)),
         study=rep(c("ST",c(MB="METABRIC", Bulk="Spatial TNBC", ScanB="SCAN-B")[version]), c(nrow(cli), nrow(d$cli))),
-        Ecotype=c(e, e2), rbind(cc, ccM), check.names=FALSE);
+        `Spatial Archetype`=c(e, e2), rbind(cc, ccM), check.names=FALSE);
       write.xlsx2(z, file=paste0(figDataDir, "EcoComp.", what, ".", version, ".xlsx"), row.names=FALSE);
     }
   
@@ -2152,8 +2156,8 @@ for (version in c("MB", "Bulk", "ScanB"))
 
 # ET by ... heatmaps
 #####################
-sp = split(seq_along(ecot), ecot);
-ecot2 = factor(paste0("ET", ecot));
+SA = split(seq_along(ecot), ecot);
+ecot2 = factor(paste0("SA", ecot));
 for (i in c("xc", "sig", "genes"))
 { if (i=="xc") { x = xcPB; annots=colXct; colAnnots=colXc; }
   if (i=="sig") { x = csPB; annots=sigInfo; colAnnots=colSig; }
@@ -2167,7 +2171,7 @@ for (i in c("xc", "sig", "genes"))
   x = x[, rev(names(annots)[names(annots)%in%colnames(x)])];
   if (all(annots%in%names(colAnnots))) { z=colAnnots[annots]; names(z)=names(annots); annots=z; }
   
-  z = data.frame(ID=rownames(cli), Ecotype=paste0("ET", ecot), x, check.names=FALSE);
+  z = data.frame(ID=rownames(cli), `Spatial Archetype`=paste0("SA", ecot), x, check.names=FALSE);
   write.xlsx2(z, file=paste0(figDataDir, "ET.HM.", i, ".xlsx"), row.names=FALSE);
   
   p1 = calcP(x, ecot); 
@@ -2190,7 +2194,7 @@ for (i in c("xc", "sig", "genes"))
 
   if (i=="xc") { x = log(x+.01);  }
 
-  a = t(x[unlist(sp),]);
+  a = t(x[unlist(SA),]);
   a = a-rowMins(a); a=a/rowMaxs(a);
 
   par(mar=c(6,max(nchar(rownames(a))+4)/2.5,.5,.5));
@@ -2198,9 +2202,9 @@ for (i in c("xc", "sig", "genes"))
   image(t(a), xaxt='n', yaxt='n', col=colorRampPalette(c('blue', 'yellow'))(100), xaxs='i', yaxs='i')
   mtext(rownames(a), at=((1:nrow(a))-1)/(nrow(a)-1), side=2, line=.5,
       col=annots[rownames(a)], las=2)
-  ww = cumsum(sapply(sp, length));
+  ww = cumsum(sapply(SA, length));
   abline(v = (ww[-9]-.5)/(ncol(a)-1), col='white', lwd=2)
-  mtext(paste0("ET", 1:9), side=1, at=((ww+c(0, ww[-9]))/2-.5)/(ncol(a)-1),line=0.5)
+  mtext(paste0("SA", 1:9), side=1, at=((ww+c(0, ww[-9]))/2-.5)/(ncol(a)-1),line=0.5)
   plotScale(colorRampPalette(c('blue', 'yellow'))(100), c('Low', 'High'), atV=c(0,1), horizontal=TRUE,
     width=20, height=2, posx=0, posy=par('usr')[3]-6*strheight("M"))
   dev.off();
@@ -2249,7 +2253,7 @@ col[a] = colLbls["Single genes"]; col[wxc] = colLbls["Cell types"];
 #par(mar=c(1,18,9,3), oma=c(0,0,0,4), mgp=c(1.5,.5,0), cex=.5, xpd=NA);
 cairo_pdf(paste0(figDir, "EcoSingle.horiz.pdf"), width=7, height=2.5)
 par(mar=c(1,3,9,3), oma=c(0,0,0,4), mgp=c(1.5,.5,0), cex=.5, xpd=NA);
-ETnames = paste0("ET", 1:9);
+ETnames = paste0("SA", 1:9);
 dotPlot(z, factor(ETnames[ecot], levels=rev(ETnames)), toDisp=t(pi[nrow(pi):1,w])<.05, at=at,
   horizontal=TRUE, axPos=2, srt=30, inMa=1, lbls=lbls, col.lbl=col, legend=FALSE)
 #wi = (which(!is.na(toDisp[,1]))-1)[-1];
@@ -2263,13 +2267,13 @@ for (i in 1:(length(wi)-1))
 wi2 = setdiff(at[which(toDisp[-1,2] != toDisp[-nrow(toDisp),2])+1], wi)
 rect(wi2-.8, rep(9.7,4), wi2-.2, rep(10.5, 4), col='white', xpd=NA, border=NA);
 
-legendDotPlot(par('usr')[2]+2, par('usr')[4]+1, significantLabel=c("FDR < 5%", "FDR ≥ 5%"))
+legendDotPlot(par('usr')[2]+2, par('usr')[4]+1, significantLabel=c("FDR < 5%", "FDR ≥ 5%"), interline=1.5)
 #legend(par('usr')[2]+2, par('usr')[4]-6, names(colLbls)[c(2,3,1)], fill=colLbls[c(2,3,1)], bty='n', xjust=.5,
 #  text.col=colLbls[c(2,3,1)], border=NA)
 dev.off();
 
-x = data.frame(ID=rownames(cli), Ecotype=ecot, cc);
-write.xlsx(x, file=paste0(figDataDir, "EcoSingle.horiz.xlsx"), row.names=FALSE)
+x = data.frame(ID=rownames(cli), `Spatial Archetype`=paste0("SA", ecot), cc);
+write.xlsx2(x, file=paste0(figDataDir, "EcoSingle.horiz.xlsx"), row.names=FALSE)
 
 ## Targets
 ###############
@@ -2291,7 +2295,7 @@ qi2 = t(qi)[5:1,9:1];
 pdf(paste0(figDir, "hmTargets.pdf"), height=2.3, width=1.4)
 par(mar=c(1+2,3,9-4,.5), mgp=c(1.5,.5,0), cex=.5)#, xpd=NA);
 image(hm2, xaxt='n', yaxt='n', col=colorRampPalette(c('blue', 'yellow'))(100))
-mtext(paste0("ET", colnames(hm2)), at=(0:8)/8, side=2, line=.5, las=2, cex=par('cex')) 
+mtext(paste0("SA", colnames(hm2)), at=(0:8)/8, side=2, line=.5, las=2, cex=par('cex')) 
 mtext(rownames(hm2), at=(0:4)/4, side=3, line=.2, las=2, font=3, cex=par('cex')) 
 
 w = which(qi2<1e-5, arr.ind=TRUE);
@@ -2304,19 +2308,21 @@ dev.off()
 
 x = do.call(rbind, lapply(ds, function(i) scale(t(i$dn[tgt,]))))
 x = data.frame(ID=unlist(lapply(ds, function(i) rownames(i$cli))),
-  Study=rep(names(ds), sapply(ds, function(i) nrow(i$cli))), Ecotype=paste0("ET", ecotRec),
+  Study=rep(names(ds), sapply(ds, function(i) nrow(i$cli))), `Spatial Archetype`=paste0("SA", ecotRec),
   x, check.names=FALSE);
 write.xlsx2(x, file=paste0(figDataDir, "hmTargets.xlsx"), row.names=FALSE);
 
 ## Alluvials ETs
 #################
 f = function(i) factor(i, levels=c("IM", "BL", "M", "MSL", "LAR"));
-coET = colEcot; names(coET)=paste0("ET", 1:9);
+#coET = colEcot; names(coET)=paste0("SA", 1:9);
+coET = ET.colors;
 pdf(paste0(figDir, "alluvialET.pdf"));
 par(mfrow=c(1,1), mar=c(3,3,0.5,.5), mgp=c(1.5,.5,0), xpd=NA)
-t = plyr::count(data.frame(Subtype=f(cli$barPB), Ecotype=factor(paste0("ET",ecot)),
-  TIME=factor(cli$TIME_classes.bypathologist, levels=rev(c('ID', 'MR', 'SR', 'FI')))));
+t = plyr::count(data.frame(Subtype=f(cli$barPB), `Spatial Archetype`=factor(paste0("SA",ecot)),
+  TIME=factor(cli$TIME_classes.bypathologist, levels=rev(c('ID', 'MR', 'SR', 'FI'))), check.names=FALSE));
 t = t[complete.cases(t),];
+colnames(t)[2]="Spatial Archetype"
 alluvial(t[,1:3], freq=t$freq, col=colBar[as.character(t$Subtype)], blockCol=c(colBar,  colTIME, coET),
   draw_ticks=FALSE)
 dev.off();
@@ -2346,7 +2352,8 @@ dev.off();
 
 ## Source data for other panels
 ###################################
-x = data.frame(ID=rownames(cli), Ecotype=paste0("ET", ecot), `TLS ST signature`=csPB[,"TLS ST"], check.names=FALSE);
+x = data.frame(ID=rownames(cli), `Spatial Archetype`=paste0("SA", ecot),
+	`TLS ST signature`=csPB[,"TLS ST"], check.names=FALSE);
 write.xlsx2(x, file=paste0(figDataDir, "TLSsigVsET.xlsx"), row.names=FALSE);
 
 

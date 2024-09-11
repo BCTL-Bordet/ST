@@ -53,6 +53,7 @@ ET.colors <- c("ET1" = "plum2",
                    "ET7" = "lightpink",
                    "ET8" = "darkolivegreen3",
                    "ET9" = "orange")
+names(ET.colors) = sub("ET", "SA", names(ET.colors))
  
 MC.colors <- c("MC1" = "hotpink",
                      "MC2" = "darkred",
