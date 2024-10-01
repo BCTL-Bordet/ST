@@ -1879,7 +1879,7 @@ for (i in c("PB", "All2", "All3", names(ds)))
   if (nm=="Bulk") { clip = c(.2, 5) } else { clip = c(.5, 2); }
   
   sbs = rep(TRUE, length(e)); if (i=="All2") { sbs = stud!="S"; }
-  cairo_pdf(paste0(figDir, "forestMC.", nm, ".pdf"), width=8.5, height=13.5)
+  cairo_pdf(paste0(figDir, "forestMC.", nm, ".pdf"), width=8.5, height=14.5)
   par(mar=c(.1,1,1,1));
   layout(mat=matrix(1:8, ncol=2, byrow=TRUE), heights=rep(c(1.05, 1), 4))
   for (j in seq_along(sus))
@@ -1937,6 +1937,31 @@ for (i in c("PB", "All2", "All3", names(ds)))
   z1 = cbind(z, ss, `Spatial Archetype`=paste0("SA", e)); z1 = z1[sbs,];
   write.xlsx2(z1, file=paste0(figDataDir, "forestET.", nm, ".xlsx"), row.names=FALSE);
 }
+
+# Tailored iBCFS
+colWidth = c(1.5,1.4,3.2,2.5,2,8);
+cairo_pdf(paste0(figDir, "forestMCtaylored.pdf"), width=10, height=3)
+par(mfrow=c(1,2), mar=c(1,1,2,1), mgp=c(1.5,.5,0), cex=.6)
+ctr= ctrl[rownames(cli),];
+x = fa;
+colnames(x) = paste0("MC", 1:ncol(x));
+x[x<.01] = .01;
+x = scale(log10(x))  
+allForest(data.frame(x, ctr), cli$iBCFS, control=ctrlForm, colWidth=colWidth, sigOnFDR=TRUE,
+	lineHeight=1.7, annotDir=c("Better", "Worse"), cex.axis=.9, cex.annot=.9)
+title(main="iBCFS – multivariate analysis – ST TNBC cohort")
+
+x = do.call(rbind, lapply(ds, function(i) i[["15"]]$H));
+ctr = ctrTot;
+ct2=update(ctrlForm, ~.+strata(study))
+colnames(x) = paste0("MC", 1:ncol(x));
+x[x<.01] = .01;
+x = scale(log10(x))  
+x = data.frame(x, stud=stud); ct2=update(ctrlForm, ~.+strata(stud)); 
+allForest(data.frame(x, ctr), susDs$iBCFS, control=ct2, colWidth=colWidth, sigOnFDR=TRUE,
+	subset=stud != "S", clip=c(.45, 2.1), lineHeight=1.7, annotDir=c("Better", "Worse"), cex.axis=.9, cex.annot=.9)
+title(main="iBCFS – multivariate analysis – METABRIC and SCAN-B cohorts")
+dev.off();
 
 x = fa; colnames(x) = paste0("MC", 1:14);
 x = data.frame(ID=rownames(cli), `iBCFS - time`=cli$iBCFS[,1], `iBCFS - event`=cli$iBCFS[,2],
@@ -2292,7 +2317,7 @@ qi = pi; qi[] = p.adjust(pi, method='fdr')
 hm2 = (hm+1)/2; hm2[hm2<0] = 0; hm2[hm2>1] = 1;
 hm2 = t(hm2); hm2 = hm2[5:1,9:1];
 qi2 = t(qi)[5:1,9:1];
-pdf(paste0(figDir, "hmTargets.pdf"), height=2.3, width=1.4)
+pdf(paste0(figDir, "hmTargets.pdf"), height=2.1, width=1.4)
 par(mar=c(1+2,3,9-4,.5), mgp=c(1.5,.5,0), cex=.5)#, xpd=NA);
 image(hm2, xaxt='n', yaxt='n', col=colorRampPalette(c('blue', 'yellow'))(100))
 mtext(paste0("SA", colnames(hm2)), at=(0:8)/8, side=2, line=.5, las=2, cex=par('cex')) 
@@ -2366,7 +2391,7 @@ or = list(
   fig5=c(b="tlsViolin", c="tlsGO.VSlympho.blueOnly", d="tlsGene", f="TLSsigVsBar", g="TLSsigVsTIME"),
   fig6=c(a="tlsAllCliSmallA", b="tlsAllCliSmallB", c="tlsAllCliSmallC", d="tlsAllCliSmallD",
     e="controlTLSby_immunoT.all", f="controlTLSby_immunoT.all"),
-  fig7=c(c="barByClust", d="tblsMC2", e="forestMC.PB", f="forestMC.All3"),
+  fig7=c(c="barByClust", d="tblsMC2", e="forestMC.PB", f="forestMC.All2"),
   fig8=c(a="heatmapMC", b="barplotMCvsET", c="barplotETs", d="TLSsigVsET",
     e="EcoSingle.horiz", f="hmTargets", g="forestET.All3", h="survEcotypeNew2"),
   figS1=c(a="morphoDistUp",b="morphoPatch.Stroma"),
@@ -2407,7 +2432,7 @@ or = list(
 
 names(or) = sub("figS", "Supplementary Fig. ", names(or))
 names(or) = sub("^fig", "Fig. ", names(or))
-for (f in names(or))
+for (f in names(or)[6])
 { wb = createWorkbook();
   csT = CellStyle(wb, font=Font(wb, isBold=TRUE))
   for (i in names(or[[f]]))

@@ -42,7 +42,7 @@ plotTable = function(x, colHeader='grey80', space=.01, colCell=c('grey96', 'grey
 }
 
 basicForest = function(x, a, adj=NULL, xlim=NULL, xlog=FALSE, xlab="", col='black', cex.axis=.7,
-  titles=names(x), annotDir=NULL, lineHeight=1.5, cexAnnot=0.7, colWidth=NULL, pch=16, beforePlot=NULL)
+  titles=names(x), annotDir=NULL, lineHeight=1.5, cex.annot=0.7, colWidth=NULL, pch=16, beforePlot=NULL)
 { if (is.data.frame(x)) { nr = nrow(x); } else { nr = length(x[[1]]); }
   if (nr != nrow(a)) { stop("Not same number of rows in x and a"); }
   if (is.null(adj)) { adj = c("left", rep("right", length(x)-1)) }
@@ -115,12 +115,12 @@ basicForest = function(x, a, adj=NULL, xlim=NULL, xlog=FALSE, xlab="", col='blac
   points(a[w,2], li2[w], pch=pch, col=col[w], xpd=NA, cex=2, family="Arial Unicode MS")
   
   if (!is.null(annotDir))
-  { h = 1-strheight("M")*5;
+  { h = 1-strheight("M", cex=cex.axis)*5.5;
     v = strwidth(xlab, cex=cex.axis)*2;
     med = mean(log(xlim));
     arrows(exp(med-v), h, xlim[1], h, xpd=TRUE, length=le)
     arrows(exp(med+v), h, xlim[2], h, xpd=TRUE, length=le)
-    text(annotDir, x= sqrt(c(exp(med-v), exp(med+v))*xlim), y=h-strheight("M"), xpd=NA, cex=cexAnnot);
+    text(annotDir, x= sqrt(c(exp(med-v), exp(med+v))*xlim), y=h-strheight("M"), xpd=NA, cex=cex.annot);
   }
   return(invisible(list(figInfo=list(xx=xx, yy=yy, xlim=xlim, ylim=c(1,0), li=li2), colWidth=cw,
     linePos=li)))
