@@ -679,20 +679,22 @@ w = rev(names(q)[q<.001]);
 star = symnum(q[w], corr = FALSE, na = FALSE, 
                   cutpoints = c(0, 1e-4, 0.001, 0.01, 0.05, 0.1, 1),
                   symbols = c("****", "***", "**", "*", ".", " "))
+pval = sapply(q[w], function(i) if (i<1e-4) expression(italic(q)<.0001) else formatNiceP(i, pName="q"))
 #w = rownames(p)[p[,"Lymphocyte Higher"]<1e-4 | p[,"Lymphocyte Lower"]<1e-4];
 #w = w[!grepl("Score", w)];
 #w = rev(intersect(names(colXct), w))
-xl=c(0, .2+max(xcAn[idAn[,"Lymphocyte"],w]));
+xl=c(-.16, max(xcAn[idAn[,"Lymphocyte"],w]));
 pdf(paste0(figDir, "tlsViolin.pdf"), height=5);
-par(mar=c(3,13,3,.5), mgp=c(1.5,.5,0));
+par(mar=c(3,13,.5,.5), mgp=c(1.5,.5,0));
 vioplot(xcAn[idAn[cli$hasTLS,"Lymphoid nodule"],w], horizontal=TRUE, side='right', las=1, col=co1,
-  xlab="xCell enrichment score", plotCentre = "line", yaxt='n', xaxt='n',
-  ylim=xl); axis(1);
+  plotCentre = "line", yaxt='n', xaxt='n',
+  ylim=xl); axis(1); title(xlab="xCell enrichment score")
 text(rep(par('usr')[1]-strwidth("n"), length(w)), seq_along(w), w, xpd=NA, adj=1, co=colXct[w])
 vioplot(xcAn[idAn[,"Lymphocyte"],w], horizontal=TRUE, side='left', las=1, col=co2,
   add=TRUE, plotCentre = "line", ylim=xl)
-legend(.7, 17, legend=c("TLS", "Lymphocyte compartment"), fill=c(co1,co2), bty='n')
-mtext(star, at=seq_along(w), side=4, line=-.1, las=2, adj=1);
+legend(.7-.16, 17, legend=c("TLS", "Lymphocyte compartment"), fill=c(co1,co2), bty='n')
+#mtext(star, at=seq_along(w), side=4, line=-.1, las=2, adj=1);
+mtext(pval, at=seq_along(w), side=2, line=-.1, las=2, adj=0, cex=.5);
 dev.off();
 
 w = idCan[,1] %in% c("Lymphoid nodule", "Lymphocyte");

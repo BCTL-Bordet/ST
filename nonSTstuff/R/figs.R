@@ -485,6 +485,191 @@ allForest = function(x, y, subset=NULL, control=~1, sig=.05, sigOnFDR=FALSE, fdr
 }
 
 ######################################################################
+allForestInteraction = function(x, y, inter = "", subset=NULL, control=~1, sig=.05,
+				full=TRUE, fullBar=full, clip=c(.2,5), ticks=c(.2,.5,1,2,5), 
+        lbl1="", lbl2="inter", genesItal=FALSE, 
+        weights=NULL, boxsize= 0.3, names=NULL,
+        graphwidth = unit(4, "cm"), plot=TRUE, new_page=TRUE, ...)
+{ if (!require(forestplot)) { stop("Need forestplot"); }
+  f = function(x) { formatNice(x); }
+  combine = function(x)
+  { if (is.character(x)) { return(paste(x, collapse="")); }
+    txt = paste('paste(', x[1], ",'", x[2], "',", x[3], ")");
+    return(parse(text=txt));
+  }
+  plRed = function(clr.line, clr.marker, ...)
+  { fpDrawCI(clr.line="#d73b3e", clr.marker="#d73b3e", ...);
+  }
+  plLightRed = function(clr.line, clr.marker, ...)
+  { fpDrawCI(clr.line="pink", clr.marker="pink", ...);
+  }
+  plBlue = function(clr.line, clr.marker, ...)
+  { fpDrawCI(clr.line="#26619c", clr.marker="#26619c", ...);
+  }
+  plLightBlue = function(clr.line, clr.marker, ...)
+  { fpDrawCI(clr.line="lightblue", clr.marker="lightblue", ...);
+  }
+  plYellow = function(clr.line, clr.marker, ...)
+  { fpDrawCI(clr.line="#e8e8e8", clr.marker="#e8e8e8", ...);
+  }
+  plblueall = function(clr.line, clr.marker, ...)
+  { fpDrawCI(clr.line="#1477cb", clr.marker="#1477cb", ...);
+  }
+  plyellowall = function(clr.line, clr.marker, ...)
+  { fpDrawCI(clr.line="red", clr.marker="red", ...);
+  }
+  plyellowall_light = function(clr.line, clr.marker, ...)
+  { fpDrawCI(clr.line="red1", clr.marker="red1", ...);
+  }
+  plblueall_light = function(clr.line, clr.marker, ...)
+  { fpDrawCI(clr.line="#bedcf6", clr.marker="#bedcf6", ...);
+  }
+    
+  if (class(y) == "Surv") { xl = "HR"; } else {xl = "OR"; }
+  
+  if (is.null(subset)) { w = rep(TRUE, nrow(x)); } else { w = subset; }
+  if (!is.logical(w)) { w2 = rep(FALSE, nrow(x)); w2[w]=TRUE; w=w2; }
+  else { w = w & !is.na(y); }
+  x = x[w,];
+  y = y[w]; weights=weights[w];
+  if (is.null(weights)) { seCol="se(coef)"; } else { seCol="robust se"; }
+  
+  nms = colnames(x);
+  if (is.data.frame(x))
+  { x = lapply(x, function(i) if (is.numeric(i) & !is.integer(i))
+  	{ (i-mean(i,na.rm=TRUE))/sd(i,na.rm=TRUE); } else { i; } );
+		x = do.call(data.frame, x);
+  }
+  else { x = data.frame(x); }
+  names(nms) = names(x);
+  
+  vOk = setdiff(colnames(x), c(all.vars(control), inter));
+  
+  x = cbind(x, y=y);
+  
+  tt = list();
+  tt[[1]] = as.list(c("", nms[vOk]));
+  if (genesItal) { tt[[1]] = lapply(tt[[1]], function(i) ifelse(i %in% keys(org.Hs.eg.db, "ALIAS"),
+                                                                parse(text=paste0("italic('",i,"')")), i)); }
+  vls = list("", parse(text=paste0("bold('",xl," ",lbl1,"')")),
+             parse(text=paste0("bold('CI ",lbl1,"')")),
+             expression(bolditalic(p)),
+             parse(text=paste0("bold('",xl, " ",lbl2,"')")),
+             parse(text=paste0("bold('CI ",lbl2,"')")), expression(paste(bolditalic(p), " ", bold(inter))),
+             expression(bold("FDR")));
+  if (!full) { vls = vls[c(1, 5, 6, 7, 8)]; }
+  for (i in 2:length(vls))
+  { tt[[i]] = list(vls[[i]]);
+  }
+  
+  mean = matrix(nrow=length(vOk), ncol=2);
+  rownames(mean) = vOk;
+  lower = upper = mean;
+  if (fullBar) { col = list(list(), list()); }
+  else { col = list(); }
+  pp = rep(NA, length(vOk));
+  for (i in seq_along(vOk))
+  { fn = as.formula(paste0("y~", inter, "*", vOk[i], " + ."));
+		fn = update(control, fn);
+		fnBase = update(control,  as.formula(paste0("y~", vOk[i], "+", inter, " + .")));
+		if (class(y) == "Surv")
+		{ if (is.null(weights)) { a = coxph(fn, data=x); } else { a = coxph(fn, data=x, weights=weights); }
+			co = coef(summary(a));
+			me = co[2,"coef"]; se = co[2,seCol]; p = co[2,"Pr(>|z|)"];
+			me2 = me+co[nrow(co),1]; se2 = co[nrow(co),seCol]; p2 = co[nrow(co),"Pr(>|z|)"]; me4 = co[nrow(co),"coef"];
+			#if (identical(control, ~1))
+			#{ me2 = me+co[3,"coef"]; se2 = co[3,seCol]; p2 = co[3,"Pr(>|z|)"]; me4 = co[3,"coef"];
+			#}
+			#else
+			#{ 
+			#}
+		}
+		else
+		{ if (is.null(weights)) { a = glm(fn, data=x, family=binomial); }
+			else { a = glm(fn, data=x, family=binomial, weights=weights); }
+			co = coef(summary(a));
+			me = co[3,1]; se = co[3,2]; p = co[3,4]; 
+			me4 = co[nrow(co),1]; me2 = me4+me; se2 = co[nrow(co),2]; p2 = co[nrow(co),4];
+			#if (identical(control, ~1))
+			#{ me4 = co[4,1]; me2 = me + me4; se2 = co[4,2]; p2 = co[4,4]; 
+			#}
+			#else
+			an = anova(glm(fnBase, family=binomial, data=x), a);
+			p2 = pchisq(as.matrix(an)[2,"Deviance"], 1, lower.tail=FALSE);
+		}
+		
+		pp[i] = p2;
+		mean[i,] = c(me, me2);
+		lower[i,] = c(me-1.96*se, me2-1.96*se2);
+		upper[i,] = c(me+1.96*se, me2+1.96*se2);
+		dir_col = f(exp(me2))
+		
+		#p=p2;
+		if (!is.null(sig))
+		{ if (fullBar)
+			{ if (p < sig) { col[[1]][[i+1]] = plyellowall; }
+				else { col[[1]][[i+1]] = plyellowall_light; }
+				if (p2 < sig) { col[[2]][[i+1]] = plblueall; }
+				else { col[[2]][[i+1]] = plblueall_light; }
+			}
+			else
+			{ if (p2 < sig & dir_col > 1 ) { col[[i+1]] = plRed; }
+				else if (p2 < sig & dir_col < 1 ) { col[[i+1]] = plBlue; }
+				else { col[[i+1]] = plYellow; }
+			}
+		}
+		
+		if (full)
+		{ tt[[5]][[i+1]] = f(exp(me4));
+			tt[[6]][[i+1]] = combine(c(f(exp(me4-1.96*se2)), " to ", f(exp(me4+1.96*se2))));
+			#paste(f(exp(me2-1.96*se2)), "to", f(exp(me2+1.96*se2)));
+			tt[[7]][[i+1]] = f(p2);
+		}
+		else { me=me4; se=se2; p=p2; }
+		tt[[2]][[i+1]] = f(exp(me));
+		tt[[3]][[i+1]] = combine(c(f(exp(me-1.96*se)), " to ", f(exp(me+1.96*se))));
+		#paste(f(exp(me-1.96*se)), "to", f(exp(me+1.96*se)));
+		tt[[4]][[i+1]] = f(p);
+		}
+		mean = rbind(NA, exp(mean));
+		lower = rbind(NA, exp(lower));
+		upper = rbind(NA, exp(upper));
+		
+		if (!fullBar)
+		{ mean=mean[,2]; lower=lower[,2]; upper=upper[,2]; }
+		
+		ppB = pp;
+		pp = p.adjust(pp, method='fdr');
+		
+		if (full)
+		{ tt[[8]][2:(length(pp)+1)] = lapply(pp,f);
+		tt = tt[-4];
+		}
+		else
+		{ tt[[5]][2:(length(pp)+1)] = lapply(pp,f);
+		#tt = tt[c(1,3,4,2,5)];
+  } # for (i in seq_along(vOk))
+  
+  #is = c(FALSE, rep(FALSE, ncol(x)));
+  if (fullBar) { col[[1]][[1]] = col[[2]][[1]] = plRed; } # Somehow needed
+	else { col[[1]] = plRed; }
+	if (!is.null(names)) { tt[[1]] = as.list(c("", names)); }
+
+  if (is.null(ticks))
+  { ticks = c(.1, .5, 1, 2, 10)  
+		if (max(exp(abs(c(lower, upper))), na.rm=TRUE) < 5) { ticks = c(.2, .5, 1, 2, 5); }
+		if (max(exp(abs(c(lower, upper))), na.rm=TRUE) < 2) { ticks = c(.5, .75, 1, 1.5, 2); }
+  }
+  
+  attr(ticks, "labels")=as.character(ticks); ticks=log(ticks);
+  print(grob <- forestplot(tt, mean=mean, lower=lower, upper=upper,
+                   new_page = new_page, xlog=TRUE, xticks=ticks,
+                   txt_gp=fpTxtGp(xlab=gpar(cex=.7), ticks=gpar(cex=.7)),
+                   fn.ci_norm=col, xlab=xl, clip=clip, boxsize = boxsize, graphwidth = graphwidth, ...));
+  return(invisible(list(tt=tt, mean=mean, lower=lower, upper=upper, p=ppB, grob=grob)));
+}
+
+######################################################################
 ## Scale...
 plotScale = function(cols, v, atV, posx, posy, width=1, height=10, title=NULL, title.font=2,
   horizontal=FALSE)
