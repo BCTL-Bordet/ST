@@ -331,6 +331,7 @@ s = unique(unlist(sapply(dsIm, function(i) colnames(i$g))))
 resp = factor(unlist(lapply(dsIm, function(i) i$cl$response)));
 d = do.call(rbind, lapply(dsIm, function(i) t(fullMat(t(i$g), s, NA))))
 d = d[,!(colnames(d) %in% c("AR_gene", "ESR1"))];
+d[d< -5] = -5;
 d = scale(d);
 dIm = d;
 ty = unlist(lapply(dsIm, function(i) i$cl$cancer_type))

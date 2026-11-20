@@ -115,9 +115,10 @@ basicForest = function(x, a, adj=NULL, xlim=NULL, xlog=FALSE, xlab="", col='blac
   points(a[w,2], li2[w], pch=pch, col=col[w], xpd=NA, cex=2, family="Arial Unicode MS")
   
   if (!is.null(annotDir))
-  { h = 1-strheight("M", cex=cex.axis)*5.5;
+  { h = 1-strheight("M", cex=cex.axis)*7.5;
     v = strwidth(xlab, cex=cex.axis)*2;
     med = mean(log(xlim));
+    #browser();
     arrows(exp(med-v), h, xlim[1], h, xpd=TRUE, length=le)
     arrows(exp(med+v), h, xlim[2], h, xpd=TRUE, length=le)
     text(annotDir, x= sqrt(c(exp(med-v), exp(med+v))*xlim), y=h-strheight("M"), xpd=NA, cex=cex.annot);
@@ -160,7 +161,7 @@ addAnnot = function(name, cols, line, side=1, at=seq_along(cols), heights=1, pch
     else { points(rep(y0-heights*lineW/2, length(at)), at, pch=pch, col=point.col, xpd=NA, cex=point.cex);  }
   }
   if (textAtStart) { a=a[1]; adj=1; } else { a=a[length(a)]; adj=0; }
-  mtext(name, side=side, line=line, at=a, adj=adj)
+  mtext(name, side=side, line=line-1, at=a, adj=adj)
 }
 
 formatNdig = function(x, n=2)
@@ -244,7 +245,7 @@ fpDrawCI = function (lower_limit, estimate, upper_limit, size, y.offset = 0.5,
 allForest = function(x, y, subset=NULL, control=~1, sig=.05, sigOnFDR=FALSE, fdr=TRUE, new_page=FALSE, clip=c(.2,5),
   ticks=NULL, dispN=FALSE, useWilcox=FALSE, genesItal=FALSE, parseNames=FALSE, rmNAp=TRUE, normReal=TRUE,
   capHR=TRUE, weights=NULL, useNested=TRUE, columns=c("OR", "CI", "P", "FDR"), boxsize=.2, 
-  version=3, FirthIfNeeded=TRUE, graphwidth = unit(4, "cm"), plot=TRUE, ...)
+  version=3, FirthIfNeeded=TRUE, graphwidth = unit(4, "cm"), plot=TRUE, showTop=NULL, ...)
 { if (!require(forestplot)) { stop("Need forestplot"); }
   f = formatNice;
   withWarnings <- function(expr) {
@@ -342,7 +343,12 @@ allForest = function(x, y, subset=NULL, control=~1, sig=.05, sigOnFDR=FALSE, fdr
   col = list();#rep("black", length(vOk));
   pp = rep(NA, length(vOk));
   for (i in seq_along(vOk))
-  { fb = fbO;
+  { if (all(is.na(x[,i])))
+  	{ tn[[i]] = c(NA, NA, NA); pp[i] =NA;
+  		tt[[2]][[i+1]]=tt[[3]][[i+1]]=tt[[4]][[i+1]]="";
+  		next;
+  	}
+    fb = fbO;
     if (!identical(control, ~1))
     { if (any(is.na(x[,vOk[i]]))) # Look if some parameters got collapsed
       { av = all.vars(fb)[-1];
@@ -375,7 +381,10 @@ allForest = function(x, y, subset=NULL, control=~1, sig=.05, sigOnFDR=FALSE, fdr
     { a = glm(fn, data=x, family=binomial, weights=weights);
       if (is.na(coef(a)[2])) {  tn[[i]] = c(NA, NA, NA); pp[i] =NA; tt[[2]][[i+1]]=tt[[3]][[i+1]]=tt[[4]][[i+1]]=""; next; } 
       if (identical(control, ~1) & useWilcox)
-      { if (is.numeric(x[,vOk[i]])) { p = wilcox.test(x[unclass(factor(y))==1,vOk[i]], x[unclass(factor(y))==2,vOk[i]])$p.value; }
+      { if (is.numeric(x[,vOk[i]]))
+      	{ p = try(wilcox.test(x[unclass(factor(y))==1,vOk[i]], x[unclass(factor(y))==2,vOk[i]])$p.value);
+      		if (is(p, 'try-error')) { p = NA; }
+      	}
         else { p = fisher.test(x[,vOk[i]], y)$p.value; }
       }
       else
@@ -462,6 +471,12 @@ allForest = function(x, y, subset=NULL, control=~1, sig=.05, sigOnFDR=FALSE, fdr
   
   names(tt)[1:4] = c("name", "OR", "CI", "P");
   tt = tt[names(tt) %in% c("name", columns) ];
+  if (!is.null(showTop) && showTop<length(pp))
+  {	o = c(1, order(pp)[1:showTop]+1);
+  	tt = lapply(tt, function(i) i[o]); tn = tn[o,]; col = col[o];
+  	is = is[o];
+  }
+  
   
   if (version<3)
   { if (is.null(ticks))
@@ -816,7 +831,7 @@ dotPlot = function(x, cl, efi=NULL, lbls=NULL, toDisp=NULL, maxRange=4, legend=T
         axis(2,at=at,labels=FALSE)
       }
       if (legend)
-      { legendDotPlot(par('usr')[2]+strwidth("M")*3, par('usr')[4], colDots=colDots)
+      { legendDotPlot(par('usr')[2]+strwidth("M")*3, par('usr')[4], colDots=colDots[1,])
         #legend(x=par('usr')[2], y=par('usr')[4], bty='n', xpd=NA, legend=c("≤.25", ".5", ".66",
         #"1.5", "2", "≥4"), col='black', pt.bg=rep(colDots, each=3), title="Effect size",
         #pt.cex=4*abs(log(c(.25, .5, 2/3, 3/2, 2, 4)))/log(4), pch=21, pt.lwd=.25, y.intersp=1.5);
@@ -928,8 +943,9 @@ myBoxplot = function(x, f, subset=NULL, subset2=NULL, baseLab=NULL, ylim, subLin
 # Plog: if !missing, adds a value to everything and use log axis with the right rescaling
 { paired = FALSE;
   if (!is.null(subset) && !is.null(subset2)) { subset2 = subset2[subset]; }
-  if (missing(f))
-  { if (length(dim(x))==2)
+  
+  if (missing(f) || is.null(f))
+  {if (length(dim(x))==2)
     { if (is.null(colnames(x))) { colnames(x) = 1:ncol(x); }
       if (length(colPoints)==1) { colPoints = rep(colPoints, nrow(x)); }
       if (length(colPoints) == nrow(x)) { colPoints=rep(colPoints, ncol(x)); }
@@ -946,10 +962,16 @@ myBoxplot = function(x, f, subset=NULL, subset2=NULL, baseLab=NULL, ylim, subLin
       x = xb = unlist(x);
     }
     if (length(colPoints)==1) { colPoints = rep(colPoints, length(f)); }
-  }
-  else
+    if (length(pch)==1) { pch = rep(pch, length(f)); }
+  } else
   { if (length(colPoints)==1) { colPoints = rep(colPoints, length(f)); }
-  if (!is.null(subset)) { x=x[subset]; f=factor(f[subset]); subset2=subset2[subset]; colPoints=colPoints[subset]; }
+  	if (length(pch)==1) { pch = rep(pch, length(f)); }
+  
+  	if (!is.null(subset))
+  	{ x=x[subset]; f=factor(f[subset]); subset2=subset2[subset];
+  		colPoints=colPoints[subset];
+  		pch = pch[subset]
+  	}
     xb = x;
   }
   if (is.null(subset2)) { subset2 = rep(TRUE, length(x)); }
@@ -1012,7 +1034,7 @@ myBoxplot = function(x, f, subset=NULL, subset2=NULL, baseLab=NULL, ylim, subLin
   fl = unclass(f);
   r = list();
   for (i in unique(fl))
-  { points(r[[i]]<-runif(sum(fl==i))*.4+i-.2, x[fl==i], col=colPoints[fl==i], pch=pch);
+  { points(r[[i]]<-runif(sum(fl==i))*.4+i-.2, x[fl==i], col=colPoints[fl==i], pch=pch[fl==i]);
   }
     
   if (isComp)
@@ -1175,7 +1197,7 @@ plotSurv = function(su, x, pval=TRUE, col=NULL, legend.title=NULL, subset=NULL, 
 
 ###############################################################
 ## barplot with confidence intervals
-barplotConfint = function(a, b, length=.1, addN=FALSE, addP=FALSE, lineP=3, sideP=1, p, B=1e6,...)
+barplotConfint = function(a, b, length=.1, addN=FALSE, addP=FALSE, lineP=3, sideP=1, lineN=2, p, B=1e6,...)
 { if (missing(b))
   { if (ncol(a)==2) { a = t(a); }
     if (nrow(a)==2) { b = colSums(a); a=a[1,]; } else { stop("not a matrix and not 2 params")}
@@ -1183,7 +1205,7 @@ barplotConfint = function(a, b, length=.1, addN=FALSE, addP=FALSE, lineP=3, side
   w = barplot(100*a/b, ...);
   ci = 100*sapply(seq_along(a), function(i) { if (b[i]>0) { binom.test(a[i], b[i])$conf.int; } else { c(NA,NA); } })
   arrows(x0=w, y0=ci[1,], y1=ci[2,], angle=90, code=3, length=length)
-  if (addN) { mtext(paste0("N=",b), line=2, at=w, side=1, cex=par('cex')); }
+  if (addN) { mtext(paste0("N=",b), line=lineN, at=w, side=1, cex=par('cex')); }
   if (addP)
   { if (missing(p))
     { p=try(fisher.test(rbind(a,b-a),  workspace=1e6)$p.value, silent=TRUE);

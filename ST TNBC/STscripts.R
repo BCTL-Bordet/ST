@@ -115,8 +115,11 @@ colHeatmap = function(a, annots, lbl="", colAnnots, file=NULL, horizontal=TRUE)
 factBareche = function(i) factor(i, levels=c("IM", "BL", "M", "MSL", "LAR"));
 
 calcAllSig = function(x)
-{ a = calcSig(x, sigs);
-  b = t(gsva(x, sigH, mx.diff = TRUE, kcdf="Gaussian", parallel.sz=options("mc.cores")));
+{ require(GSVA); require(BiocParallel);
+	a = calcSig(x, sigs);
+  #b = t(gsva(x, sigH, mx.diff = TRUE, kcdf="Gaussian", parallel.sz=options("mc.cores")));
+  # New version
+  b = t(gsva(gsvaParam(x, sigH), BPPARAM=MulticoreParam()))
   cbind(a,b);
 }
 
